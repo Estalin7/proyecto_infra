@@ -1,0 +1,53 @@
+name: "Terraform Apply"
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - "iac/**"
+env:
+  TF_VERSION: "1.7.0"
+  AWS_REGION: "us-east-2"
+  WORKING_DIR: "./iac"
+jobs:
+  terraform-apply:
+    name: "Apply"
+    runs-on: ubuntu-latest # Requiere aprobación manual en GitHub
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform init
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve
+      - name: Obtener IP de EC2 para Ansible
+        id: ec2_ip
+        working-directory: ${{ env.WORKING_DIR }}
+        run: echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
+      # ─── Ansible: Configurar EC2 después del apply ───────────
+      - name: Instalar Ansible
+        run: pip install ansible boto3 botocore
+      - name: Ejecutar playbook Ansible
+        working-directory: ./ansible
+        env:
+          EC2_HOST: ${{ steps.ec2_ip.outputs.EC2_IP }}
+          ANSIBLE_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        run: |
+          echo "$ANSIBLE_PRIVATE_KEY" > /tmp/ec2_key.pem
+          chmod 600 /tmp/ec2_key.pem
+          ansible-playbook playbooks/configure_ec2.yml \
+            -i inventory/aws_ec2.yml \
+            --private-key /tmp/ec2_key.pem \
+            -u ec2-user
