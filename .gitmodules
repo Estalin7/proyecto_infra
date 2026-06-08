@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/Estalin7/frontend.git
+[submodule "proyectoagil"]
+	path = proyectoagil
+	url = https://github.com/Estalin7/proyectoagil.git
