@@ -1,10 +1,8 @@
 
-# Crea: dos certificados ACM con DNS validation
 #   - cert_cloudfront: region us-east-1 (obligatorio para CF)
-#   - cert_alb:        region us-east-2 (misma region del ALB)
-# IMPORTANTE: CloudFront solo acepta certificados de us-east-1.
-# Por eso se usa un provider alias "us_east_1" que debe
-# declararse en el entorno que llama a este modulo.
+#   - cert_alb:        region us-east-2 
+# CloudFront solo acepta certificados de us-east-1.
+# Por eso se usa un provider alias "us_east_1"
 
 resource "aws_acm_certificate" "cloudfront" {
   provider          = aws.us_east_1

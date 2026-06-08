@@ -1,5 +1,5 @@
 variable "project" {
-  description = "Pryecto Restaurante"
+  description = "Proyecto Restaurante"
   type        = string
 }
 
