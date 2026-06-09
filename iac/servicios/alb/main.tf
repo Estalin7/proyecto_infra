@@ -1,10 +1,6 @@
-# ============================================================
-# MODULE: alb
-# Crea: ALB publico + listener HTTPS (443) + Target Group
-#       apuntando a las EC2 de Operaciones CRUD.
-#       Listener HTTP (80) redirige a HTTPS.
-# ============================================================
 
+# alb
+# Crea: ALB  HTTPS (443) apuntando a las EC2 de Operaciones CRUD.
 resource "aws_lb" "main" {
   name               = "${var.project}-alb-${var.environment}"
   internal           = false
