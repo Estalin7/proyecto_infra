@@ -1,10 +1,10 @@
 variable "project" {
-  description = "Proyecto Restaurante"
+  description = "Nombre del proyecto"
   type        = string
 }
 
 variable "environment" {
-  description = "prod"
+  description = "Entorno de despliegue"
   type        = string
 }
 
