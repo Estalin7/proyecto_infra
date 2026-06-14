@@ -1,0 +1,10 @@
+{
+    "name": "actualizar_inventario",
+    "version": "1.0.0",
+    "description": "Lambda que actualiza el stock en Aurora PostgreSQL y guarda un resumen del pedido como JSON en S3",
+    "main": "index.js",
+    "dependencies": {
+        "pg": "^8.11.5",
+        "@aws-sdk/client-s3": "^3.600.0"
+    }
+}

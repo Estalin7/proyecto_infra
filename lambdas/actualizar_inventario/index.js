@@ -1,0 +1,116 @@
+const { Client } = require("pg");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+
+const s3Client = new S3Client({});
+
+/**
+ * Crea y conecta un cliente PostgreSQL para Aurora.
+ */
+async function conectarBD() {
+    const client = new Client({
+        host: process.env.AURORA_HOST,
+        port: process.env.AURORA_PORT || 5432,
+        database: process.env.AURORA_DB_NAME,
+        user: process.env.AURORA_USER,
+        password: process.env.AURORA_PASSWORD,
+        ssl: { rejectUnauthorized: false },
+    });
+
+    await client.connect();
+    return client;
+}
+
+/**
+ * Descuenta el stock de cada item del pedido en la tabla
+ * "inventario". Se asume que pedido.items trae "nombre" y
+ * "cantidad"; el match contra inventario se hace por nombre
+ * de producto.
+ *
+ * NOTA: si tu tabla "inventario" usa producto_id en lugar de
+ * nombre para el match, ajusta el WHERE de la query.
+ */
+async function actualizarStock(client, pedido) {
+    for (const item of pedido.items) {
+        const query = `
+      UPDATE inventario
+      SET stock = stock - $1
+      WHERE producto_id = (
+        SELECT producto_id FROM productos WHERE nombre = $2
+      )
+    `;
+
+        const values = [item.cantidad, item.nombre];
+
+        await client.query(query, values);
+    }
+}
+
+/**
+ * Genera un JSON resumen del pedido y lo sube al bucket de
+ * documentos en S3, bajo la ruta pedidos/<id_pedido>.json
+ */
+async function guardarResumenS3(pedido) {
+    const resumen = {
+        id_pedido: pedido.id_pedido,
+        mesa: pedido.mesa,
+        cliente: pedido.cliente,
+        total: pedido.total,
+        items: pedido.items,
+        fecha: new Date().toISOString(),
+    };
+
+    const command = new PutObjectCommand({
+        Bucket: process.env.S3_DOCUMENTOS,
+        Key: `pedidos/${pedido.id_pedido}.json`,
+        Body: JSON.stringify(resumen, null, 2),
+        ContentType: "application/json",
+    });
+
+    await s3Client.send(command);
+}
+
+/**
+ * Handler principal.
+ * Se invoca via SNS (mismo topic que procesar_pedido).
+ * El cuerpo del pedido viene en record.Sns.Message como
+ * string JSON, con la misma estructura que en procesar_pedido:
+ * {
+ *   "id_pedido": "string",
+ *   "mesa": "string" | number,
+ *   "cliente": "string",
+ *   "items": [{ "nombre": "string", "cantidad": number }],
+ *   "total": number
+ * }
+ */
+exports.handler = async (event) => {
+    console.log("Evento recibido:", JSON.stringify(event));
+
+    let client;
+
+    try {
+        client = await conectarBD();
+
+        for (const record of event.Records) {
+            const pedido = JSON.parse(record.Sns.Message);
+
+            console.log(`Actualizando inventario para pedido ${pedido.id_pedido}`);
+
+            // 1. Descontar stock en Aurora
+            await actualizarStock(client, pedido);
+
+            // 2. Guardar resumen del pedido en S3
+            await guardarResumenS3(pedido);
+
+            console.log(`Inventario actualizado para pedido ${pedido.id_pedido}`);
+        }
+
+        return { statusCode: 200, body: "Inventario actualizado correctamente" };
+    } catch (error) {
+        console.error("Error al actualizar inventario:", error);
+        throw error;
+    } finally {
+        if (client) {
+            await client.end();
+        }
+    }
+};
