@@ -1,10 +1,3 @@
-# ============================================================
-# MODULE: elasticache
-# Crea: Replication Group de Redis (cache.t3.medium)
-#       con 1 nodo primario en us-east-2a
-#       Usado para cache de consultas frecuentes desde las EC2.
-# ============================================================
-
 resource "aws_elasticache_subnet_group" "main" {
   name       = "${var.project}-redis-subnet-group-${var.environment}"
   subnet_ids = var.private_subnet_ids
