@@ -3,9 +3,9 @@ output "procesar_pedido_arn" {
   value       = aws_lambda_function.procesar_pedido.arn
 }
 
-output "procesar_inventario_arn" {
-  description = "ARN de la Lambda procesar_inventario"
-  value       = aws_lambda_function.procesar_inventario.arn
+output "actualizar_inventario_arn" {
+  description = "ARN de la Lambda actualizar_inventario"
+  value       = aws_lambda_function.actualizar_inventario.arn
 }
 
 output "enviar_sms_cocina_arn" {

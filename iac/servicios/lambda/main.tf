@@ -1,4 +1,15 @@
+# ============================================================
+# MODULE: lambda
+# Crea: 3 funciones Lambda
+#   1. procesar_pedido       → triggered por SNS, llama a enviar_sms_cocina
+#   2. enviar_sms_cocina      → invocada por procesar_pedido (SNS SMS)
+#   3. actualizar_inventario  → triggered por SNS, descuenta stock y guarda en S3
+#
+# Los ZIPs de codigo se despliegan via S3 (bucket de artefactos).
+# Base de datos: Aurora PostgreSQL (libreria pg en runtime nodejs)
+# ============================================================
 
+# ── Lambda 1: procesar_pedido ────────────────────────────────
 resource "aws_lambda_function" "procesar_pedido" {
   function_name = "${var.project}-procesar-pedido-${var.environment}"
   role          = var.lambda_role_arn
@@ -12,12 +23,15 @@ resource "aws_lambda_function" "procesar_pedido" {
 
   environment {
     variables = {
-      ENVIRONMENT             = var.environment
-      LAMBDA_ENVIAR_SMS_ARN   = aws_lambda_function.enviar_sms_cocina.arn
-      SQS_PEDIDOS_URL         = var.sqs_pedidos_url
-      AURORA_HOST             = var.aurora_host
-      AURORA_DB_NAME          = var.aurora_db_name
-      REDIS_HOST              = var.redis_host
+      ENVIRONMENT           = var.environment
+      LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+      SQS_PEDIDOS_URL       = var.sqs_pedidos_url
+      AURORA_HOST           = var.aurora_host
+      AURORA_PORT           = "5432"
+      AURORA_DB_NAME        = var.aurora_db_name
+      AURORA_USER           = var.aurora_username
+      AURORA_PASSWORD       = var.aurora_password
+      REDIS_HOST            = var.redis_host
     }
   }
 
@@ -42,7 +56,8 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
 
   environment {
     variables = {
-      ENVIRONMENT = var.environment
+      ENVIRONMENT     = var.environment
+      TELEFONO_COCINA = var.telefono_cocina
     }
   }
 
@@ -53,9 +68,9 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   }
 }
 
-# ── Lambda 3: procesar_inventario ───────────────────────────
-resource "aws_lambda_function" "procesar_inventario" {
-  function_name = "${var.project}-procesar-inventario-${var.environment}"
+# ── Lambda 3: actualizar_inventario ──────────────────────────
+resource "aws_lambda_function" "actualizar_inventario" {
+  function_name = "${var.project}-actualizar-inventario-${var.environment}"
   role          = var.lambda_role_arn
   handler       = "index.handler"
   runtime       = "nodejs20.x"
@@ -63,19 +78,22 @@ resource "aws_lambda_function" "procesar_inventario" {
   memory_size   = 256
 
   s3_bucket = var.artifacts_bucket
-  s3_key    = "lambdas/procesar_inventario.zip"
+  s3_key    = "lambdas/actualizar_inventario.zip"
 
   environment {
     variables = {
-      ENVIRONMENT       = var.environment
-      S3_DOCUMENTOS     = var.s3_documentos_bucket
-      AURORA_HOST       = var.aurora_host
-      AURORA_DB_NAME    = var.aurora_db_name
+      ENVIRONMENT     = var.environment
+      S3_DOCUMENTOS   = var.s3_documentos_bucket
+      AURORA_HOST     = var.aurora_host
+      AURORA_PORT     = "5432"
+      AURORA_DB_NAME  = var.aurora_db_name
+      AURORA_USER     = var.aurora_username
+      AURORA_PASSWORD = var.aurora_password
     }
   }
 
   tags = {
-    Name        = "${var.project}-procesar-inventario-${var.environment}"
+    Name        = "${var.project}-actualizar-inventario-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
@@ -92,7 +110,7 @@ resource "aws_cloudwatch_log_group" "enviar_sms_cocina" {
   retention_in_days = 30
 }
 
-resource "aws_cloudwatch_log_group" "procesar_inventario" {
-  name              = "/aws/lambda/${aws_lambda_function.procesar_inventario.function_name}"
+resource "aws_cloudwatch_log_group" "actualizar_inventario" {
+  name              = "/aws/lambda/${aws_lambda_function.actualizar_inventario.function_name}"
   retention_in_days = 30
 }
