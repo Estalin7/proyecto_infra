@@ -1,11 +1,3 @@
-# ============================================================
-# MODULE: sqs
-# Crea: cola SQS FIFO "Cola de Pedidos" con:
-#   - visibility timeout: 300s
-#   - redrive policy: max 3 intentos → DLQ
-#   - deduplicacion por content (evita pedidos duplicados)
-# ============================================================
-
 resource "aws_sqs_queue" "pedidos" {
   name                        = "${var.project}-cola-pedidos-${var.environment}.fifo"
   fifo_queue                  = true
