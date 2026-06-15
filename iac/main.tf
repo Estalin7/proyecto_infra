@@ -220,8 +220,11 @@ module "lambda" {
   sqs_pedidos_url      = module.sqs.queue_url
   aurora_host          = module.aurora.cluster_endpoint
   aurora_db_name       = module.aurora.db_name
+  aurora_username      = var.db_username
+  aurora_password      = var.db_password
   redis_host           = module.elasticache.primary_endpoint
   s3_documentos_bucket = module.s3.documentos_bucket_id
+  telefono_cocina      = var.telefono_cocina
 
   depends_on = [module.iam, module.aurora, module.elasticache, module.sqs]
 }
@@ -230,10 +233,10 @@ module "lambda" {
 module "sns" {
   source = "./servicios/sns"
 
-  project                         = var.project
-  environment                     = var.environment
-  lambda_procesar_pedido_arn      = module.lambda.procesar_pedido_arn
-  lambda_procesar_inventario_arn  = module.lambda.procesar_inventario_arn
+  project                            = var.project
+  environment                        = var.environment
+  lambda_procesar_pedido_arn         = module.lambda.procesar_pedido_arn
+  lambda_actualizar_inventario_arn   = module.lambda.actualizar_inventario_arn
 
   depends_on = [module.lambda]
 }
