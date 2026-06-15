@@ -19,8 +19,8 @@ resource "aws_db_subnet_group" "main" {
 
 resource "aws_rds_cluster" "main" {
   cluster_identifier      = "${var.project}-aurora-${var.environment}"
-  engine                  = "aurora-mysql"
-  engine_version          = "8.0.mysql_aurora.3.04.0"
+  engine                  = "aurora-postgresql"
+  engine_version          = "15.4"
   database_name           = var.db_name
   master_username         = var.db_username
   master_password         = var.db_password
