@@ -8,8 +8,8 @@ variable "environment" {
   type        = string
 }
 
-variable "rate_limit" {
-  description = "Maximo de requests por IP en 5 minutos antes de bloquear"
-  type        = number
-  default     = 2000
+variable "alarm_sns_topic_arn" {
+  description = "ARN del SNS Topic para notificaciones de alarma (opcional)"
+  type        = string
+  default     = null
 }

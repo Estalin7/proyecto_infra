@@ -1,15 +1,8 @@
-# Terraform local files
-**/.terraform/*
+.terraform/
 *.tfstate
 *.tfstate.*
+.terraform.lock.hcl
+*.tfvars.backup
 crash.log
 crash.*.log
-.terraform.tfvars
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# OS / editor
-.DS_Store
-.vscode/
+terraform.tfvars

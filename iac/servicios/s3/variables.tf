@@ -8,8 +8,7 @@ variable "environment" {
   type        = string
 }
 
-variable "rate_limit" {
-  description = "Maximo de requests por IP en 5 minutos antes de bloquear"
-  type        = number
-  default     = 2000
+variable "cloudfront_distribution_arn" {
+  description = "ARN de la distribucion CloudFront (para la politica OAC del bucket frontend)"
+  type        = string
 }
