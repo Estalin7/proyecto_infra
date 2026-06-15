@@ -31,7 +31,11 @@ resource "aws_instance" "crud" {
   vpc_security_group_ids      = [var.sg_ec2_id]
   iam_instance_profile        = var.iam_instance_profile_name
   associate_public_ip_address = false
-
+metadata_options {
+  http_endpoint               = "enabled"
+  http_tokens                 = "required"
+  http_put_response_hop_limit = 1
+}
   root_block_device {
     volume_type           = "gp3"
     volume_size           = 20
