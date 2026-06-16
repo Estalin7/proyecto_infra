@@ -40,8 +40,7 @@ variable "health_check_path" {
   default     = "/actuator/health"
 }
 
-variable "logs_bucket_id" {
-  description = "ID del bucket S3 que recibe los access logs del ALB"
+variable "alb_logs_bucket" {
+  description = "Bucket S3 donde el ALB enviara logs"
   type        = string
-  default     = ""
 }
