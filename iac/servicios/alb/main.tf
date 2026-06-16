@@ -10,8 +10,8 @@ resource "aws_lb" "main" {
   drop_invalid_header_fields = true
 
   access_logs {
-    bucket  = var.logs_bucket_id
-    prefix  = "alb"
+    bucket  = var.alb_logs_bucket
+    prefix  = "${var.project}/${var.environment}/alb"
     enabled = true
   }
 
