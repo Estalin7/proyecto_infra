@@ -1,19 +1,3 @@
-# ============================================================
-# main.tf
-# Ensambla todos los modulos de iac/servicios/ en el orden
-# correcto respetando las dependencias entre ellos.
-#
-# Estructura actual del repo (iac/servicios/):
-#   vpc, acm, route53, cloudfront, waf, cognito, alb, ec2,
-#   s3, dlq, sqs, sns, lambda, elasticache, aurora, iam,
-#   api_gateway
-#
-# NOTA: vpc/ incluye los Security Groups (sg_alb, sg_ec2,
-# sg_aurora, sg_elasticache) por ahora. Cuando se separen en
-# un modulo security-groups independiente, solo hay que
-# cambiar las referencias module.vpc.sg_* -> module.security_groups.sg_*
-# ============================================================
-
 # ── 1. VPC (red + security groups) ───────────────────────────
 module "vpc" {
   source = "./servicios/vpc"
@@ -136,6 +120,7 @@ module "alb" {
   acm_certificate_arn = module.acm.cert_alb_arn
   app_port            = var.app_port
   health_check_path   = var.health_check_path
+  alb_logs_bucket     = module.s3.alb_logs_bucket
 
   depends_on = [module.acm]
 }
