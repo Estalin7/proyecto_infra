@@ -83,7 +83,7 @@ resource "aws_apigatewayv2_stage" "main" {
 # ── CloudWatch Log Group para el API GW ──────────────────────
 resource "aws_cloudwatch_log_group" "api_gw" {
   name              = "/aws/apigateway/${var.project}-${var.environment}"
-  retention_in_days = 30
+  retention_in_days = 365 # Minimo 1 año → Fix CKV_AWS_338
 
   tags = {
     Project     = var.project

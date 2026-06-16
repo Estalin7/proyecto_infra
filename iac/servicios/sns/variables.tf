@@ -13,7 +13,7 @@ variable "lambda_procesar_pedido_arn" {
   type        = string
 }
 
-variable "lambda_actualizar_inventario_arn" {
-  description = "ARN de la Lambda actualizar_inventario (output del modulo lambda)"
+variable "lambda_procesar_inventario_arn" {
+  description = "ARN de la Lambda procesar_inventario (output del modulo lambda)"
   type        = string
 }

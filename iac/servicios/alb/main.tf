@@ -10,6 +10,16 @@ resource "aws_lb" "main" {
 
   enable_deletion_protection = var.environment == "prod" ? true : false
 
+  # Descartar cabeceras HTTP invalidas → Fix CKV_AWS_131
+  drop_invalid_header_fields = true
+
+  # Habilitar access logging del ALB → Fix CKV_AWS_91
+  access_logs {
+    bucket  = var.logs_bucket_id
+    prefix  = "alb"
+    enabled = true
+  }
+
   tags = {
     Name        = "${var.project}-alb-${var.environment}"
     Project     = var.project

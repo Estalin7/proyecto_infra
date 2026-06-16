@@ -19,8 +19,8 @@ resource "aws_db_subnet_group" "main" {
 
 resource "aws_rds_cluster" "main" {
   cluster_identifier      = "${var.project}-aurora-${var.environment}"
-  engine                  = "aurora-postgresql"
-  engine_version          = "15.4"
+  engine                  = "aurora-mysql"
+  engine_version          = "8.0.mysql_aurora.3.04.0"
   database_name           = var.db_name
   master_username         = var.db_username
   master_password         = var.db_password
@@ -36,6 +36,18 @@ resource "aws_rds_cluster" "main" {
   final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
 
   storage_encrypted = true
+
+  # Autenticacion IAM en vez de solo usuario/clave → Fix CKV_AWS_162
+  iam_database_authentication_enabled = true
+
+  # Copiar tags a los snapshots de backup → Fix CKV_AWS_313
+  copy_tags_to_snapshot = true
+
+  # Exportar logs a CloudWatch → Fix CKV_AWS_324 y CKV_AWS_325
+  enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
+
+  # Backtracking: permite "rebobinar" el cluster hasta 72h → Fix CKV_AWS_326
+  backtrack_window = 259200  # 72 horas en segundos
 
   tags = {
     Name        = "${var.project}-aurora-cluster-${var.environment}"

@@ -21,6 +21,11 @@ resource "aws_lambda_function" "procesar_pedido" {
   s3_bucket = var.artifacts_bucket
   s3_key    = "lambdas/procesar_pedido.zip"
 
+  # Habilitar X-Ray tracing → Fix CKV_AWS_50
+  tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       ENVIRONMENT           = var.environment
@@ -54,6 +59,11 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   s3_bucket = var.artifacts_bucket
   s3_key    = "lambdas/enviar_sms_cocina.zip"
 
+  # Habilitar X-Ray tracing → Fix CKV_AWS_50
+  tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       ENVIRONMENT     = var.environment
@@ -80,6 +90,11 @@ resource "aws_lambda_function" "actualizar_inventario" {
   s3_bucket = var.artifacts_bucket
   s3_key    = "lambdas/actualizar_inventario.zip"
 
+  # Habilitar X-Ray tracing → Fix CKV_AWS_50
+  tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       ENVIRONMENT     = var.environment
@@ -99,18 +114,18 @@ resource "aws_lambda_function" "actualizar_inventario" {
   }
 }
 
-# ── CloudWatch Log Groups (retencion 30 dias) ────────────────
+# ── CloudWatch Log Groups (retencion 365 dias) → Fix CKV_AWS_338 ─
 resource "aws_cloudwatch_log_group" "procesar_pedido" {
   name              = "/aws/lambda/${aws_lambda_function.procesar_pedido.function_name}"
-  retention_in_days = 30
+  retention_in_days = 365
 }
 
 resource "aws_cloudwatch_log_group" "enviar_sms_cocina" {
   name              = "/aws/lambda/${aws_lambda_function.enviar_sms_cocina.function_name}"
-  retention_in_days = 30
+  retention_in_days = 365
 }
 
 resource "aws_cloudwatch_log_group" "actualizar_inventario" {
   name              = "/aws/lambda/${aws_lambda_function.actualizar_inventario.function_name}"
-  retention_in_days = 30
+  retention_in_days = 365
 }

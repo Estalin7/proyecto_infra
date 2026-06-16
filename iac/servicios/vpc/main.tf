@@ -139,13 +139,13 @@ resource "aws_security_group" "ec2" {
 # ── Security Group: Aurora (solo acepta tráfico de EC2) ──────
 resource "aws_security_group" "aurora" {
   name        = "${var.project}-sg-aurora-${var.environment}"
-  description = "Permite trafico PostgreSQL desde las EC2"
+  description = "Permite trafico MySQL desde las EC2"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "PostgreSQL desde EC2"
-    from_port       = 5432
-    to_port         = 5432
+    description     = "MySQL desde EC2"
+    from_port       = 3306
+    to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.ec2.id]
   }
