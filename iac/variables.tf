@@ -1,9 +1,3 @@
-# ============================================================
-# variables.tf
-# Variables generales del proyecto. Los valores concretos
-# van en terraform.tfvars (no subir secrets al repo).
-# ============================================================
-
 variable "project" {
   description = "Nombre del proyecto"
   type        = string
