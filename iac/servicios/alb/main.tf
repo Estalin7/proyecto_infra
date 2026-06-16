@@ -1,6 +1,4 @@
-
-# alb
-# Crea: ALB  HTTPS (443) apuntando a las EC2 de Operaciones CRUD.
+# ALB  apuntando a las EC2 CRUD.
 resource "aws_lb" "main" {
   name               = "${var.project}-alb-${var.environment}"
   internal           = false
@@ -9,6 +7,13 @@ resource "aws_lb" "main" {
   subnets            = var.public_subnet_ids
 
   enable_deletion_protection = var.environment == "prod" ? true : false
+  drop_invalid_header_fields = true
+
+  access_logs {
+    bucket  = var.alb_logs_bucket
+    prefix  = "${var.project}/${var.environment}/alb"
+    enabled = true
+  }
 
   tags = {
     Name        = "${var.project}-alb-${var.environment}"
@@ -16,6 +21,7 @@ resource "aws_lb" "main" {
     Environment = var.environment
   }
 }
+
 
 # ── Target Group (EC2 instancias CRUD) ───────────────────────
 resource "aws_lb_target_group" "crud" {

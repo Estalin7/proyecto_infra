@@ -148,4 +148,4 @@ variable "sqs_max_receive_count" {
 variable "telefono_cocina" {
   description = "Numero de telefono de cocina en formato E.164 (ej: +51999999999) para recibir SMS via SNS"
   type        = string
-}
+}

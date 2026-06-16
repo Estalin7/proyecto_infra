@@ -87,13 +87,13 @@ module "waf" {
 module "cloudfront" {
   source = "./servicios/cloudfront"
 
-  project                         = var.project
-  environment                     = var.environment
-  domain_name                     = var.domain_name
-  s3_bucket_regional_domain_name  = module.s3.frontend_regional_domain_name
-  acm_certificate_arn             = module.acm.cert_cloudfront_arn
-  waf_acl_arn                     = module.waf.web_acl_arn
-  price_class                     = var.cf_price_class
+  project                        = var.project
+  environment                    = var.environment
+  domain_name                    = var.domain_name
+  s3_bucket_regional_domain_name = module.s3.frontend_regional_domain_name
+  acm_certificate_arn            = module.acm.cert_cloudfront_arn
+  waf_acl_arn                    = module.waf.web_acl_arn
+  price_class                    = var.cf_price_class
 
   depends_on = [module.acm, module.waf]
 }
@@ -136,6 +136,8 @@ module "alb" {
   acm_certificate_arn = module.acm.cert_alb_arn
   app_port            = var.app_port
   health_check_path   = var.health_check_path
+  alb_logs_bucket     = module.s3.alb_logs_bucket
+
 
   depends_on = [module.acm]
 }
@@ -149,6 +151,7 @@ module "sqs" {
   dlq_arn            = module.dlq.dlq_arn
   visibility_timeout = var.sqs_visibility_timeout
   max_receive_count  = var.sqs_max_receive_count
+  allowed_role_arns  = module.iam.lambda_sqs_role_arn
 
   depends_on = [module.dlq]
 }
@@ -233,10 +236,10 @@ module "lambda" {
 module "sns" {
   source = "./servicios/sns"
 
-  project                            = var.project
-  environment                        = var.environment
-  lambda_procesar_pedido_arn         = module.lambda.procesar_pedido_arn
-  lambda_actualizar_inventario_arn   = module.lambda.actualizar_inventario_arn
+  project                          = var.project
+  environment                      = var.environment
+  lambda_procesar_pedido_arn       = module.lambda.procesar_pedido_arn
+  lambda_actualizar_inventario_arn = module.lambda.actualizar_inventario_arn
 
   depends_on = [module.lambda]
 }
