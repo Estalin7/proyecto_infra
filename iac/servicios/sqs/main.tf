@@ -3,10 +3,11 @@ resource "aws_sqs_queue" "pedidos" {
   fifo_queue                  = true
   content_based_deduplication = true
 
-  visibility_timeout_seconds  = var.visibility_timeout
-  message_retention_seconds   = 86400   # 1 dia
-  max_message_size            = 262144  # 256 KB
-  receive_wait_time_seconds   = 20      # Long polling
+  visibility_timeout_seconds = var.visibility_timeout
+  message_retention_seconds  = 86400  # 1 dia
+  max_message_size           = 262144 # 256 KB
+  receive_wait_time_seconds  = 20     # Long polling
+  sqs_managed_sse_enabled    = true
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = var.dlq_arn

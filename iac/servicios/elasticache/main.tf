@@ -18,13 +18,13 @@ resource "aws_elasticache_replication_group" "main" {
   parameter_group_name = "default.redis7"
   engine_version       = "7.0"
 
-  num_cache_clusters = var.num_cache_nodes
+  num_cache_clusters = 2
   subnet_group_name  = aws_elasticache_subnet_group.main.name
   security_group_ids = [var.sg_elasticache_id]
 
   # Habilitar encriptacion en transito y en reposo
-  at_rest_encryption_enabled  = true
-  transit_encryption_enabled  = true
+  at_rest_encryption_enabled = true
+  transit_encryption_enabled = true
 
   # Actualizaciones automaticas de version menor → Fix CKV_AWS_191
   auto_minor_version_upgrade = true
@@ -33,7 +33,7 @@ resource "aws_elasticache_replication_group" "main" {
   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
   snapshot_window          = "03:00-04:00"
 
-  automatic_failover_enabled = var.num_cache_nodes > 1 ? true : false
+  automatic_failover_enabled = true
 
   tags = {
     Name        = "${var.project}-redis-${var.environment}"

@@ -13,6 +13,7 @@ resource "aws_sqs_queue" "dlq" {
 
   # Visibility timeout mayor que el de la cola principal (evita reprocessing)
   visibility_timeout_seconds = 300
+  sqs_managed_sse_enabled    = true
 
   tags = {
     Name        = "${var.project}-dlq-${var.environment}"

@@ -208,6 +208,7 @@ module "lambda" {
   aurora_db_name       = module.aurora.db_name
   redis_host           = module.elasticache.primary_endpoint
   s3_documentos_bucket = module.s3.documentos_bucket_id
+  dlq_arn              = module.dlq.dlq_arn
 
   depends_on = [module.iam, module.aurora, module.elasticache, module.sqs]
 }

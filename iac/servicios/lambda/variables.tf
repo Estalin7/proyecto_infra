@@ -59,3 +59,8 @@ variable "telefono_cocina" {
   description = "Numero de telefono de cocina en formato E.164 (ej: +51999999999) para recibir SMS via SNS"
   type        = string
 }
+
+variable "dlq_arn" {
+  description = "ARN de la DLQ para capturar invocaciones fallidas de las Lambdas"
+  type        = string
+}

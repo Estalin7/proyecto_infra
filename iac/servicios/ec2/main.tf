@@ -31,6 +31,8 @@ resource "aws_instance" "crud" {
   vpc_security_group_ids      = [var.sg_ec2_id]
   iam_instance_profile        = var.iam_instance_profile_name
   associate_public_ip_address = false
+  monitoring                  = true
+  ebs_optimized               = true
 
   metadata_options {
     http_endpoint               = "enabled"
