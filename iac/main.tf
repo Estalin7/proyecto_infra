@@ -122,7 +122,6 @@ module "alb" {
   health_check_path   = var.health_check_path
   alb_logs_bucket     = module.s3.alb_logs_bucket
 
-
   depends_on = [module.acm]
 }
 
@@ -217,17 +216,10 @@ module "lambda" {
 module "sns" {
   source = "./servicios/sns"
 
-<<<<<<< HEAD
   project                          = var.project
   environment                      = var.environment
   lambda_procesar_pedido_arn       = module.lambda.procesar_pedido_arn
   lambda_actualizar_inventario_arn = module.lambda.actualizar_inventario_arn
-=======
-  project                         = var.project
-  environment                     = var.environment
-  lambda_procesar_pedido_arn      = module.lambda.procesar_pedido_arn
-  lambda_procesar_inventario_arn  = module.lambda.procesar_inventario_arn
->>>>>>> 7337078b9f77f83239d3344ce9ce9900af37e76b
 
   depends_on = [module.lambda]
 }
