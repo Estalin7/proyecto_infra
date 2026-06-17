@@ -1,19 +1,3 @@
-# ============================================================
-# main.tf
-# Ensambla todos los modulos de iac/servicios/ en el orden
-# correcto respetando las dependencias entre ellos.
-#
-# Estructura actual del repo (iac/servicios/):
-#   vpc, acm, route53, cloudfront, waf, cognito, alb, ec2,
-#   s3, dlq, sqs, sns, lambda, elasticache, aurora, iam,
-#   api_gateway
-#
-# NOTA: vpc/ incluye los Security Groups (sg_alb, sg_ec2,
-# sg_aurora, sg_elasticache) por ahora. Cuando se separen en
-# un modulo security-groups independiente, solo hay que
-# cambiar las referencias module.vpc.sg_* -> module.security_groups.sg_*
-# ============================================================
-
 # ── 1. VPC (red + security groups) ───────────────────────────
 module "vpc" {
   source = "./servicios/vpc"
@@ -223,11 +207,8 @@ module "lambda" {
   sqs_pedidos_url      = module.sqs.queue_url
   aurora_host          = module.aurora.cluster_endpoint
   aurora_db_name       = module.aurora.db_name
-  aurora_username      = var.db_username
-  aurora_password      = var.db_password
   redis_host           = module.elasticache.primary_endpoint
   s3_documentos_bucket = module.s3.documentos_bucket_id
-  telefono_cocina      = var.telefono_cocina
 
   depends_on = [module.iam, module.aurora, module.elasticache, module.sqs]
 }
@@ -236,10 +217,17 @@ module "lambda" {
 module "sns" {
   source = "./servicios/sns"
 
+<<<<<<< HEAD
   project                          = var.project
   environment                      = var.environment
   lambda_procesar_pedido_arn       = module.lambda.procesar_pedido_arn
   lambda_actualizar_inventario_arn = module.lambda.actualizar_inventario_arn
+=======
+  project                         = var.project
+  environment                     = var.environment
+  lambda_procesar_pedido_arn      = module.lambda.procesar_pedido_arn
+  lambda_procesar_inventario_arn  = module.lambda.procesar_inventario_arn
+>>>>>>> 7337078b9f77f83239d3344ce9ce9900af37e76b
 
   depends_on = [module.lambda]
 }

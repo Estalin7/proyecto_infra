@@ -1,9 +1,3 @@
-# ============================================================
-# variables.tf
-# Variables generales del proyecto. Los valores concretos
-# van en terraform.tfvars (no subir secrets al repo).
-# ============================================================
-
 variable "project" {
   description = "Nombre del proyecto"
   type        = string
@@ -125,7 +119,7 @@ variable "cf_price_class" {
   default     = "PriceClass_100"
 }
 
-# ── Lambda ───────────────────────────────────────────────────
+# ── Lambda
 variable "lambda_artifacts_bucket" {
   description = "Nombre del bucket S3 donde estan los ZIPs de las Lambdas (debe existir antes del apply)"
   type        = string
@@ -148,4 +142,4 @@ variable "sqs_max_receive_count" {
 variable "telefono_cocina" {
   description = "Numero de telefono de cocina en formato E.164 (ej: +51999999999) para recibir SMS via SNS"
   type        = string
-}
+}

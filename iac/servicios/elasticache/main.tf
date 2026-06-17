@@ -26,6 +26,9 @@ resource "aws_elasticache_replication_group" "main" {
   at_rest_encryption_enabled  = true
   transit_encryption_enabled  = true
 
+  # Actualizaciones automaticas de version menor → Fix CKV_AWS_191
+  auto_minor_version_upgrade = true
+
   # Habilitar backups automaticos (solo prod)
   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
   snapshot_window          = "03:00-04:00"

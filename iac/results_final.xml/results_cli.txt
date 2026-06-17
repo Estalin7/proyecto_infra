@@ -1,0 +1,2660 @@
+terraform scan results:
+
+Passed checks: 160, Failed checks: 73, Skipped checks: 0, Parsing errors: 1
+
+Check: CKV_AWS_41: "Ensure no hard coded AWS access key and secret key exists in provider"
+	PASSED for resource: aws.default
+	File: /providers.tf:14-24
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/secrets-policies/bc-aws-secrets-5
+Check: CKV_AWS_41: "Ensure no hard coded AWS access key and secret key exists in provider"
+	PASSED for resource: aws.us_east_1
+	File: /providers.tf:27-38
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/secrets-policies/bc-aws-secrets-5
+Check: CKV_AWS_233: "Ensure Create before destroy for ACM certificates"
+	PASSED for resource: aws_acm_certificate.cloudfront
+	File: /servicios/acm/main.tf:7-25
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-acm-certificate-enables-create-before-destroy
+Check: CKV_AWS_234: "Verify logging preference for ACM certificates"
+	PASSED for resource: aws_acm_certificate.cloudfront
+	File: /servicios/acm/main.tf:7-25
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-acm-certificates-has-logging-preference
+Check: CKV_AWS_233: "Ensure Create before destroy for ACM certificates"
+	PASSED for resource: aws_acm_certificate.alb
+	File: /servicios/acm/main.tf:28-45
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-acm-certificate-enables-create-before-destroy
+Check: CKV_AWS_234: "Verify logging preference for ACM certificates"
+	PASSED for resource: aws_acm_certificate.alb
+	File: /servicios/acm/main.tf:28-45
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-acm-certificates-has-logging-preference
+Check: CKV_AWS_328: "Ensure that ALB is configured with defensive or strictest desync mitigation mode"
+	PASSED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-328
+Check: CKV_AWS_131: "Ensure that ALB drops HTTP headers"
+	PASSED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-alb-drops-http-headers
+Check: CKV_AWS_91: "Ensure the ELBv2 (Application/Network) has access logging enabled"
+	PASSED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-logging-22
+Check: CKV_AWS_261: "Ensure HTTP HTTPS Target group defines Healthcheck"
+	PASSED for resource: aws_lb_target_group.crud
+	File: /servicios/alb/main.tf:27-51
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-kendra-index-server-side-encryption-uses-customer-managed-keys-cmks
+Check: CKV_AWS_2: "Ensure ALB protocol is HTTPS"
+	PASSED for resource: aws_lb_listener.http
+	File: /servicios/alb/main.tf:54-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-29
+Check: CKV_AWS_2: "Ensure ALB protocol is HTTPS"
+	PASSED for resource: aws_lb_listener.https
+	File: /servicios/alb/main.tf:70-81
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-29
+Check: CKV_AWS_309: "Ensure API GatewayV2 routes specify an authorization type"
+	PASSED for resource: aws_apigatewayv2_route.default
+	File: /servicios/api_gateway/main.tf:58-64
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-309
+Check: CKV_AWS_76: "Ensure API Gateway has Access Logging enabled"
+	PASSED for resource: aws_apigatewayv2_stage.main
+	File: /servicios/api_gateway/main.tf:67-81
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-17
+Check: CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year"
+	PASSED for resource: aws_cloudwatch_log_group.api_gw
+	File: /servicios/api_gateway/main.tf:84-92
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-338
+Check: CKV_AWS_66: "Ensure that CloudWatch Log Group specifies retention days"
+	PASSED for resource: aws_cloudwatch_log_group.api_gw
+	File: /servicios/api_gateway/main.tf:84-92
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-13
+Check: CKV_AWS_96: "Ensure all data stored in Aurora is securely encrypted at rest"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-38
+Check: CKV_AWS_313: "Ensure RDS cluster configured to copy tags to snapshots"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-313
+Check: CKV_AWS_324: "Ensure that RDS Cluster log capture is enabled"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-324
+Check: CKV_AWS_162: "Ensure RDS cluster has IAM authentication enabled"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/ensure-rds-cluster-has-iam-authentication-enabled
+Check: CKV_AWS_133: "Ensure that RDS instances has backup policy"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-rds-instances-have-backup-policy
+Check: CKV_AWS_325: "Ensure that RDS Cluster audit logging is enabled for MySQL engine"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-325
+Check: CKV_AWS_326: "Ensure that RDS Aurora Clusters have backtracking enabled"
+	PASSED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-326
+Check: CKV_AWS_17: "Ensure all data stored in RDS is not publicly accessible"
+	PASSED for resource: aws_rds_cluster_instance.writer
+	File: /servicios/aurora/main.tf:60-76
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/public-policies/public-2
+Check: CKV_AWS_354: "Ensure RDS Performance Insights are encrypted using KMS CMKs"
+	PASSED for resource: aws_rds_cluster_instance.writer
+	File: /servicios/aurora/main.tf:60-76
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-354
+Check: CKV_AWS_17: "Ensure all data stored in RDS is not publicly accessible"
+	PASSED for resource: aws_rds_cluster_instance.reader
+	File: /servicios/aurora/main.tf:79-95
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/public-policies/public-2
+Check: CKV_AWS_354: "Ensure RDS Performance Insights are encrypted using KMS CMKs"
+	PASSED for resource: aws_rds_cluster_instance.reader
+	File: /servicios/aurora/main.tf:79-95
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-354
+Check: CKV_AWS_68: "CloudFront Distribution should have WAF enabled"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-27
+Check: CKV_AWS_34: "Ensure CloudFront distribution ViewerProtocolPolicy is set to HTTPS"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-32
+Check: CKV_AWS_174: "Verify CloudFront Distribution Viewer Certificate is using TLS v1.2 or higher"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-networking-63
+Check: CKV_AWS_305: "Ensure CloudFront distribution has a default root object configured"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-305
+Check: CKV_AWS_216: "Ensure CloudFront distribution is enabled"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-cloudfront-distribution-is-enabled
+Check: CKV_AWS_168: "Ensure SQS queue policy is not public by only allowing specific services or principals to access it"
+	PASSED for resource: aws_sqs_queue.dlq
+	File: /servicios/dlq/main.tf:8-22
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-sqs-queue-policy-is-not-public-by-only-allowing-specific-services-or-principals-to-access-it
+Check: CKV_AWS_319: "Ensure that CloudWatch alarm actions are enabled"
+	PASSED for resource: aws_cloudwatch_metric_alarm.dlq_not_empty
+	File: /servicios/dlq/main.tf:25-47
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-319
+Check: CKV_AWS_386: "Reduce potential for WhoAMI cloud image name confusion attack"
+	PASSED for resource: aws_ami.ubuntu
+	File: /servicios/ec2/main.tf:9-22
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-supply-chain-policies/bc-aws-386
+Check: CKV_AWS_29: "Ensure all data stored in the ElastiCache Replication Group is securely encrypted at rest"
+	PASSED for resource: aws_elasticache_replication_group.main
+	File: /servicios/elasticache/main.tf:12-43
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-9
+Check: CKV_AWS_30: "Ensure all data stored in the ElastiCache Replication Group is securely encrypted at transit"
+	PASSED for resource: aws_elasticache_replication_group.main
+	File: /servicios/elasticache/main.tf:12-43
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-10
+Check: CKV_AWS_393: "Ensure AWS GitHub Actions OIDC authorization policies only allow safe claims and claim order on IAM role"
+	PASSED for resource: aws_iam_role.ec2
+	File: /servicios/iam/main.tf:2-18
+Check: CKV_AWS_61: "Ensure AWS IAM policy does not allow assume role permission across all services"
+	PASSED for resource: aws_iam_role.ec2
+	File: /servicios/iam/main.tf:2-18
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-45
+Check: CKV_AWS_274: "Disallow IAM roles, users, and groups from using the AWS AdministratorAccess policy"
+	PASSED for resource: aws_iam_role.ec2
+	File: /servicios/iam/main.tf:2-18
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-274
+Check: CKV_AWS_60: "Ensure IAM role allows only specific services or principals to assume it"
+	PASSED for resource: aws_iam_role.ec2
+	File: /servicios/iam/main.tf:2-18
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-44
+Check: CKV_AWS_286: "Ensure IAM policies does not allow privilege escalation"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-286
+Check: CKV_AWS_62: "Ensure IAM policies that allow full "*-*" administrative privileges are not created"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-45
+Check: CKV_AWS_288: "Ensure IAM policies does not allow data exfiltration"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-288
+Check: CKV_AWS_63: "Ensure no IAM policies documents allow "*" as a statement's actions"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/iam-48
+Check: CKV_AWS_289: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-289
+Check: CKV_AWS_287: "Ensure IAM policies does not allow credentials exposure"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-287
+Check: CKV_AWS_393: "Ensure AWS GitHub Actions OIDC authorization policies only allow safe claims and claim order on IAM role"
+	PASSED for resource: aws_iam_role.lambda
+	File: /servicios/iam/main.tf:75-91
+Check: CKV_AWS_61: "Ensure AWS IAM policy does not allow assume role permission across all services"
+	PASSED for resource: aws_iam_role.lambda
+	File: /servicios/iam/main.tf:75-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-45
+Check: CKV_AWS_274: "Disallow IAM roles, users, and groups from using the AWS AdministratorAccess policy"
+	PASSED for resource: aws_iam_role.lambda
+	File: /servicios/iam/main.tf:75-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-274
+Check: CKV_AWS_60: "Ensure IAM role allows only specific services or principals to assume it"
+	PASSED for resource: aws_iam_role.lambda
+	File: /servicios/iam/main.tf:75-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-44
+Check: CKV_AWS_286: "Ensure IAM policies does not allow privilege escalation"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-286
+Check: CKV_AWS_62: "Ensure IAM policies that allow full "*-*" administrative privileges are not created"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-45
+Check: CKV_AWS_288: "Ensure IAM policies does not allow data exfiltration"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-288
+Check: CKV_AWS_63: "Ensure no IAM policies documents allow "*" as a statement's actions"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/iam-48
+Check: CKV_AWS_289: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-289
+Check: CKV_AWS_287: "Ensure IAM policies does not allow credentials exposure"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-287
+Check: CKV_AWS_45: "Ensure no hard-coded secrets exist in lambda environment"
+	PASSED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/secrets-policies/bc-aws-secrets-3
+Check: CKV_AWS_363: "Ensure Lambda Runtime is not deprecated"
+	PASSED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-363
+Check: CKV_AWS_50: "X-Ray tracing is enabled for Lambda"
+	PASSED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-serverless-policies/bc-aws-serverless-4
+Check: CKV_AWS_45: "Ensure no hard-coded secrets exist in lambda environment"
+	PASSED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/secrets-policies/bc-aws-secrets-3
+Check: CKV_AWS_363: "Ensure Lambda Runtime is not deprecated"
+	PASSED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-363
+Check: CKV_AWS_50: "X-Ray tracing is enabled for Lambda"
+	PASSED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-serverless-policies/bc-aws-serverless-4
+Check: CKV_AWS_45: "Ensure no hard-coded secrets exist in lambda environment"
+	PASSED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/secrets-policies/bc-aws-secrets-3
+Check: CKV_AWS_363: "Ensure Lambda Runtime is not deprecated"
+	PASSED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-363
+Check: CKV_AWS_50: "X-Ray tracing is enabled for Lambda"
+	PASSED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-serverless-policies/bc-aws-serverless-4
+Check: CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year"
+	PASSED for resource: aws_cloudwatch_log_group.procesar_pedido
+	File: /servicios/lambda/main.tf:106-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-338
+Check: CKV_AWS_66: "Ensure that CloudWatch Log Group specifies retention days"
+	PASSED for resource: aws_cloudwatch_log_group.procesar_pedido
+	File: /servicios/lambda/main.tf:106-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-13
+Check: CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year"
+	PASSED for resource: aws_cloudwatch_log_group.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:111-114
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-338
+Check: CKV_AWS_66: "Ensure that CloudWatch Log Group specifies retention days"
+	PASSED for resource: aws_cloudwatch_log_group.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:111-114
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-13
+Check: CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year"
+	PASSED for resource: aws_cloudwatch_log_group.actualizar_inventario
+	File: /servicios/lambda/main.tf:116-119
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-338
+Check: CKV_AWS_66: "Ensure that CloudWatch Log Group specifies retention days"
+	PASSED for resource: aws_cloudwatch_log_group.actualizar_inventario
+	File: /servicios/lambda/main.tf:116-119
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-13
+Check: CKV_AWS_93: "Ensure S3 bucket policy does not lockout all but root user. (Prevent lockouts needing root account fixes)"
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-24
+Check: CKV_AWS_54: "Ensure S3 bucket has block public policy enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.frontend
+	File: /servicios/s3/main.tf:28-34
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-20
+Check: CKV_AWS_53: "Ensure S3 bucket has block public ACLS enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.frontend
+	File: /servicios/s3/main.tf:28-34
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-19
+Check: CKV_AWS_56: "Ensure S3 bucket has 'restrict_public_buckets' enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.frontend
+	File: /servicios/s3/main.tf:28-34
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-22
+Check: CKV_AWS_55: "Ensure S3 bucket has ignore public ACLs enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.frontend
+	File: /servicios/s3/main.tf:28-34
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-21
+Check: CKV_AWS_93: "Ensure S3 bucket policy does not lockout all but root user. (Prevent lockouts needing root account fixes)"
+	PASSED for resource: aws_s3_bucket_policy.frontend
+	File: /servicios/s3/main.tf:37-59
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-24
+Check: CKV_AWS_70: "Ensure S3 bucket does not allow an action with any Principal"
+	PASSED for resource: aws_s3_bucket_policy.frontend
+	File: /servicios/s3/main.tf:37-59
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-23
+Check: CKV_AWS_93: "Ensure S3 bucket policy does not lockout all but root user. (Prevent lockouts needing root account fixes)"
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-24
+Check: CKV_AWS_54: "Ensure S3 bucket has block public policy enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.documentos
+	File: /servicios/s3/main.tf:80-86
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-20
+Check: CKV_AWS_53: "Ensure S3 bucket has block public ACLS enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.documentos
+	File: /servicios/s3/main.tf:80-86
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-19
+Check: CKV_AWS_56: "Ensure S3 bucket has 'restrict_public_buckets' enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.documentos
+	File: /servicios/s3/main.tf:80-86
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-22
+Check: CKV_AWS_55: "Ensure S3 bucket has ignore public ACLs enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.documentos
+	File: /servicios/s3/main.tf:80-86
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-21
+Check: CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
+	PASSED for resource: aws_s3_bucket_lifecycle_configuration.documentos
+	File: /servicios/s3/main.tf:89-106
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-300
+Check: CKV_AWS_93: "Ensure S3 bucket policy does not lockout all but root user. (Prevent lockouts needing root account fixes)"
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-24
+Check: CKV_AWS_54: "Ensure S3 bucket has block public policy enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.logs
+	File: /servicios/s3/main.tf:119-125
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-20
+Check: CKV_AWS_53: "Ensure S3 bucket has block public ACLS enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.logs
+	File: /servicios/s3/main.tf:119-125
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-19
+Check: CKV_AWS_56: "Ensure S3 bucket has 'restrict_public_buckets' enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.logs
+	File: /servicios/s3/main.tf:119-125
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-22
+Check: CKV_AWS_55: "Ensure S3 bucket has ignore public ACLs enabled"
+	PASSED for resource: aws_s3_bucket_public_access_block.logs
+	File: /servicios/s3/main.tf:119-125
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/bc-aws-s3-21
+Check: CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
+	PASSED for resource: aws_s3_bucket_lifecycle_configuration.logs
+	File: /servicios/s3/main.tf:136-149
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-300
+Check: CKV_AWS_26: "Ensure all data stored in the SNS topic is encrypted"
+	PASSED for resource: aws_sns_topic.main
+	File: /servicios/sns/main.tf:1-12
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-15
+Check: CKV_AWS_364: "Ensure that AWS Lambda function permissions delegated to AWS services are limited by SourceArn or SourceAccount"
+	PASSED for resource: aws_lambda_permission.sns_procesar_pedido
+	File: /servicios/sns/main.tf:29-35
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-364
+Check: CKV_AWS_301: "Ensure that AWS Lambda function is not publicly accessible"
+	PASSED for resource: aws_lambda_permission.sns_procesar_pedido
+	File: /servicios/sns/main.tf:29-35
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-301
+Check: CKV_AWS_364: "Ensure that AWS Lambda function permissions delegated to AWS services are limited by SourceArn or SourceAccount"
+	PASSED for resource: aws_lambda_permission.sns_procesar_inventario
+	File: /servicios/sns/main.tf:38-44
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-364
+Check: CKV_AWS_301: "Ensure that AWS Lambda function is not publicly accessible"
+	PASSED for resource: aws_lambda_permission.sns_procesar_inventario
+	File: /servicios/sns/main.tf:38-44
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-301
+Check: CKV_AWS_168: "Ensure SQS queue policy is not public by only allowing specific services or principals to access it"
+	PASSED for resource: aws_sqs_queue.pedidos
+	File: /servicios/sqs/main.tf:1-21
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-sqs-queue-policy-is-not-public-by-only-allowing-specific-services-or-principals-to-access-it
+Check: CKV_AWS_387: "Ensure SQS policy does not allow public access through wildcards"
+	PASSED for resource: aws_sqs_queue_policy.pedidos
+	File: /servicios/sqs/main.tf:24-46
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-387
+Check: CKV_AWS_168: "Ensure SQS queue policy is not public by only allowing specific services or principals to access it"
+	PASSED for resource: aws_sqs_queue_policy.pedidos
+	File: /servicios/sqs/main.tf:24-46
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-sqs-queue-policy-is-not-public-by-only-allowing-specific-services-or-principals-to-access-it
+Check: CKV_AWS_72: "Ensure SQS policy does not allow ALL (*) actions."
+	PASSED for resource: aws_sqs_queue_policy.pedidos
+	File: /servicios/sqs/main.tf:24-46
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-iam-46
+Check: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+Check: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+Check: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+Check: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+Check: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+Check: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+Check: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+Check: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+Check: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+Check: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+Check: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+Check: CKV_AWS_277: "Ensure no security groups allow ingress from 0.0.0.0:0 to port -1"
+	PASSED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-group-does-not-allow-all-traffic-on-all-ports
+Check: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	PASSED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+Check: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	PASSED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-1-port-security
+Check: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-2
+Check: CKV_AWS_342: "Ensure WAF rule has any actions"
+	PASSED for resource: aws_wafv2_web_acl.main
+	File: /servicios/waf/main.tf:1-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-342
+Check: CKV_AWS_175: "Ensure WAF has associated rules"
+	PASSED for resource: aws_wafv2_web_acl.main
+	File: /servicios/waf/main.tf:1-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-networking-64
+Check: CKV_AWS_18: "Ensure the S3 bucket has access logging enabled"
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-13-enable-logging
+Check: CKV_AWS_18: "Ensure the S3 bucket has access logging enabled"
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-13-enable-logging
+Check: CKV_AWS_18: "Ensure the S3 bucket has access logging enabled"
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-13-enable-logging
+Check: CKV2_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration"
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-61
+Check: CKV2_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration"
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-61
+Check: CKV2_AWS_46: "Ensure AWS CloudFront Distribution with S3 have Origin Access set to enabled"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/ensure-aws-cloudfromt-distribution-with-s3-have-origin-access-set-to-enabled
+Check: CKV2_AWS_6: "Ensure that S3 bucket has a Public Access block"
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/s3-bucket-should-have-public-access-blocks-defaults-to-false-if-the-public-access-block-is-not-attached
+Check: CKV2_AWS_6: "Ensure that S3 bucket has a Public Access block"
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/s3-bucket-should-have-public-access-blocks-defaults-to-false-if-the-public-access-block-is-not-attached
+Check: CKV2_AWS_6: "Ensure that S3 bucket has a Public Access block"
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/s3-bucket-should-have-public-access-blocks-defaults-to-false-if-the-public-access-block-is-not-attached
+Check: CKV2_AWS_77: "Ensure AWS API Gateway Rest API attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability"
+	PASSED for resource: aws_apigatewayv2_api.main
+	File: /servicios/api_gateway/main.tf:2-19
+Check: CKV2_AWS_44: "Ensure AWS route table with VPC peering does not contain routes overly permissive to all traffic"
+	PASSED for resource: aws_route_table.public
+	File: /servicios/vpc/main.tf:54-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-route-table-with-vpc-peering-does-not-contain-routes-overly-permissive-to-all-traffic
+Check: CKV2_AWS_42: "Ensure AWS CloudFront distribution uses custom SSL certificate"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-cloudfront-distribution-uses-custom-ssl-certificate
+Check: CKV2_AWS_40: "Ensure AWS IAM policy does not allow full IAM privileges"
+	PASSED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-2-40
+Check: CKV2_AWS_40: "Ensure AWS IAM policy does not allow full IAM privileges"
+	PASSED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-2-40
+Check: CKV2_AWS_54: "Ensure AWS CloudFront distribution is using secure SSL protocols for HTTPS communication"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-54
+Check: CKV2_AWS_41: "Ensure an IAM role is attached to EC2 instance"
+	PASSED for resource: aws_instance.crud
+	File: /servicios/ec2/main.tf:25-59
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/ensure-an-iam-role-is-attached-to-ec2-instance
+Check: CKV2_AWS_75: "Ensure no open CORS policy"
+	PASSED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-75
+Check: CKV2_AWS_75: "Ensure no open CORS policy"
+	PASSED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-75
+Check: CKV2_AWS_75: "Ensure no open CORS policy"
+	PASSED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-75
+Check: CKV_AWS_57: "S3 Bucket has an ACL defined which allows public WRITE access."
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-2-acl-write-permissions-everyone
+Check: CKV_AWS_57: "S3 Bucket has an ACL defined which allows public WRITE access."
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-2-acl-write-permissions-everyone
+Check: CKV_AWS_57: "S3 Bucket has an ACL defined which allows public WRITE access."
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-2-acl-write-permissions-everyone
+Check: CKV2_AWS_35: "AWS NAT Gateways should be utilized for the default route"
+	PASSED for resource: aws_route_table.public
+	File: /servicios/vpc/main.tf:54-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-nat-gateways-are-utilized-for-the-default-route
+Check: CKV2_AWS_73: "Ensure AWS SQS uses CMK not AWS default keys for encryption"
+	PASSED for resource: aws_sqs_queue.dlq
+	File: /servicios/dlq/main.tf:8-22
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-2-73
+Check: CKV2_AWS_73: "Ensure AWS SQS uses CMK not AWS default keys for encryption"
+	PASSED for resource: aws_sqs_queue.pedidos
+	File: /servicios/sqs/main.tf:1-21
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-2-73
+Check: CKV_AWS_103: "Ensure that load balancer is using at least TLS 1.2"
+	PASSED for resource: aws_lb_listener.https
+	File: /servicios/alb/main.tf:70-81
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-43
+Check: CKV_AWS_103: "Ensure that load balancer is using at least TLS 1.2"
+	PASSED for resource: aws_lb_listener.http
+	File: /servicios/alb/main.tf:54-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-43
+Check: CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication"
+	PASSED for resource: aws_apigatewayv2_stage.main
+	File: /servicios/api_gateway/main.tf:67-81
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-2-51
+Check: CKV_AWS_378: "Ensure AWS Load Balancer doesn't use HTTP protocol"
+	PASSED for resource: aws_lb_target_group.crud
+	File: /servicios/alb/main.tf:27-51
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-378
+Check: CKV2_AWS_72: "Ensure AWS CloudFront origin protocol policy enforces HTTPS-only"
+	PASSED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-72
+Check: CKV2_AWS_74: "Ensure AWS Load Balancers use strong ciphers"
+	PASSED for resource: aws_lb_listener.http
+	File: /servicios/alb/main.tf:54-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-74
+Check: CKV2_AWS_74: "Ensure AWS Load Balancers use strong ciphers"
+	PASSED for resource: aws_lb_listener.https
+	File: /servicios/alb/main.tf:70-81
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-74
+Check: CKV2_AWS_76: "Ensure AWS ALB attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability"
+	PASSED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+Check: CKV2_AWS_20: "Ensure that ALB redirects HTTP requests into HTTPS ones"
+	PASSED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-alb-redirects-http-requests-into-https-ones
+Check: CKV_AWS_19: "Ensure all data stored in the S3 bucket is securely encrypted at rest"
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-14-data-encrypted-at-rest
+Check: CKV_AWS_19: "Ensure all data stored in the S3 bucket is securely encrypted at rest"
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-14-data-encrypted-at-rest
+Check: CKV_AWS_19: "Ensure all data stored in the S3 bucket is securely encrypted at rest"
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-14-data-encrypted-at-rest
+Check: CKV_AWS_20: "S3 Bucket has an ACL defined which allows public READ access."
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-1-acl-read-permissions-everyone
+Check: CKV_AWS_20: "S3 Bucket has an ACL defined which allows public READ access."
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-1-acl-read-permissions-everyone
+Check: CKV_AWS_20: "S3 Bucket has an ACL defined which allows public READ access."
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-1-acl-read-permissions-everyone
+Check: CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled"
+	PASSED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-16-enable-versioning
+Check: CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled"
+	PASSED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-16-enable-versioning
+Check: CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled"
+	PASSED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-16-enable-versioning
+Check: CKV_AWS_150: "Ensure that Load Balancer has deletion protection enabled"
+	FAILED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-150
+
+		2  | resource "aws_lb" "main" {
+		3  |   name               = "${var.project}-alb-${var.environment}"
+		4  |   internal           = false
+		5  |   load_balancer_type = "application"
+		6  |   security_groups    = [var.sg_alb_id]
+		7  |   subnets            = var.public_subnet_ids
+		8  | 
+		9  |   enable_deletion_protection = var.environment == "prod" ? true : false
+		10 |   drop_invalid_header_fields = true
+		11 | 
+		12 |   access_logs {
+		13 |     bucket  = var.alb_logs_bucket
+		14 |     prefix  = "${var.project}/${var.environment}/alb"
+		15 |     enabled = true
+		16 |   }
+		17 | 
+		18 |   tags = {
+		19 |     Name        = "${var.project}-alb-${var.environment}"
+		20 |     Project     = var.project
+		21 |     Environment = var.environment
+		22 |   }
+		23 | }
+
+Check: CKV_AWS_158: "Ensure that CloudWatch Log Group is encrypted by KMS"
+	FAILED for resource: aws_cloudwatch_log_group.api_gw
+	File: /servicios/api_gateway/main.tf:84-92
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-cloudwatch-log-group-is-encrypted-by-kms
+
+		84 | resource "aws_cloudwatch_log_group" "api_gw" {
+		85 |   name              = "/aws/apigateway/${var.project}-${var.environment}"
+		86 |   retention_in_days = 365 # Minimo 1 año → Fix CKV_AWS_338
+		87 | 
+		88 |   tags = {
+		89 |     Project     = var.project
+		90 |     Environment = var.environment
+		91 |   }
+		92 | }
+
+Check: CKV_AWS_139: "Ensure that RDS clusters have deletion protection enabled"
+	FAILED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-rds-clusters-and-instances-have-deletion-protection-enabled
+
+		20 | resource "aws_rds_cluster" "main" {
+		21 |   cluster_identifier      = "${var.project}-aurora-${var.environment}"
+		22 |   engine                  = "aurora-mysql"
+		23 |   engine_version          = "8.0.mysql_aurora.3.04.0"
+		24 |   database_name           = var.db_name
+		25 |   master_username         = var.db_username
+		26 |   master_password         = var.db_password
+		27 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		28 |   vpc_security_group_ids  = [var.sg_aurora_id]
+		29 | 
+		30 |   backup_retention_period = var.environment == "prod" ? 7 : 1
+		31 |   preferred_backup_window = "02:00-03:00"
+		32 | 
+		33 |   # Proteccion contra borrado accidental en prod
+		34 |   deletion_protection = var.environment == "prod" ? true : false
+		35 |   skip_final_snapshot = var.environment == "prod" ? false : true
+		36 |   final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
+		37 | 
+		38 |   storage_encrypted = true
+		39 | 
+		40 |   # Autenticacion IAM en vez de solo usuario/clave → Fix CKV_AWS_162
+		41 |   iam_database_authentication_enabled = true
+		42 | 
+		43 |   # Copiar tags a los snapshots de backup → Fix CKV_AWS_313
+		44 |   copy_tags_to_snapshot = true
+		45 | 
+		46 |   # Exportar logs a CloudWatch → Fix CKV_AWS_324 y CKV_AWS_325
+		47 |   enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
+		48 | 
+		49 |   # Backtracking: permite "rebobinar" el cluster hasta 72h → Fix CKV_AWS_326
+		50 |   backtrack_window = 259200  # 72 horas en segundos
+		51 | 
+		52 |   tags = {
+		53 |     Name        = "${var.project}-aurora-cluster-${var.environment}"
+		54 |     Project     = var.project
+		55 |     Environment = var.environment
+		56 |   }
+		57 | }
+
+Check: CKV_AWS_327: "Ensure RDS Clusters are encrypted using KMS CMKs"
+	FAILED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-327
+
+		20 | resource "aws_rds_cluster" "main" {
+		21 |   cluster_identifier      = "${var.project}-aurora-${var.environment}"
+		22 |   engine                  = "aurora-mysql"
+		23 |   engine_version          = "8.0.mysql_aurora.3.04.0"
+		24 |   database_name           = var.db_name
+		25 |   master_username         = var.db_username
+		26 |   master_password         = var.db_password
+		27 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		28 |   vpc_security_group_ids  = [var.sg_aurora_id]
+		29 | 
+		30 |   backup_retention_period = var.environment == "prod" ? 7 : 1
+		31 |   preferred_backup_window = "02:00-03:00"
+		32 | 
+		33 |   # Proteccion contra borrado accidental en prod
+		34 |   deletion_protection = var.environment == "prod" ? true : false
+		35 |   skip_final_snapshot = var.environment == "prod" ? false : true
+		36 |   final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
+		37 | 
+		38 |   storage_encrypted = true
+		39 | 
+		40 |   # Autenticacion IAM en vez de solo usuario/clave → Fix CKV_AWS_162
+		41 |   iam_database_authentication_enabled = true
+		42 | 
+		43 |   # Copiar tags a los snapshots de backup → Fix CKV_AWS_313
+		44 |   copy_tags_to_snapshot = true
+		45 | 
+		46 |   # Exportar logs a CloudWatch → Fix CKV_AWS_324 y CKV_AWS_325
+		47 |   enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
+		48 | 
+		49 |   # Backtracking: permite "rebobinar" el cluster hasta 72h → Fix CKV_AWS_326
+		50 |   backtrack_window = 259200  # 72 horas en segundos
+		51 | 
+		52 |   tags = {
+		53 |     Name        = "${var.project}-aurora-cluster-${var.environment}"
+		54 |     Project     = var.project
+		55 |     Environment = var.environment
+		56 |   }
+		57 | }
+
+Check: CKV_AWS_226: "Ensure DB instance gets all minor upgrades automatically"
+	FAILED for resource: aws_rds_cluster_instance.writer
+	File: /servicios/aurora/main.tf:60-76
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-db-instance-gets-all-minor-upgrades-automatically
+
+		60 | resource "aws_rds_cluster_instance" "writer" {
+		61 |   identifier         = "${var.project}-aurora-writer-${var.environment}"
+		62 |   cluster_identifier = aws_rds_cluster.main.id
+		63 |   instance_class     = var.instance_class
+		64 |   engine             = aws_rds_cluster.main.engine
+		65 |   engine_version     = aws_rds_cluster.main.engine_version
+		66 | 
+		67 |   availability_zone       = var.availability_zones[0]
+		68 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		69 |   publicly_accessible     = false
+		70 | 
+		71 |   tags = {
+		72 |     Name        = "${var.project}-aurora-writer-${var.environment}"
+		73 |     Project     = var.project
+		74 |     Environment = var.environment
+		75 |   }
+		76 | }
+
+Check: CKV_AWS_353: "Ensure that RDS instances have performance insights enabled"
+	FAILED for resource: aws_rds_cluster_instance.writer
+	File: /servicios/aurora/main.tf:60-76
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-353
+
+		60 | resource "aws_rds_cluster_instance" "writer" {
+		61 |   identifier         = "${var.project}-aurora-writer-${var.environment}"
+		62 |   cluster_identifier = aws_rds_cluster.main.id
+		63 |   instance_class     = var.instance_class
+		64 |   engine             = aws_rds_cluster.main.engine
+		65 |   engine_version     = aws_rds_cluster.main.engine_version
+		66 | 
+		67 |   availability_zone       = var.availability_zones[0]
+		68 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		69 |   publicly_accessible     = false
+		70 | 
+		71 |   tags = {
+		72 |     Name        = "${var.project}-aurora-writer-${var.environment}"
+		73 |     Project     = var.project
+		74 |     Environment = var.environment
+		75 |   }
+		76 | }
+
+Check: CKV_AWS_118: "Ensure that enhanced monitoring is enabled for Amazon RDS instances"
+	FAILED for resource: aws_rds_cluster_instance.writer
+	File: /servicios/aurora/main.tf:60-76
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/ensure-that-enhanced-monitoring-is-enabled-for-amazon-rds-instances
+
+		60 | resource "aws_rds_cluster_instance" "writer" {
+		61 |   identifier         = "${var.project}-aurora-writer-${var.environment}"
+		62 |   cluster_identifier = aws_rds_cluster.main.id
+		63 |   instance_class     = var.instance_class
+		64 |   engine             = aws_rds_cluster.main.engine
+		65 |   engine_version     = aws_rds_cluster.main.engine_version
+		66 | 
+		67 |   availability_zone       = var.availability_zones[0]
+		68 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		69 |   publicly_accessible     = false
+		70 | 
+		71 |   tags = {
+		72 |     Name        = "${var.project}-aurora-writer-${var.environment}"
+		73 |     Project     = var.project
+		74 |     Environment = var.environment
+		75 |   }
+		76 | }
+
+Check: CKV_AWS_226: "Ensure DB instance gets all minor upgrades automatically"
+	FAILED for resource: aws_rds_cluster_instance.reader
+	File: /servicios/aurora/main.tf:79-95
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-db-instance-gets-all-minor-upgrades-automatically
+
+		79 | resource "aws_rds_cluster_instance" "reader" {
+		80 |   identifier         = "${var.project}-aurora-reader-${var.environment}"
+		81 |   cluster_identifier = aws_rds_cluster.main.id
+		82 |   instance_class     = var.instance_class
+		83 |   engine             = aws_rds_cluster.main.engine
+		84 |   engine_version     = aws_rds_cluster.main.engine_version
+		85 | 
+		86 |   availability_zone       = var.availability_zones[1]
+		87 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		88 |   publicly_accessible     = false
+		89 | 
+		90 |   tags = {
+		91 |     Name        = "${var.project}-aurora-reader-${var.environment}"
+		92 |     Project     = var.project
+		93 |     Environment = var.environment
+		94 |   }
+		95 | }
+
+Check: CKV_AWS_353: "Ensure that RDS instances have performance insights enabled"
+	FAILED for resource: aws_rds_cluster_instance.reader
+	File: /servicios/aurora/main.tf:79-95
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-353
+
+		79 | resource "aws_rds_cluster_instance" "reader" {
+		80 |   identifier         = "${var.project}-aurora-reader-${var.environment}"
+		81 |   cluster_identifier = aws_rds_cluster.main.id
+		82 |   instance_class     = var.instance_class
+		83 |   engine             = aws_rds_cluster.main.engine
+		84 |   engine_version     = aws_rds_cluster.main.engine_version
+		85 | 
+		86 |   availability_zone       = var.availability_zones[1]
+		87 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		88 |   publicly_accessible     = false
+		89 | 
+		90 |   tags = {
+		91 |     Name        = "${var.project}-aurora-reader-${var.environment}"
+		92 |     Project     = var.project
+		93 |     Environment = var.environment
+		94 |   }
+		95 | }
+
+Check: CKV_AWS_118: "Ensure that enhanced monitoring is enabled for Amazon RDS instances"
+	FAILED for resource: aws_rds_cluster_instance.reader
+	File: /servicios/aurora/main.tf:79-95
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/ensure-that-enhanced-monitoring-is-enabled-for-amazon-rds-instances
+
+		79 | resource "aws_rds_cluster_instance" "reader" {
+		80 |   identifier         = "${var.project}-aurora-reader-${var.environment}"
+		81 |   cluster_identifier = aws_rds_cluster.main.id
+		82 |   instance_class     = var.instance_class
+		83 |   engine             = aws_rds_cluster.main.engine
+		84 |   engine_version     = aws_rds_cluster.main.engine_version
+		85 | 
+		86 |   availability_zone       = var.availability_zones[1]
+		87 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		88 |   publicly_accessible     = false
+		89 | 
+		90 |   tags = {
+		91 |     Name        = "${var.project}-aurora-reader-${var.environment}"
+		92 |     Project     = var.project
+		93 |     Environment = var.environment
+		94 |   }
+		95 | }
+
+Check: CKV_AWS_86: "Ensure CloudFront distribution has Access Logging enabled"
+	FAILED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-20
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Check: CKV_AWS_310: "Ensure CloudFront distributions should have origin failover configured"
+	FAILED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-310
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Check: CKV_AWS_374: "Ensure AWS CloudFront web distribution has geo restriction enabled"
+	FAILED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-374
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Check: CKV_AWS_27: "Ensure all data stored in the SQS queue is encrypted"
+	FAILED for resource: aws_sqs_queue.dlq
+	File: /servicios/dlq/main.tf:8-22
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-16-encrypt-sqs-queue
+
+		8  | resource "aws_sqs_queue" "dlq" {
+		9  |   name = "${var.project}-dlq-${var.environment}"
+		10 | 
+		11 |   # Retener mensajes fallidos 14 dias para revision/reintento manual
+		12 |   message_retention_seconds = 1209600 # 14 dias
+		13 | 
+		14 |   # Visibility timeout mayor que el de la cola principal (evita reprocessing)
+		15 |   visibility_timeout_seconds = 300
+		16 | 
+		17 |   tags = {
+		18 |     Name        = "${var.project}-dlq-${var.environment}"
+		19 |     Project     = var.project
+		20 |     Environment = var.environment
+		21 |   }
+		22 | }
+
+Check: CKV_AWS_31: "Ensure all data stored in the ElastiCache Replication Group is securely encrypted at transit and has auth token"
+	FAILED for resource: aws_elasticache_replication_group.main
+	File: /servicios/elasticache/main.tf:12-43
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-11
+
+		12 | resource "aws_elasticache_replication_group" "main" {
+		13 |   replication_group_id = "${var.project}-redis-${var.environment}"
+		14 |   description          = "Redis cache para ${var.project} - ${var.environment}"
+		15 | 
+		16 |   node_type            = var.node_type
+		17 |   port                 = 6379
+		18 |   parameter_group_name = "default.redis7"
+		19 |   engine_version       = "7.0"
+		20 | 
+		21 |   num_cache_clusters = var.num_cache_nodes
+		22 |   subnet_group_name  = aws_elasticache_subnet_group.main.name
+		23 |   security_group_ids = [var.sg_elasticache_id]
+		24 | 
+		25 |   # Habilitar encriptacion en transito y en reposo
+		26 |   at_rest_encryption_enabled  = true
+		27 |   transit_encryption_enabled  = true
+		28 | 
+		29 |   # Actualizaciones automaticas de version menor → Fix CKV_AWS_191
+		30 |   auto_minor_version_upgrade = true
+		31 | 
+		32 |   # Habilitar backups automaticos (solo prod)
+		33 |   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
+		34 |   snapshot_window          = "03:00-04:00"
+		35 | 
+		36 |   automatic_failover_enabled = var.num_cache_nodes > 1 ? true : false
+		37 | 
+		38 |   tags = {
+		39 |     Name        = "${var.project}-redis-${var.environment}"
+		40 |     Project     = var.project
+		41 |     Environment = var.environment
+		42 |   }
+		43 | }
+
+Check: CKV_AWS_191: "Ensure ElastiCache replication group is encrypted by KMS using a customer managed Key (CMK)"
+	FAILED for resource: aws_elasticache_replication_group.main
+	File: /servicios/elasticache/main.tf:12-43
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-111
+
+		12 | resource "aws_elasticache_replication_group" "main" {
+		13 |   replication_group_id = "${var.project}-redis-${var.environment}"
+		14 |   description          = "Redis cache para ${var.project} - ${var.environment}"
+		15 | 
+		16 |   node_type            = var.node_type
+		17 |   port                 = 6379
+		18 |   parameter_group_name = "default.redis7"
+		19 |   engine_version       = "7.0"
+		20 | 
+		21 |   num_cache_clusters = var.num_cache_nodes
+		22 |   subnet_group_name  = aws_elasticache_subnet_group.main.name
+		23 |   security_group_ids = [var.sg_elasticache_id]
+		24 | 
+		25 |   # Habilitar encriptacion en transito y en reposo
+		26 |   at_rest_encryption_enabled  = true
+		27 |   transit_encryption_enabled  = true
+		28 | 
+		29 |   # Actualizaciones automaticas de version menor → Fix CKV_AWS_191
+		30 |   auto_minor_version_upgrade = true
+		31 | 
+		32 |   # Habilitar backups automaticos (solo prod)
+		33 |   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
+		34 |   snapshot_window          = "03:00-04:00"
+		35 | 
+		36 |   automatic_failover_enabled = var.num_cache_nodes > 1 ? true : false
+		37 | 
+		38 |   tags = {
+		39 |     Name        = "${var.project}-redis-${var.environment}"
+		40 |     Project     = var.project
+		41 |     Environment = var.environment
+		42 |   }
+		43 | }
+
+Check: CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+	FAILED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-290
+
+		21 | resource "aws_iam_role_policy" "ec2_app" {
+		22 |   name = "${var.project}-ec2-app-policy-${var.environment}"
+		23 |   role = aws_iam_role.ec2.id
+		24 | 
+		25 |   policy = jsonencode({
+		26 |     Version = "2012-10-17"
+		27 |     Statement = [
+		28 |       {
+		29 |         Sid    = "SSMAccess"
+		30 |         Effect = "Allow"
+		31 |         Action = [
+		32 |           "ssm:UpdateInstanceInformation",
+		33 |           "ssmmessages:CreateControlChannel",
+		34 |           "ssmmessages:CreateDataChannel",
+		35 |           "ssmmessages:OpenControlChannel",
+		36 |           "ssmmessages:OpenDataChannel"
+		37 |         ]
+		38 |         Resource = "*"
+		39 |       },
+		40 |       {
+		41 |         Sid    = "SQSAccess"
+		42 |         Effect = "Allow"
+		43 |         Action = [
+		44 |           "sqs:SendMessage",
+		45 |           "sqs:ReceiveMessage",
+		46 |           "sqs:DeleteMessage",
+		47 |           "sqs:GetQueueAttributes"
+		48 |         ]
+		49 |         Resource = var.sqs_queue_arn
+		50 |       },
+		51 |       {
+		52 |         Sid    = "SNSPublish"
+		53 |         Effect = "Allow"
+		54 |         Action = ["sns:Publish"]
+		55 |         Resource = var.sns_topic_arn
+		56 |       },
+		57 |       {
+		58 |         Sid    = "S3Documentos"
+		59 |         Effect = "Allow"
+		60 |         Action = ["s3:PutObject", "s3:GetObject"]
+		61 |         Resource = "${var.s3_documentos_arn}/*"
+		62 |       }
+		63 |     ]
+		64 |   })
+		65 | }
+
+Check: CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+	FAILED for resource: aws_iam_role_policy.ec2_app
+	File: /servicios/iam/main.tf:21-65
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-355
+
+		21 | resource "aws_iam_role_policy" "ec2_app" {
+		22 |   name = "${var.project}-ec2-app-policy-${var.environment}"
+		23 |   role = aws_iam_role.ec2.id
+		24 | 
+		25 |   policy = jsonencode({
+		26 |     Version = "2012-10-17"
+		27 |     Statement = [
+		28 |       {
+		29 |         Sid    = "SSMAccess"
+		30 |         Effect = "Allow"
+		31 |         Action = [
+		32 |           "ssm:UpdateInstanceInformation",
+		33 |           "ssmmessages:CreateControlChannel",
+		34 |           "ssmmessages:CreateDataChannel",
+		35 |           "ssmmessages:OpenControlChannel",
+		36 |           "ssmmessages:OpenDataChannel"
+		37 |         ]
+		38 |         Resource = "*"
+		39 |       },
+		40 |       {
+		41 |         Sid    = "SQSAccess"
+		42 |         Effect = "Allow"
+		43 |         Action = [
+		44 |           "sqs:SendMessage",
+		45 |           "sqs:ReceiveMessage",
+		46 |           "sqs:DeleteMessage",
+		47 |           "sqs:GetQueueAttributes"
+		48 |         ]
+		49 |         Resource = var.sqs_queue_arn
+		50 |       },
+		51 |       {
+		52 |         Sid    = "SNSPublish"
+		53 |         Effect = "Allow"
+		54 |         Action = ["sns:Publish"]
+		55 |         Resource = var.sns_topic_arn
+		56 |       },
+		57 |       {
+		58 |         Sid    = "S3Documentos"
+		59 |         Effect = "Allow"
+		60 |         Action = ["s3:PutObject", "s3:GetObject"]
+		61 |         Resource = "${var.s3_documentos_arn}/*"
+		62 |       }
+		63 |     ]
+		64 |   })
+		65 | }
+
+Check: CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+	FAILED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-290
+
+		94  | resource "aws_iam_role_policy" "lambda_app" {
+		95  |   name = "${var.project}-lambda-app-policy-${var.environment}"
+		96  |   role = aws_iam_role.lambda.id
+		97  | 
+		98  |   policy = jsonencode({
+		99  |     Version = "2012-10-17"
+		100 |     Statement = [
+		101 |       {
+		102 |         Sid    = "CloudWatchLogs"
+		103 |         Effect = "Allow"
+		104 |         Action = [
+		105 |           "logs:CreateLogGroup",
+		106 |           "logs:CreateLogStream",
+		107 |           "logs:PutLogEvents"
+		108 |         ]
+		109 |         Resource = "arn:aws:logs:*:*:*"
+		110 |       },
+		111 |       {
+		112 |         Sid    = "SQSConsume"
+		113 |         Effect = "Allow"
+		114 |         Action = [
+		115 |           "sqs:ReceiveMessage",
+		116 |           "sqs:DeleteMessage",
+		117 |           "sqs:GetQueueAttributes"
+		118 |         ]
+		119 |         Resource = var.sqs_queue_arn
+		120 |       },
+		121 |       {
+		122 |         Sid    = "S3Documentos"
+		123 |         Effect = "Allow"
+		124 |         Action = ["s3:PutObject", "s3:GetObject"]
+		125 |         Resource = "${var.s3_documentos_arn}/*"
+		126 |       },
+		127 |       {
+		128 |         Sid    = "InvokeLambda"
+		129 |         Effect = "Allow"
+		130 |         Action = ["lambda:InvokeFunction"]
+		131 |         Resource = "*"
+		132 |       }
+		133 |     ]
+		134 |   })
+		135 | }
+
+Check: CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+	FAILED for resource: aws_iam_role_policy.lambda_app
+	File: /servicios/iam/main.tf:94-135
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-iam-policies/bc-aws-355
+
+		94  | resource "aws_iam_role_policy" "lambda_app" {
+		95  |   name = "${var.project}-lambda-app-policy-${var.environment}"
+		96  |   role = aws_iam_role.lambda.id
+		97  | 
+		98  |   policy = jsonencode({
+		99  |     Version = "2012-10-17"
+		100 |     Statement = [
+		101 |       {
+		102 |         Sid    = "CloudWatchLogs"
+		103 |         Effect = "Allow"
+		104 |         Action = [
+		105 |           "logs:CreateLogGroup",
+		106 |           "logs:CreateLogStream",
+		107 |           "logs:PutLogEvents"
+		108 |         ]
+		109 |         Resource = "arn:aws:logs:*:*:*"
+		110 |       },
+		111 |       {
+		112 |         Sid    = "SQSConsume"
+		113 |         Effect = "Allow"
+		114 |         Action = [
+		115 |           "sqs:ReceiveMessage",
+		116 |           "sqs:DeleteMessage",
+		117 |           "sqs:GetQueueAttributes"
+		118 |         ]
+		119 |         Resource = var.sqs_queue_arn
+		120 |       },
+		121 |       {
+		122 |         Sid    = "S3Documentos"
+		123 |         Effect = "Allow"
+		124 |         Action = ["s3:PutObject", "s3:GetObject"]
+		125 |         Resource = "${var.s3_documentos_arn}/*"
+		126 |       },
+		127 |       {
+		128 |         Sid    = "InvokeLambda"
+		129 |         Effect = "Allow"
+		130 |         Action = ["lambda:InvokeFunction"]
+		131 |         Resource = "*"
+		132 |       }
+		133 |     ]
+		134 |   })
+		135 | }
+
+Check: CKV_AWS_117: "Ensure that AWS Lambda function is configured inside a VPC"
+	FAILED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-inside-a-vpc-1
+
+		1  | resource "aws_lambda_function" "procesar_pedido" {
+		2  |   function_name = "${var.project}-procesar-pedido-${var.environment}"
+		3  |   role          = var.lambda_role_arn
+		4  |   handler       = "index.handler"
+		5  |   runtime       = "nodejs20.x"
+		6  |   timeout       = 60
+		7  |   memory_size   = 256
+		8  | 
+		9  |   s3_bucket = var.artifacts_bucket
+		10 |   s3_key    = "lambdas/procesar_pedido.zip"
+		11 | 
+		12 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		13 |   tracing_config {
+		14 |     mode = "Active"
+		15 |   }
+		16 | 
+		17 |   environment {
+		18 |     variables = {
+		19 |       ENVIRONMENT           = var.environment
+		20 |       LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+		21 |       SQS_PEDIDOS_URL       = var.sqs_pedidos_url
+		22 |       AURORA_HOST           = var.aurora_host
+		23 |       AURORA_PORT           = "5432"
+		24 |       AURORA_DB_NAME        = var.aurora_db_name
+		25 |       AURORA_USER           = var.aurora_username
+		26 |       AURORA_PASSWORD       = var.aurora_password
+		27 |       REDIS_HOST            = var.redis_host
+		28 |     }
+		29 |   }
+		30 | 
+		31 |   tags = {
+		32 |     Name        = "${var.project}-procesar-pedido-${var.environment}"
+		33 |     Project     = var.project
+		34 |     Environment = var.environment
+		35 |   }
+		36 | }
+
+Check: CKV_AWS_116: "Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)"
+	FAILED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-for-a-dead-letter-queue-dlq
+
+		1  | resource "aws_lambda_function" "procesar_pedido" {
+		2  |   function_name = "${var.project}-procesar-pedido-${var.environment}"
+		3  |   role          = var.lambda_role_arn
+		4  |   handler       = "index.handler"
+		5  |   runtime       = "nodejs20.x"
+		6  |   timeout       = 60
+		7  |   memory_size   = 256
+		8  | 
+		9  |   s3_bucket = var.artifacts_bucket
+		10 |   s3_key    = "lambdas/procesar_pedido.zip"
+		11 | 
+		12 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		13 |   tracing_config {
+		14 |     mode = "Active"
+		15 |   }
+		16 | 
+		17 |   environment {
+		18 |     variables = {
+		19 |       ENVIRONMENT           = var.environment
+		20 |       LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+		21 |       SQS_PEDIDOS_URL       = var.sqs_pedidos_url
+		22 |       AURORA_HOST           = var.aurora_host
+		23 |       AURORA_PORT           = "5432"
+		24 |       AURORA_DB_NAME        = var.aurora_db_name
+		25 |       AURORA_USER           = var.aurora_username
+		26 |       AURORA_PASSWORD       = var.aurora_password
+		27 |       REDIS_HOST            = var.redis_host
+		28 |     }
+		29 |   }
+		30 | 
+		31 |   tags = {
+		32 |     Name        = "${var.project}-procesar-pedido-${var.environment}"
+		33 |     Project     = var.project
+		34 |     Environment = var.environment
+		35 |   }
+		36 | }
+
+Check: CKV_AWS_272: "Ensure AWS Lambda function is configured to validate code-signing"
+	FAILED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-272
+
+		1  | resource "aws_lambda_function" "procesar_pedido" {
+		2  |   function_name = "${var.project}-procesar-pedido-${var.environment}"
+		3  |   role          = var.lambda_role_arn
+		4  |   handler       = "index.handler"
+		5  |   runtime       = "nodejs20.x"
+		6  |   timeout       = 60
+		7  |   memory_size   = 256
+		8  | 
+		9  |   s3_bucket = var.artifacts_bucket
+		10 |   s3_key    = "lambdas/procesar_pedido.zip"
+		11 | 
+		12 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		13 |   tracing_config {
+		14 |     mode = "Active"
+		15 |   }
+		16 | 
+		17 |   environment {
+		18 |     variables = {
+		19 |       ENVIRONMENT           = var.environment
+		20 |       LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+		21 |       SQS_PEDIDOS_URL       = var.sqs_pedidos_url
+		22 |       AURORA_HOST           = var.aurora_host
+		23 |       AURORA_PORT           = "5432"
+		24 |       AURORA_DB_NAME        = var.aurora_db_name
+		25 |       AURORA_USER           = var.aurora_username
+		26 |       AURORA_PASSWORD       = var.aurora_password
+		27 |       REDIS_HOST            = var.redis_host
+		28 |     }
+		29 |   }
+		30 | 
+		31 |   tags = {
+		32 |     Name        = "${var.project}-procesar-pedido-${var.environment}"
+		33 |     Project     = var.project
+		34 |     Environment = var.environment
+		35 |   }
+		36 | }
+
+Check: CKV_AWS_115: "Ensure that AWS Lambda function is configured for function-level concurrent execution limit"
+	FAILED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-for-function-level-concurrent-execution-limit
+
+		1  | resource "aws_lambda_function" "procesar_pedido" {
+		2  |   function_name = "${var.project}-procesar-pedido-${var.environment}"
+		3  |   role          = var.lambda_role_arn
+		4  |   handler       = "index.handler"
+		5  |   runtime       = "nodejs20.x"
+		6  |   timeout       = 60
+		7  |   memory_size   = 256
+		8  | 
+		9  |   s3_bucket = var.artifacts_bucket
+		10 |   s3_key    = "lambdas/procesar_pedido.zip"
+		11 | 
+		12 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		13 |   tracing_config {
+		14 |     mode = "Active"
+		15 |   }
+		16 | 
+		17 |   environment {
+		18 |     variables = {
+		19 |       ENVIRONMENT           = var.environment
+		20 |       LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+		21 |       SQS_PEDIDOS_URL       = var.sqs_pedidos_url
+		22 |       AURORA_HOST           = var.aurora_host
+		23 |       AURORA_PORT           = "5432"
+		24 |       AURORA_DB_NAME        = var.aurora_db_name
+		25 |       AURORA_USER           = var.aurora_username
+		26 |       AURORA_PASSWORD       = var.aurora_password
+		27 |       REDIS_HOST            = var.redis_host
+		28 |     }
+		29 |   }
+		30 | 
+		31 |   tags = {
+		32 |     Name        = "${var.project}-procesar-pedido-${var.environment}"
+		33 |     Project     = var.project
+		34 |     Environment = var.environment
+		35 |   }
+		36 | }
+
+Check: CKV_AWS_173: "Check encryption settings for Lambda environmental variable"
+	FAILED for resource: aws_lambda_function.procesar_pedido
+	File: /servicios/lambda/main.tf:1-36
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-serverless-policies/bc-aws-serverless-5
+
+		1  | resource "aws_lambda_function" "procesar_pedido" {
+		2  |   function_name = "${var.project}-procesar-pedido-${var.environment}"
+		3  |   role          = var.lambda_role_arn
+		4  |   handler       = "index.handler"
+		5  |   runtime       = "nodejs20.x"
+		6  |   timeout       = 60
+		7  |   memory_size   = 256
+		8  | 
+		9  |   s3_bucket = var.artifacts_bucket
+		10 |   s3_key    = "lambdas/procesar_pedido.zip"
+		11 | 
+		12 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		13 |   tracing_config {
+		14 |     mode = "Active"
+		15 |   }
+		16 | 
+		17 |   environment {
+		18 |     variables = {
+		19 |       ENVIRONMENT           = var.environment
+		20 |       LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+		21 |       SQS_PEDIDOS_URL       = var.sqs_pedidos_url
+		22 |       AURORA_HOST           = var.aurora_host
+		23 |       AURORA_PORT           = "5432"
+		24 |       AURORA_DB_NAME        = var.aurora_db_name
+		25 |       AURORA_USER           = var.aurora_username
+		26 |       AURORA_PASSWORD       = var.aurora_password
+		27 |       REDIS_HOST            = var.redis_host
+		28 |     }
+		29 |   }
+		30 | 
+		31 |   tags = {
+		32 |     Name        = "${var.project}-procesar-pedido-${var.environment}"
+		33 |     Project     = var.project
+		34 |     Environment = var.environment
+		35 |   }
+		36 | }
+
+Check: CKV_AWS_117: "Ensure that AWS Lambda function is configured inside a VPC"
+	FAILED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-inside-a-vpc-1
+
+		39 | resource "aws_lambda_function" "enviar_sms_cocina" {
+		40 |   function_name = "${var.project}-enviar-sms-cocina-${var.environment}"
+		41 |   role          = var.lambda_role_arn
+		42 |   handler       = "index.handler"
+		43 |   runtime       = "nodejs20.x"
+		44 |   timeout       = 30
+		45 |   memory_size   = 128
+		46 | 
+		47 |   s3_bucket = var.artifacts_bucket
+		48 |   s3_key    = "lambdas/enviar_sms_cocina.zip"
+		49 | 
+		50 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		51 |   tracing_config {
+		52 |     mode = "Active"
+		53 |   }
+		54 | 
+		55 |   environment {
+		56 |     variables = {
+		57 |       ENVIRONMENT     = var.environment
+		58 |       TELEFONO_COCINA = var.telefono_cocina
+		59 |     }
+		60 |   }
+		61 | 
+		62 |   tags = {
+		63 |     Name        = "${var.project}-enviar-sms-cocina-${var.environment}"
+		64 |     Project     = var.project
+		65 |     Environment = var.environment
+		66 |   }
+		67 | }
+
+Check: CKV_AWS_116: "Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)"
+	FAILED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-for-a-dead-letter-queue-dlq
+
+		39 | resource "aws_lambda_function" "enviar_sms_cocina" {
+		40 |   function_name = "${var.project}-enviar-sms-cocina-${var.environment}"
+		41 |   role          = var.lambda_role_arn
+		42 |   handler       = "index.handler"
+		43 |   runtime       = "nodejs20.x"
+		44 |   timeout       = 30
+		45 |   memory_size   = 128
+		46 | 
+		47 |   s3_bucket = var.artifacts_bucket
+		48 |   s3_key    = "lambdas/enviar_sms_cocina.zip"
+		49 | 
+		50 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		51 |   tracing_config {
+		52 |     mode = "Active"
+		53 |   }
+		54 | 
+		55 |   environment {
+		56 |     variables = {
+		57 |       ENVIRONMENT     = var.environment
+		58 |       TELEFONO_COCINA = var.telefono_cocina
+		59 |     }
+		60 |   }
+		61 | 
+		62 |   tags = {
+		63 |     Name        = "${var.project}-enviar-sms-cocina-${var.environment}"
+		64 |     Project     = var.project
+		65 |     Environment = var.environment
+		66 |   }
+		67 | }
+
+Check: CKV_AWS_272: "Ensure AWS Lambda function is configured to validate code-signing"
+	FAILED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-272
+
+		39 | resource "aws_lambda_function" "enviar_sms_cocina" {
+		40 |   function_name = "${var.project}-enviar-sms-cocina-${var.environment}"
+		41 |   role          = var.lambda_role_arn
+		42 |   handler       = "index.handler"
+		43 |   runtime       = "nodejs20.x"
+		44 |   timeout       = 30
+		45 |   memory_size   = 128
+		46 | 
+		47 |   s3_bucket = var.artifacts_bucket
+		48 |   s3_key    = "lambdas/enviar_sms_cocina.zip"
+		49 | 
+		50 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		51 |   tracing_config {
+		52 |     mode = "Active"
+		53 |   }
+		54 | 
+		55 |   environment {
+		56 |     variables = {
+		57 |       ENVIRONMENT     = var.environment
+		58 |       TELEFONO_COCINA = var.telefono_cocina
+		59 |     }
+		60 |   }
+		61 | 
+		62 |   tags = {
+		63 |     Name        = "${var.project}-enviar-sms-cocina-${var.environment}"
+		64 |     Project     = var.project
+		65 |     Environment = var.environment
+		66 |   }
+		67 | }
+
+Check: CKV_AWS_115: "Ensure that AWS Lambda function is configured for function-level concurrent execution limit"
+	FAILED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-for-function-level-concurrent-execution-limit
+
+		39 | resource "aws_lambda_function" "enviar_sms_cocina" {
+		40 |   function_name = "${var.project}-enviar-sms-cocina-${var.environment}"
+		41 |   role          = var.lambda_role_arn
+		42 |   handler       = "index.handler"
+		43 |   runtime       = "nodejs20.x"
+		44 |   timeout       = 30
+		45 |   memory_size   = 128
+		46 | 
+		47 |   s3_bucket = var.artifacts_bucket
+		48 |   s3_key    = "lambdas/enviar_sms_cocina.zip"
+		49 | 
+		50 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		51 |   tracing_config {
+		52 |     mode = "Active"
+		53 |   }
+		54 | 
+		55 |   environment {
+		56 |     variables = {
+		57 |       ENVIRONMENT     = var.environment
+		58 |       TELEFONO_COCINA = var.telefono_cocina
+		59 |     }
+		60 |   }
+		61 | 
+		62 |   tags = {
+		63 |     Name        = "${var.project}-enviar-sms-cocina-${var.environment}"
+		64 |     Project     = var.project
+		65 |     Environment = var.environment
+		66 |   }
+		67 | }
+
+Check: CKV_AWS_173: "Check encryption settings for Lambda environmental variable"
+	FAILED for resource: aws_lambda_function.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:39-67
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-serverless-policies/bc-aws-serverless-5
+
+		39 | resource "aws_lambda_function" "enviar_sms_cocina" {
+		40 |   function_name = "${var.project}-enviar-sms-cocina-${var.environment}"
+		41 |   role          = var.lambda_role_arn
+		42 |   handler       = "index.handler"
+		43 |   runtime       = "nodejs20.x"
+		44 |   timeout       = 30
+		45 |   memory_size   = 128
+		46 | 
+		47 |   s3_bucket = var.artifacts_bucket
+		48 |   s3_key    = "lambdas/enviar_sms_cocina.zip"
+		49 | 
+		50 |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		51 |   tracing_config {
+		52 |     mode = "Active"
+		53 |   }
+		54 | 
+		55 |   environment {
+		56 |     variables = {
+		57 |       ENVIRONMENT     = var.environment
+		58 |       TELEFONO_COCINA = var.telefono_cocina
+		59 |     }
+		60 |   }
+		61 | 
+		62 |   tags = {
+		63 |     Name        = "${var.project}-enviar-sms-cocina-${var.environment}"
+		64 |     Project     = var.project
+		65 |     Environment = var.environment
+		66 |   }
+		67 | }
+
+Check: CKV_AWS_117: "Ensure that AWS Lambda function is configured inside a VPC"
+	FAILED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-inside-a-vpc-1
+
+		70  | resource "aws_lambda_function" "actualizar_inventario" {
+		71  |   function_name = "${var.project}-actualizar-inventario-${var.environment}"
+		72  |   role          = var.lambda_role_arn
+		73  |   handler       = "index.handler"
+		74  |   runtime       = "nodejs20.x"
+		75  |   timeout       = 60
+		76  |   memory_size   = 256
+		77  | 
+		78  |   s3_bucket = var.artifacts_bucket
+		79  |   s3_key    = "lambdas/actualizar_inventario.zip"
+		80  | 
+		81  |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		82  |   tracing_config {
+		83  |     mode = "Active"
+		84  |   }
+		85  | 
+		86  |   environment {
+		87  |     variables = {
+		88  |       ENVIRONMENT     = var.environment
+		89  |       S3_DOCUMENTOS   = var.s3_documentos_bucket
+		90  |       AURORA_HOST     = var.aurora_host
+		91  |       AURORA_PORT     = "5432"
+		92  |       AURORA_DB_NAME  = var.aurora_db_name
+		93  |       AURORA_USER     = var.aurora_username
+		94  |       AURORA_PASSWORD = var.aurora_password
+		95  |     }
+		96  |   }
+		97  | 
+		98  |   tags = {
+		99  |     Name        = "${var.project}-actualizar-inventario-${var.environment}"
+		100 |     Project     = var.project
+		101 |     Environment = var.environment
+		102 |   }
+		103 | }
+
+Check: CKV_AWS_116: "Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)"
+	FAILED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-for-a-dead-letter-queue-dlq
+
+		70  | resource "aws_lambda_function" "actualizar_inventario" {
+		71  |   function_name = "${var.project}-actualizar-inventario-${var.environment}"
+		72  |   role          = var.lambda_role_arn
+		73  |   handler       = "index.handler"
+		74  |   runtime       = "nodejs20.x"
+		75  |   timeout       = 60
+		76  |   memory_size   = 256
+		77  | 
+		78  |   s3_bucket = var.artifacts_bucket
+		79  |   s3_key    = "lambdas/actualizar_inventario.zip"
+		80  | 
+		81  |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		82  |   tracing_config {
+		83  |     mode = "Active"
+		84  |   }
+		85  | 
+		86  |   environment {
+		87  |     variables = {
+		88  |       ENVIRONMENT     = var.environment
+		89  |       S3_DOCUMENTOS   = var.s3_documentos_bucket
+		90  |       AURORA_HOST     = var.aurora_host
+		91  |       AURORA_PORT     = "5432"
+		92  |       AURORA_DB_NAME  = var.aurora_db_name
+		93  |       AURORA_USER     = var.aurora_username
+		94  |       AURORA_PASSWORD = var.aurora_password
+		95  |     }
+		96  |   }
+		97  | 
+		98  |   tags = {
+		99  |     Name        = "${var.project}-actualizar-inventario-${var.environment}"
+		100 |     Project     = var.project
+		101 |     Environment = var.environment
+		102 |   }
+		103 | }
+
+Check: CKV_AWS_272: "Ensure AWS Lambda function is configured to validate code-signing"
+	FAILED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-272
+
+		70  | resource "aws_lambda_function" "actualizar_inventario" {
+		71  |   function_name = "${var.project}-actualizar-inventario-${var.environment}"
+		72  |   role          = var.lambda_role_arn
+		73  |   handler       = "index.handler"
+		74  |   runtime       = "nodejs20.x"
+		75  |   timeout       = 60
+		76  |   memory_size   = 256
+		77  | 
+		78  |   s3_bucket = var.artifacts_bucket
+		79  |   s3_key    = "lambdas/actualizar_inventario.zip"
+		80  | 
+		81  |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		82  |   tracing_config {
+		83  |     mode = "Active"
+		84  |   }
+		85  | 
+		86  |   environment {
+		87  |     variables = {
+		88  |       ENVIRONMENT     = var.environment
+		89  |       S3_DOCUMENTOS   = var.s3_documentos_bucket
+		90  |       AURORA_HOST     = var.aurora_host
+		91  |       AURORA_PORT     = "5432"
+		92  |       AURORA_DB_NAME  = var.aurora_db_name
+		93  |       AURORA_USER     = var.aurora_username
+		94  |       AURORA_PASSWORD = var.aurora_password
+		95  |     }
+		96  |   }
+		97  | 
+		98  |   tags = {
+		99  |     Name        = "${var.project}-actualizar-inventario-${var.environment}"
+		100 |     Project     = var.project
+		101 |     Environment = var.environment
+		102 |   }
+		103 | }
+
+Check: CKV_AWS_115: "Ensure that AWS Lambda function is configured for function-level concurrent execution limit"
+	FAILED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-aws-lambda-function-is-configured-for-function-level-concurrent-execution-limit
+
+		70  | resource "aws_lambda_function" "actualizar_inventario" {
+		71  |   function_name = "${var.project}-actualizar-inventario-${var.environment}"
+		72  |   role          = var.lambda_role_arn
+		73  |   handler       = "index.handler"
+		74  |   runtime       = "nodejs20.x"
+		75  |   timeout       = 60
+		76  |   memory_size   = 256
+		77  | 
+		78  |   s3_bucket = var.artifacts_bucket
+		79  |   s3_key    = "lambdas/actualizar_inventario.zip"
+		80  | 
+		81  |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		82  |   tracing_config {
+		83  |     mode = "Active"
+		84  |   }
+		85  | 
+		86  |   environment {
+		87  |     variables = {
+		88  |       ENVIRONMENT     = var.environment
+		89  |       S3_DOCUMENTOS   = var.s3_documentos_bucket
+		90  |       AURORA_HOST     = var.aurora_host
+		91  |       AURORA_PORT     = "5432"
+		92  |       AURORA_DB_NAME  = var.aurora_db_name
+		93  |       AURORA_USER     = var.aurora_username
+		94  |       AURORA_PASSWORD = var.aurora_password
+		95  |     }
+		96  |   }
+		97  | 
+		98  |   tags = {
+		99  |     Name        = "${var.project}-actualizar-inventario-${var.environment}"
+		100 |     Project     = var.project
+		101 |     Environment = var.environment
+		102 |   }
+		103 | }
+
+Check: CKV_AWS_173: "Check encryption settings for Lambda environmental variable"
+	FAILED for resource: aws_lambda_function.actualizar_inventario
+	File: /servicios/lambda/main.tf:70-103
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-serverless-policies/bc-aws-serverless-5
+
+		70  | resource "aws_lambda_function" "actualizar_inventario" {
+		71  |   function_name = "${var.project}-actualizar-inventario-${var.environment}"
+		72  |   role          = var.lambda_role_arn
+		73  |   handler       = "index.handler"
+		74  |   runtime       = "nodejs20.x"
+		75  |   timeout       = 60
+		76  |   memory_size   = 256
+		77  | 
+		78  |   s3_bucket = var.artifacts_bucket
+		79  |   s3_key    = "lambdas/actualizar_inventario.zip"
+		80  | 
+		81  |   # Habilitar X-Ray tracing → Fix CKV_AWS_50
+		82  |   tracing_config {
+		83  |     mode = "Active"
+		84  |   }
+		85  | 
+		86  |   environment {
+		87  |     variables = {
+		88  |       ENVIRONMENT     = var.environment
+		89  |       S3_DOCUMENTOS   = var.s3_documentos_bucket
+		90  |       AURORA_HOST     = var.aurora_host
+		91  |       AURORA_PORT     = "5432"
+		92  |       AURORA_DB_NAME  = var.aurora_db_name
+		93  |       AURORA_USER     = var.aurora_username
+		94  |       AURORA_PASSWORD = var.aurora_password
+		95  |     }
+		96  |   }
+		97  | 
+		98  |   tags = {
+		99  |     Name        = "${var.project}-actualizar-inventario-${var.environment}"
+		100 |     Project     = var.project
+		101 |     Environment = var.environment
+		102 |   }
+		103 | }
+
+Check: CKV_AWS_158: "Ensure that CloudWatch Log Group is encrypted by KMS"
+	FAILED for resource: aws_cloudwatch_log_group.procesar_pedido
+	File: /servicios/lambda/main.tf:106-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-cloudwatch-log-group-is-encrypted-by-kms
+
+		106 | resource "aws_cloudwatch_log_group" "procesar_pedido" {
+		107 |   name              = "/aws/lambda/${aws_lambda_function.procesar_pedido.function_name}"
+		108 |   retention_in_days = 365
+		109 | }
+
+Check: CKV_AWS_158: "Ensure that CloudWatch Log Group is encrypted by KMS"
+	FAILED for resource: aws_cloudwatch_log_group.enviar_sms_cocina
+	File: /servicios/lambda/main.tf:111-114
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-cloudwatch-log-group-is-encrypted-by-kms
+
+		111 | resource "aws_cloudwatch_log_group" "enviar_sms_cocina" {
+		112 |   name              = "/aws/lambda/${aws_lambda_function.enviar_sms_cocina.function_name}"
+		113 |   retention_in_days = 365
+		114 | }
+
+Check: CKV_AWS_158: "Ensure that CloudWatch Log Group is encrypted by KMS"
+	FAILED for resource: aws_cloudwatch_log_group.actualizar_inventario
+	File: /servicios/lambda/main.tf:116-119
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-cloudwatch-log-group-is-encrypted-by-kms
+
+		116 | resource "aws_cloudwatch_log_group" "actualizar_inventario" {
+		117 |   name              = "/aws/lambda/${aws_lambda_function.actualizar_inventario.function_name}"
+		118 |   retention_in_days = 365
+		119 | }
+Check: CKV_AWS_27: "Ensure all data stored in the SQS queue is encrypted"
+	FAILED for resource: aws_sqs_queue.pedidos
+	File: /servicios/sqs/main.tf:1-21
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-16-encrypt-sqs-queue
+
+		1  | resource "aws_sqs_queue" "pedidos" {
+		2  |   name                        = "${var.project}-cola-pedidos-${var.environment}.fifo"
+		3  |   fifo_queue                  = true
+		4  |   content_based_deduplication = true
+		5  | 
+		6  |   visibility_timeout_seconds  = var.visibility_timeout
+		7  |   message_retention_seconds   = 86400   # 1 dia
+		8  |   max_message_size            = 262144  # 256 KB
+		9  |   receive_wait_time_seconds   = 20      # Long polling
+		10 | 
+		11 |   redrive_policy = jsonencode({
+		12 |     deadLetterTargetArn = var.dlq_arn
+		13 |     maxReceiveCount     = var.max_receive_count
+		14 |   })
+		15 | 
+		16 |   tags = {
+		17 |     Name        = "${var.project}-cola-pedidos-${var.environment}"
+		18 |     Project     = var.project
+		19 |     Environment = var.environment
+		20 |   }
+		21 | }
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+
+		76  | resource "aws_security_group" "alb" {
+		77  |   name        = "${var.project}-sg-alb-${var.environment}"
+		78  |   description = "Permite trafico HTTPS entrante al ALB"
+		79  |   vpc_id      = aws_vpc.main.id
+		80  | 
+		81  |   ingress {
+		82  |     description = "HTTPS desde internet"
+		83  |     from_port   = 443
+		84  |     to_port     = 443
+		85  |     protocol    = "tcp"
+		86  |     cidr_blocks = ["0.0.0.0/0"]
+		87  |   }
+		88  | 
+		89  |   ingress {
+		90  |     description = "HTTP (redireccion a HTTPS)"
+		91  |     from_port   = 80
+		92  |     to_port     = 80
+		93  |     protocol    = "tcp"
+		94  |     cidr_blocks = ["0.0.0.0/0"]
+		95  |   }
+		96  | 
+		97  |   egress {
+		98  |     from_port   = 0
+		99  |     to_port     = 0
+		100 |     protocol    = "-1"
+		101 |     cidr_blocks = ["0.0.0.0/0"]
+		102 |   }
+		103 | 
+		104 |   tags = {
+		105 |     Name        = "${var.project}-sg-alb-${var.environment}"
+		106 |     Project     = var.project
+		107 |     Environment = var.environment
+		108 |   }
+		109 | }
+
+Check: CKV_AWS_23: "Ensure every security group and rule has a description"
+	FAILED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+
+		76  | resource "aws_security_group" "alb" {
+		77  |   name        = "${var.project}-sg-alb-${var.environment}"
+		78  |   description = "Permite trafico HTTPS entrante al ALB"
+		79  |   vpc_id      = aws_vpc.main.id
+		80  | 
+		81  |   ingress {
+		82  |     description = "HTTPS desde internet"
+		83  |     from_port   = 443
+		84  |     to_port     = 443
+		85  |     protocol    = "tcp"
+		86  |     cidr_blocks = ["0.0.0.0/0"]
+		87  |   }
+		88  | 
+		89  |   ingress {
+		90  |     description = "HTTP (redireccion a HTTPS)"
+		91  |     from_port   = 80
+		92  |     to_port     = 80
+		93  |     protocol    = "tcp"
+		94  |     cidr_blocks = ["0.0.0.0/0"]
+		95  |   }
+		96  | 
+		97  |   egress {
+		98  |     from_port   = 0
+		99  |     to_port     = 0
+		100 |     protocol    = "-1"
+		101 |     cidr_blocks = ["0.0.0.0/0"]
+		102 |   }
+		103 | 
+		104 |   tags = {
+		105 |     Name        = "${var.project}-sg-alb-${var.environment}"
+		106 |     Project     = var.project
+		107 |     Environment = var.environment
+		108 |   }
+		109 | }
+
+Check: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	FAILED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+
+		76  | resource "aws_security_group" "alb" {
+		77  |   name        = "${var.project}-sg-alb-${var.environment}"
+		78  |   description = "Permite trafico HTTPS entrante al ALB"
+		79  |   vpc_id      = aws_vpc.main.id
+		80  | 
+		81  |   ingress {
+		82  |     description = "HTTPS desde internet"
+		83  |     from_port   = 443
+		84  |     to_port     = 443
+		85  |     protocol    = "tcp"
+		86  |     cidr_blocks = ["0.0.0.0/0"]
+		87  |   }
+		88  | 
+		89  |   ingress {
+		90  |     description = "HTTP (redireccion a HTTPS)"
+		91  |     from_port   = 80
+		92  |     to_port     = 80
+		93  |     protocol    = "tcp"
+		94  |     cidr_blocks = ["0.0.0.0/0"]
+		95  |   }
+		96  | 
+		97  |   egress {
+		98  |     from_port   = 0
+		99  |     to_port     = 0
+		100 |     protocol    = "-1"
+		101 |     cidr_blocks = ["0.0.0.0/0"]
+		102 |   }
+		103 | 
+		104 |   tags = {
+		105 |     Name        = "${var.project}-sg-alb-${var.environment}"
+		106 |     Project     = var.project
+		107 |     Environment = var.environment
+		108 |   }
+		109 | }
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+
+		112 | resource "aws_security_group" "ec2" {
+		113 |   name        = "${var.project}-sg-ec2-${var.environment}"
+		114 |   description = "Permite trafico desde el ALB hacia las EC2"
+		115 |   vpc_id      = aws_vpc.main.id
+		116 | 
+		117 |   ingress {
+		118 |     description     = "Puerto app desde ALB"
+		119 |     from_port       = var.app_port
+		120 |     to_port         = var.app_port
+		121 |     protocol        = "tcp"
+		122 |     security_groups = [aws_security_group.alb.id]
+		123 |   }
+		124 | 
+		125 |   egress {
+		126 |     from_port   = 0
+		127 |     to_port     = 0
+		128 |     protocol    = "-1"
+		129 |     cidr_blocks = ["0.0.0.0/0"]
+		130 |   }
+		131 | 
+		132 |   tags = {
+		133 |     Name        = "${var.project}-sg-ec2-${var.environment}"
+		134 |     Project     = var.project
+		135 |     Environment = var.environment
+		136 |   }
+		137 | }
+
+Check: CKV_AWS_23: "Ensure every security group and rule has a description"
+	FAILED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+
+		112 | resource "aws_security_group" "ec2" {
+		113 |   name        = "${var.project}-sg-ec2-${var.environment}"
+		114 |   description = "Permite trafico desde el ALB hacia las EC2"
+		115 |   vpc_id      = aws_vpc.main.id
+		116 | 
+		117 |   ingress {
+		118 |     description     = "Puerto app desde ALB"
+		119 |     from_port       = var.app_port
+		120 |     to_port         = var.app_port
+		121 |     protocol        = "tcp"
+		122 |     security_groups = [aws_security_group.alb.id]
+		123 |   }
+		124 | 
+		125 |   egress {
+		126 |     from_port   = 0
+		127 |     to_port     = 0
+		128 |     protocol    = "-1"
+		129 |     cidr_blocks = ["0.0.0.0/0"]
+		130 |   }
+		131 | 
+		132 |   tags = {
+		133 |     Name        = "${var.project}-sg-ec2-${var.environment}"
+		134 |     Project     = var.project
+		135 |     Environment = var.environment
+		136 |   }
+		137 | }
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+
+		140 | resource "aws_security_group" "aurora" {
+		141 |   name        = "${var.project}-sg-aurora-${var.environment}"
+		142 |   description = "Permite trafico MySQL desde las EC2"
+		143 |   vpc_id      = aws_vpc.main.id
+		144 | 
+		145 |   ingress {
+		146 |     description     = "MySQL desde EC2"
+		147 |     from_port       = 3306
+		148 |     to_port         = 3306
+		149 |     protocol        = "tcp"
+		150 |     security_groups = [aws_security_group.ec2.id]
+		151 |   }
+		152 | 
+		153 |   egress {
+		154 |     from_port   = 0
+		155 |     to_port     = 0
+		156 |     protocol    = "-1"
+		157 |     cidr_blocks = ["0.0.0.0/0"]
+		158 |   }
+		159 | 
+		160 |   tags = {
+		161 |     Name        = "${var.project}-sg-aurora-${var.environment}"
+		162 |     Project     = var.project
+		163 |     Environment = var.environment
+		164 |   }
+		165 | }
+
+Check: CKV_AWS_23: "Ensure every security group and rule has a description"
+	FAILED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+
+		140 | resource "aws_security_group" "aurora" {
+		141 |   name        = "${var.project}-sg-aurora-${var.environment}"
+		142 |   description = "Permite trafico MySQL desde las EC2"
+		143 |   vpc_id      = aws_vpc.main.id
+		144 | 
+		145 |   ingress {
+		146 |     description     = "MySQL desde EC2"
+		147 |     from_port       = 3306
+		148 |     to_port         = 3306
+		149 |     protocol        = "tcp"
+		150 |     security_groups = [aws_security_group.ec2.id]
+		151 |   }
+		152 | 
+		153 |   egress {
+		154 |     from_port   = 0
+		155 |     to_port     = 0
+		156 |     protocol    = "-1"
+		157 |     cidr_blocks = ["0.0.0.0/0"]
+		158 |   }
+		159 | 
+		160 |   tags = {
+		161 |     Name        = "${var.project}-sg-aurora-${var.environment}"
+		162 |     Project     = var.project
+		163 |     Environment = var.environment
+		164 |   }
+		165 | }
+
+Check: CKV_AWS_382: "Ensure no security groups allow egress from 0.0.0.0:0 to port -1"
+	FAILED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-382
+
+		168 | resource "aws_security_group" "elasticache" {
+		169 |   name        = "${var.project}-sg-redis-${var.environment}"
+		170 |   description = "Permite trafico Redis desde las EC2"
+		171 |   vpc_id      = aws_vpc.main.id
+		172 | 
+		173 |   ingress {
+		174 |     description     = "Redis desde EC2"
+		175 |     from_port       = 6379
+		176 |     to_port         = 6379
+		177 |     protocol        = "tcp"
+		178 |     security_groups = [aws_security_group.ec2.id]
+		179 |   }
+		180 | 
+		181 |   egress {
+		182 |     from_port   = 0
+		183 |     to_port     = 0
+		184 |     protocol    = "-1"
+		185 |     cidr_blocks = ["0.0.0.0/0"]
+		186 |   }
+		187 | 
+		188 |   tags = {
+		189 |     Name        = "${var.project}-sg-redis-${var.environment}"
+		190 |     Project     = var.project
+		191 |     Environment = var.environment
+		192 |   }
+		193 | }
+
+Check: CKV_AWS_23: "Ensure every security group and rule has a description"
+	FAILED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-31
+
+		168 | resource "aws_security_group" "elasticache" {
+		169 |   name        = "${var.project}-sg-redis-${var.environment}"
+		170 |   description = "Permite trafico Redis desde las EC2"
+		171 |   vpc_id      = aws_vpc.main.id
+		172 | 
+		173 |   ingress {
+		174 |     description     = "Redis desde EC2"
+		175 |     from_port       = 6379
+		176 |     to_port         = 6379
+		177 |     protocol        = "tcp"
+		178 |     security_groups = [aws_security_group.ec2.id]
+		179 |   }
+		180 | 
+		181 |   egress {
+		182 |     from_port   = 0
+		183 |     to_port     = 0
+		184 |     protocol    = "-1"
+		185 |     cidr_blocks = ["0.0.0.0/0"]
+		186 |   }
+		187 | 
+		188 |   tags = {
+		189 |     Name        = "${var.project}-sg-redis-${var.environment}"
+		190 |     Project     = var.project
+		191 |     Environment = var.environment
+		192 |   }
+		193 | }
+
+Check: CKV_AWS_192: "Ensure WAF prevents message lookup in Log4j2. See CVE-2021-44228 aka log4jshell"
+	FAILED for resource: aws_wafv2_web_acl.main
+	File: /servicios/waf/main.tf:1-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-waf-prevents-message-lookup-in-log4j2
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Check: CKV2_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration"
+	FAILED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-61
+
+		9  | resource "aws_s3_bucket" "frontend" {
+		10 |   bucket = "${var.project}-frontend-${var.environment}"
+		11 | 
+		12 |   tags = {
+		13 |     Name        = "${var.project}-frontend-${var.environment}"
+		14 |     Project     = var.project
+		15 |     Environment = var.environment
+		16 |   }
+		17 | }
+
+Check: CKV2_AWS_50: "Ensure AWS ElastiCache Redis cluster with Multi-AZ Automatic Failover feature set to enabled"
+	FAILED for resource: aws_elasticache_replication_group.main
+	File: /servicios/elasticache/main.tf:12-43
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-aws-elasticache-redis-cluster-with-multi-az-automatic-failover-feature-set-to-enabled
+
+		12 | resource "aws_elasticache_replication_group" "main" {
+		13 |   replication_group_id = "${var.project}-redis-${var.environment}"
+		14 |   description          = "Redis cache para ${var.project} - ${var.environment}"
+		15 | 
+		16 |   node_type            = var.node_type
+		17 |   port                 = 6379
+		18 |   parameter_group_name = "default.redis7"
+		19 |   engine_version       = "7.0"
+		20 | 
+		21 |   num_cache_clusters = var.num_cache_nodes
+		22 |   subnet_group_name  = aws_elasticache_subnet_group.main.name
+		23 |   security_group_ids = [var.sg_elasticache_id]
+		24 | 
+		25 |   # Habilitar encriptacion en transito y en reposo
+		26 |   at_rest_encryption_enabled  = true
+		27 |   transit_encryption_enabled  = true
+		28 | 
+		29 |   # Actualizaciones automaticas de version menor → Fix CKV_AWS_191
+		30 |   auto_minor_version_upgrade = true
+		31 | 
+		32 |   # Habilitar backups automaticos (solo prod)
+		33 |   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
+		34 |   snapshot_window          = "03:00-04:00"
+		35 | 
+		36 |   automatic_failover_enabled = var.num_cache_nodes > 1 ? true : false
+		37 | 
+		38 |   tags = {
+		39 |     Name        = "${var.project}-redis-${var.environment}"
+		40 |     Project     = var.project
+		41 |     Environment = var.environment
+		42 |   }
+		43 | }
+
+Check: CKV2_AWS_32: "Ensure CloudFront distribution has a response headers policy attached"
+	FAILED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-networking-65
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Check: CKV2_AWS_11: "Ensure VPC flow logging is enabled in all VPCs"
+	FAILED for resource: aws_vpc.main
+	File: /servicios/vpc/main.tf:1-11
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/logging-9-enable-vpc-flow-logging
+
+		1  | resource "aws_vpc" "main" {
+		2  |   cidr_block           = var.vpc_cidr
+		3  |   enable_dns_support   = true
+		4  |   enable_dns_hostnames = true
+		5  | 
+		6  |   tags = {
+		7  |     Name        = "${var.project}-vpc-${var.environment}"
+		8  |     Project     = var.project
+		9  |     Environment = var.environment
+		10 |   }
+		11 | }
+
+Check: CKV2_AWS_38: "Ensure Domain Name System Security Extensions (DNSSEC) signing is enabled for Amazon Route 53 public hosted zones"
+	FAILED for resource: aws_route53_zone.main
+	File: /servicios/route53/main.tf:1-9
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/bc-aws-2-38
+
+		1 | resource "aws_route53_zone" "main" {
+		2 |   name = var.domain_name
+		3 | 
+		4 |   tags = {
+		5 |     Name        = "${var.project}-hz-${var.environment}"
+		6 |     Project     = var.project
+		7 |     Environment = var.environment
+		8 |   }
+		9 | }
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.alb
+	File: /servicios/vpc/main.tf:76-109
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+
+		76  | resource "aws_security_group" "alb" {
+		77  |   name        = "${var.project}-sg-alb-${var.environment}"
+		78  |   description = "Permite trafico HTTPS entrante al ALB"
+		79  |   vpc_id      = aws_vpc.main.id
+		80  | 
+		81  |   ingress {
+		82  |     description = "HTTPS desde internet"
+		83  |     from_port   = 443
+		84  |     to_port     = 443
+		85  |     protocol    = "tcp"
+		86  |     cidr_blocks = ["0.0.0.0/0"]
+		87  |   }
+		88  | 
+		89  |   ingress {
+		90  |     description = "HTTP (redireccion a HTTPS)"
+		91  |     from_port   = 80
+		92  |     to_port     = 80
+		93  |     protocol    = "tcp"
+		94  |     cidr_blocks = ["0.0.0.0/0"]
+		95  |   }
+		96  | 
+		97  |   egress {
+		98  |     from_port   = 0
+		99  |     to_port     = 0
+		100 |     protocol    = "-1"
+		101 |     cidr_blocks = ["0.0.0.0/0"]
+		102 |   }
+		103 | 
+		104 |   tags = {
+		105 |     Name        = "${var.project}-sg-alb-${var.environment}"
+		106 |     Project     = var.project
+		107 |     Environment = var.environment
+		108 |   }
+		109 | }
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.ec2
+	File: /servicios/vpc/main.tf:112-137
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+
+		112 | resource "aws_security_group" "ec2" {
+		113 |   name        = "${var.project}-sg-ec2-${var.environment}"
+		114 |   description = "Permite trafico desde el ALB hacia las EC2"
+		115 |   vpc_id      = aws_vpc.main.id
+		116 | 
+		117 |   ingress {
+		118 |     description     = "Puerto app desde ALB"
+		119 |     from_port       = var.app_port
+		120 |     to_port         = var.app_port
+		121 |     protocol        = "tcp"
+		122 |     security_groups = [aws_security_group.alb.id]
+		123 |   }
+		124 | 
+		125 |   egress {
+		126 |     from_port   = 0
+		127 |     to_port     = 0
+		128 |     protocol    = "-1"
+		129 |     cidr_blocks = ["0.0.0.0/0"]
+		130 |   }
+		131 | 
+		132 |   tags = {
+		133 |     Name        = "${var.project}-sg-ec2-${var.environment}"
+		134 |     Project     = var.project
+		135 |     Environment = var.environment
+		136 |   }
+		137 | }
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.aurora
+	File: /servicios/vpc/main.tf:140-165
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+
+		140 | resource "aws_security_group" "aurora" {
+		141 |   name        = "${var.project}-sg-aurora-${var.environment}"
+		142 |   description = "Permite trafico MySQL desde las EC2"
+		143 |   vpc_id      = aws_vpc.main.id
+		144 | 
+		145 |   ingress {
+		146 |     description     = "MySQL desde EC2"
+		147 |     from_port       = 3306
+		148 |     to_port         = 3306
+		149 |     protocol        = "tcp"
+		150 |     security_groups = [aws_security_group.ec2.id]
+		151 |   }
+		152 | 
+		153 |   egress {
+		154 |     from_port   = 0
+		155 |     to_port     = 0
+		156 |     protocol    = "-1"
+		157 |     cidr_blocks = ["0.0.0.0/0"]
+		158 |   }
+		159 | 
+		160 |   tags = {
+		161 |     Name        = "${var.project}-sg-aurora-${var.environment}"
+		162 |     Project     = var.project
+		163 |     Environment = var.environment
+		164 |   }
+		165 | }
+
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	FAILED for resource: aws_security_group.elasticache
+	File: /servicios/vpc/main.tf:168-193
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+
+		168 | resource "aws_security_group" "elasticache" {
+		169 |   name        = "${var.project}-sg-redis-${var.environment}"
+		170 |   description = "Permite trafico Redis desde las EC2"
+		171 |   vpc_id      = aws_vpc.main.id
+		172 | 
+		173 |   ingress {
+		174 |     description     = "Redis desde EC2"
+		175 |     from_port       = 6379
+		176 |     to_port         = 6379
+		177 |     protocol        = "tcp"
+		178 |     security_groups = [aws_security_group.ec2.id]
+		179 |   }
+		180 | 
+		181 |   egress {
+		182 |     from_port   = 0
+		183 |     to_port     = 0
+		184 |     protocol    = "-1"
+		185 |     cidr_blocks = ["0.0.0.0/0"]
+		186 |   }
+		187 | 
+		188 |   tags = {
+		189 |     Name        = "${var.project}-sg-redis-${var.environment}"
+		190 |     Project     = var.project
+		191 |     Environment = var.environment
+		192 |   }
+		193 | }
+
+Check: CKV2_AWS_31: "Ensure WAF2 has a Logging Configuration"
+	FAILED for resource: aws_wafv2_web_acl.main
+	File: /servicios/waf/main.tf:1-91
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-logging-33
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Check: CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default"
+	FAILED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
+
+		9  | resource "aws_s3_bucket" "frontend" {
+		10 |   bucket = "${var.project}-frontend-${var.environment}"
+		11 | 
+		12 |   tags = {
+		13 |     Name        = "${var.project}-frontend-${var.environment}"
+		14 |     Project     = var.project
+		15 |     Environment = var.environment
+		16 |   }
+		17 | }
+
+Check: CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default"
+	FAILED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
+
+		62 | resource "aws_s3_bucket" "documentos" {
+		63 |   bucket = "${var.project}-documentos-${var.environment}"
+		64 | 
+		65 |   tags = {
+		66 |     Name        = "${var.project}-documentos-${var.environment}"
+		67 |     Project     = var.project
+		68 |     Environment = var.environment
+		69 |   }
+		70 | }
+
+Check: CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default"
+	FAILED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
+
+		109 | resource "aws_s3_bucket" "logs" {
+		110 |   bucket = "${var.project}-logs-${var.environment}"
+		111 | 
+		112 |   tags = {
+		113 |     Name        = "${var.project}-logs-${var.environment}"
+		114 |     Project     = var.project
+		115 |     Environment = var.environment
+		116 |   }
+		117 | }
+
+Check: CKV2_AWS_12: "Ensure the default security group of every VPC restricts all traffic"
+	FAILED for resource: aws_vpc.main
+	File: /servicios/vpc/main.tf:1-11
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/networking-4
+
+		1  | resource "aws_vpc" "main" {
+		2  |   cidr_block           = var.vpc_cidr
+		3  |   enable_dns_support   = true
+		4  |   enable_dns_hostnames = true
+		5  | 
+		6  |   tags = {
+		7  |     Name        = "${var.project}-vpc-${var.environment}"
+		8  |     Project     = var.project
+		9  |     Environment = var.environment
+		10 |   }
+		11 | }
+
+Check: CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled"
+	FAILED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-62
+
+		9  | resource "aws_s3_bucket" "frontend" {
+		10 |   bucket = "${var.project}-frontend-${var.environment}"
+		11 | 
+		12 |   tags = {
+		13 |     Name        = "${var.project}-frontend-${var.environment}"
+		14 |     Project     = var.project
+		15 |     Environment = var.environment
+		16 |   }
+		17 | }
+
+Check: CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled"
+	FAILED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-62
+
+		62 | resource "aws_s3_bucket" "documentos" {
+		63 |   bucket = "${var.project}-documentos-${var.environment}"
+		64 | 
+		65 |   tags = {
+		66 |     Name        = "${var.project}-documentos-${var.environment}"
+		67 |     Project     = var.project
+		68 |     Environment = var.environment
+		69 |   }
+		70 | }
+
+Check: CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled"
+	FAILED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-62
+
+		109 | resource "aws_s3_bucket" "logs" {
+		110 |   bucket = "${var.project}-logs-${var.environment}"
+		111 | 
+		112 |   tags = {
+		113 |     Name        = "${var.project}-logs-${var.environment}"
+		114 |     Project     = var.project
+		115 |     Environment = var.environment
+		116 |   }
+		117 | }
+
+Check: CKV2_AWS_39: "Ensure Domain Name System (DNS) query logging is enabled for Amazon Route 53 hosted zones"
+	FAILED for resource: aws_route53_zone.main
+	File: /servicios/route53/main.tf:1-9
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-39
+
+		1 | resource "aws_route53_zone" "main" {
+		2 |   name = var.domain_name
+		3 | 
+		4 |   tags = {
+		5 |     Name        = "${var.project}-hz-${var.environment}"
+		6 |     Project     = var.project
+		7 |     Environment = var.environment
+		8 |   }
+		9 | }
+
+Check: CKV2_AWS_8: "Ensure that RDS clusters has backup plan of AWS Backup"
+	FAILED for resource: aws_rds_cluster.main
+	File: /servicios/aurora/main.tf:20-57
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-rds-clusters-has-backup-plan-of-aws-backup
+
+		20 | resource "aws_rds_cluster" "main" {
+		21 |   cluster_identifier      = "${var.project}-aurora-${var.environment}"
+		22 |   engine                  = "aurora-mysql"
+		23 |   engine_version          = "8.0.mysql_aurora.3.04.0"
+		24 |   database_name           = var.db_name
+		25 |   master_username         = var.db_username
+		26 |   master_password         = var.db_password
+		27 |   db_subnet_group_name    = aws_db_subnet_group.main.name
+		28 |   vpc_security_group_ids  = [var.sg_aurora_id]
+		29 | 
+		30 |   backup_retention_period = var.environment == "prod" ? 7 : 1
+		31 |   preferred_backup_window = "02:00-03:00"
+		32 | 
+		33 |   # Proteccion contra borrado accidental en prod
+		34 |   deletion_protection = var.environment == "prod" ? true : false
+		35 |   skip_final_snapshot = var.environment == "prod" ? false : true
+		36 |   final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
+		37 | 
+		38 |   storage_encrypted = true
+		39 | 
+		40 |   # Autenticacion IAM en vez de solo usuario/clave → Fix CKV_AWS_162
+		41 |   iam_database_authentication_enabled = true
+		42 | 
+		43 |   # Copiar tags a los snapshots de backup → Fix CKV_AWS_313
+		44 |   copy_tags_to_snapshot = true
+		45 | 
+		46 |   # Exportar logs a CloudWatch → Fix CKV_AWS_324 y CKV_AWS_325
+		47 |   enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
+		48 | 
+		49 |   # Backtracking: permite "rebobinar" el cluster hasta 72h → Fix CKV_AWS_326
+		50 |   backtrack_window = 259200  # 72 horas en segundos
+		51 | 
+		52 |   tags = {
+		53 |     Name        = "${var.project}-aurora-cluster-${var.environment}"
+		54 |     Project     = var.project
+		55 |     Environment = var.environment
+		56 |   }
+		57 | }
+
+Check: CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled"
+	FAILED for resource: aws_s3_bucket.frontend
+	File: /servicios/s3/main.tf:9-17
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
+
+		9  | resource "aws_s3_bucket" "frontend" {
+		10 |   bucket = "${var.project}-frontend-${var.environment}"
+		11 | 
+		12 |   tags = {
+		13 |     Name        = "${var.project}-frontend-${var.environment}"
+		14 |     Project     = var.project
+		15 |     Environment = var.environment
+		16 |   }
+		17 | }
+
+Check: CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled"
+	FAILED for resource: aws_s3_bucket.documentos
+	File: /servicios/s3/main.tf:62-70
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
+
+		62 | resource "aws_s3_bucket" "documentos" {
+		63 |   bucket = "${var.project}-documentos-${var.environment}"
+		64 | 
+		65 |   tags = {
+		66 |     Name        = "${var.project}-documentos-${var.environment}"
+		67 |     Project     = var.project
+		68 |     Environment = var.environment
+		69 |   }
+		70 | }
+
+Check: CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled"
+	FAILED for resource: aws_s3_bucket.logs
+	File: /servicios/s3/main.tf:109-117
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
+
+		109 | resource "aws_s3_bucket" "logs" {
+		110 |   bucket = "${var.project}-logs-${var.environment}"
+		111 | 
+		112 |   tags = {
+		113 |     Name        = "${var.project}-logs-${var.environment}"
+		114 |     Project     = var.project
+		115 |     Environment = var.environment
+		116 |   }
+		117 | }
+
+Check: CKV2_AWS_28: "Ensure public facing ALB are protected by WAF"
+	FAILED for resource: aws_lb.main
+	File: /servicios/alb/main.tf:2-23
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-public-facing-alb-are-protected-by-waf
+
+		2  | resource "aws_lb" "main" {
+		3  |   name               = "${var.project}-alb-${var.environment}"
+		4  |   internal           = false
+		5  |   load_balancer_type = "application"
+		6  |   security_groups    = [var.sg_alb_id]
+		7  |   subnets            = var.public_subnet_ids
+		8  | 
+		9  |   enable_deletion_protection = var.environment == "prod" ? true : false
+		10 |   drop_invalid_header_fields = true
+		11 | 
+		12 |   access_logs {
+		13 |     bucket  = var.alb_logs_bucket
+		14 |     prefix  = "${var.project}/${var.environment}/alb"
+		15 |     enabled = true
+		16 |   }
+		17 | 
+		18 |   tags = {
+		19 |     Name        = "${var.project}-alb-${var.environment}"
+		20 |     Project     = var.project
+		21 |     Environment = var.environment
+		22 |   }
+		23 | }
+
+Check: CKV2_AWS_47: "Ensure AWS CloudFront attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability"
+	FAILED for resource: aws_cloudfront_distribution.main
+	File: /servicios/cloudfront/main.tf:10-77
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-47
+
+		Code lines for this resource are too many. Please use IDE of your choice to review the file.
+Error parsing file /tf/main.tf

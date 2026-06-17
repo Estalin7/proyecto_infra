@@ -13,5 +13,3 @@ variable "rate_limit" {
   type        = number
   default     = 2000
 }
-
-
