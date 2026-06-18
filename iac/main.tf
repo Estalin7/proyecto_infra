@@ -78,6 +78,8 @@ module "cloudfront" {
   acm_certificate_arn            = module.acm.cert_cloudfront_arn
   waf_acl_arn                    = module.waf.web_acl_arn
   price_class                    = var.cf_price_class
+  cf_logs_bucket                 = "${var.project}-logs-${var.environment}.s3.amazonaws.com"
+  s3_bucket_failover_domain_name = module.s3.documentos_regional_domain_name
 
   depends_on = [module.acm, module.waf]
 }
@@ -240,3 +242,5 @@ module "api_gateway" {
 
   depends_on = [module.cognito, module.alb]
 }
+
+

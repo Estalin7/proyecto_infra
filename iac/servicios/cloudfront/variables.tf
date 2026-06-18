@@ -34,3 +34,19 @@ variable "price_class" {
   type        = string
   default     = "PriceClass_100"
 }
+
+variable "cf_logs_bucket" {
+  description = "Bucket S3 donde se guardan los logs de CloudFront"
+  type        = string
+}
+
+variable "s3_bucket_failover_domain_name" {
+  description = "Regional domain name del bucket S3 secundario para failover de CloudFront"
+  type        = string
+}
+
+variable "cf_geo_whitelist" {
+  description = "Lista de paises permitidos en CloudFront"
+  type        = list(string)
+  default     = ["PE", "US"]
+}

@@ -15,16 +15,46 @@ resource "aws_cloudfront_distribution" "main" {
   price_class         = var.price_class
   comment             = "${var.project} CDN frontend ${var.environment}"
 
+  logging_config {
+    bucket          = var.cf_logs_bucket
+    prefix          = "${var.project}/${var.environment}/cloudfront"
+    include_cookies = false
+  }
+
   origin {
     domain_name              = var.s3_bucket_regional_domain_name
     origin_id                = "S3-${var.project}-frontend"
     origin_access_control_id = aws_cloudfront_origin_access_control.main.id
   }
 
+  #FAILOVER
+  # Origen secundario para failover (Fix CKV_AWS_310)
+  origin {
+    domain_name              = var.s3_bucket_failover_domain_name
+    origin_id                = "S3-${var.project}-failover"
+    origin_access_control_id = aws_cloudfront_origin_access_control.main.id
+  }
+
+  origin_group {
+    origin_id = "S3-${var.project}-group"
+
+    failover_criteria {
+      status_codes = [500, 502, 503, 504]
+    }
+
+    member {
+      origin_id = "S3-${var.project}-frontend"
+    }
+
+    member {
+      origin_id = "S3-${var.project}-failover"
+    }
+  }
+
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${var.project}-frontend"
+    target_origin_id       = "S3-${var.project}-group"
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
@@ -57,7 +87,8 @@ resource "aws_cloudfront_distribution" "main" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none"
+      restriction_type = "whitelist"
+      locations        = var.cf_geo_whitelist
     }
   }
 

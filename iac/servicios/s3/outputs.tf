@@ -22,3 +22,8 @@ output "documentos_bucket_arn" {
   description = "ARN del bucket de documentos"
   value       = aws_s3_bucket.documentos.arn
 }
+
+output "documentos_regional_domain_name" {
+  description = "Regional domain name del bucket de documentos (para failover de CloudFront)"
+  value       = aws_s3_bucket.documentos.bucket_regional_domain_name
+}
