@@ -77,6 +77,29 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+  # Regla 4: Proteccion contra Log4j (CVE-2021-44228) → Fix CKV_AWS_192 y CKV2_AWS_47
+  rule {
+    name     = "AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 4
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${var.project}-known-bad-inputs"
+      sampled_requests_enabled   = true
+    }
+  }
+
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${var.project}-waf"
