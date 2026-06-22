@@ -21,7 +21,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# ── Instancias EC2 (una por AZ) ─────────────────────────────
+# -- Instancias EC2 (una por AZ) --
 resource "aws_instance" "crud" {
   count         = length(var.private_subnet_ids)
   ami           = data.aws_ami.ubuntu.id
@@ -56,7 +56,7 @@ resource "aws_instance" "crud" {
   )
 
   tags = {
-    Name        = "${var.project}-ec2-crud-az${count.index + 1}-${var.environment}"
+    Name        = "-ec2-crud-az-"
     Project     = var.project
     Environment = var.environment
     # Tag usado por Ansible para identificar el grupo de hosts
@@ -64,7 +64,7 @@ resource "aws_instance" "crud" {
   }
 }
 
-# ── Registro de las EC2 en el Target Group del ALB ──────────
+# -- Registro de las EC2 en el Target Group del ALB --
 resource "aws_lb_target_group_attachment" "crud" {
   count            = length(aws_instance.crud)
   target_group_arn = var.target_group_arn
