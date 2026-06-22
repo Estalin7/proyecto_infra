@@ -78,3 +78,53 @@ output "ec2_private_ips" {
   description = "IPs privadas de las EC2 CRUD (para el inventory de Ansible)"
   value       = module.ec2.private_ips
 }
+
+# ── Cognito ──────────────────────────────────────────────────
+output "cognito_issuer_url" {
+  description = "URL del issuer JWT de Cognito (para el API Gateway Authorizer)"
+  value       = module.cognito.issuer_url
+}
+
+output "cognito_user_pool_domain" {
+  description = "Dominio del User Pool de Cognito"
+  value       = module.cognito.user_pool_domain
+}
+
+# ── SQS ──────────────────────────────────────────────────────
+output "sqs_pedidos_arn" {
+  description = "ARN de la cola SQS FIFO de pedidos"
+  value       = module.sqs.queue_arn
+}
+
+# ── Lambda ───────────────────────────────────────────────────
+output "lambda_procesar_pedido_arn" {
+  description = "ARN de la Lambda procesar_pedido"
+  value       = module.lambda.procesar_pedido_arn
+}
+
+output "lambda_actualizar_inventario_arn" {
+  description = "ARN de la Lambda actualizar_inventario"
+  value       = module.lambda.actualizar_inventario_arn
+}
+
+output "lambda_enviar_sms_cocina_arn" {
+  description = "ARN de la Lambda enviar_sms_cocina"
+  value       = module.lambda.enviar_sms_cocina_arn
+}
+
+# ── IAM ──────────────────────────────────────────────────────
+output "iam_ec2_role_arn" {
+  description = "ARN del rol IAM de las EC2"
+  value       = module.iam.ec2_role_arn
+}
+
+output "iam_lambda_role_arn" {
+  description = "ARN del rol IAM de las Lambdas"
+  value       = module.iam.lambda_role_arn
+}
+
+# ── ALB ──────────────────────────────────────────────────────
+output "alb_listener_http_arn" {
+  description = "ARN del listener HTTP del ALB (para API Gateway)"
+  value       = module.alb.listener_http_arn
+}

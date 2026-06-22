@@ -1,0 +1,81 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "iac/**"
+
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
+
+jobs:
+  terraform-apply:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      # URL de revisión manual si es necesaria
+    
+    env:
+      WORKING_DIRECTORY: ./iac
+      TF_VERSION: "~> 1.7"
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Terraform Format Check
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: terraform fmt -check -recursive .
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          terraform plan \
+            -var-file="terraform.tfvars.example" \
+            -no-color \
+            -out=tfplan
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-apply
+          path: ${{ env.WORKING_DIRECTORY }}/tfplan
+          retention-days: 1
+
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          echo "⚠️  IMPORTANT: terraform apply requires explicit approval via AWS credentials."
+          echo "To proceed, ensure you have reviewed the plan above and have write access to AWS."
+          echo ""
+          echo "🔒 This is protected by:"
+          echo "   - Environment protection rules (production)"
+          echo "   - GitHub OIDC authentication"
+          echo "   - AWS role assumption with specific permissions"
+          echo ""
+          terraform apply -no-color -auto-approve tfplan
+        env:
+          TF_INPUT: "false"

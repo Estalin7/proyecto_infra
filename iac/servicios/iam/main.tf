@@ -1,4 +1,12 @@
 
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 resource "aws_iam_role" "ec2" {
   name = "${var.project}-ec2-role-${var.environment}"
 
@@ -33,7 +41,13 @@ resource "aws_iam_role_policy" "ec2_app" {
           "ssmmessages:CreateControlChannel",
           "ssmmessages:CreateDataChannel",
           "ssmmessages:OpenControlChannel",
-          "ssmmessages:OpenDataChannel"
+          "ssmmessages:OpenDataChannel",
+          "ec2messages:AcknowledgeMessage",
+          "ec2messages:DeleteMessage",
+          "ec2messages:FailMessage",
+          "ec2messages:GetEndpoint",
+          "ec2messages:GetMessages",
+          "ec2messages:SendReply"
         ]
         Resource = "*"
       },
@@ -49,15 +63,15 @@ resource "aws_iam_role_policy" "ec2_app" {
         Resource = var.sqs_queue_arn
       },
       {
-        Sid    = "SNSPublish"
-        Effect = "Allow"
-        Action = ["sns:Publish"]
+        Sid      = "SNSPublish"
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
         Resource = var.sns_topic_arn
       },
       {
-        Sid    = "S3Documentos"
-        Effect = "Allow"
-        Action = ["s3:PutObject", "s3:GetObject"]
+        Sid      = "S3Documentos"
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:GetObject"]
         Resource = "${var.s3_documentos_arn}/*"
       }
     ]
@@ -90,7 +104,7 @@ resource "aws_iam_role" "lambda" {
   }
 }
 
-# Politica Lambda: logs, SQS, SNS, S3, invocar otras lambdas
+# Politica Lambda: logs, SQS, SNS, S3, invocar otras lambdas, VPC ENI, Secrets Manager
 resource "aws_iam_role_policy" "lambda_app" {
   name = "${var.project}-lambda-app-policy-${var.environment}"
   role = aws_iam_role.lambda.id
@@ -109,6 +123,18 @@ resource "aws_iam_role_policy" "lambda_app" {
         Resource = "arn:aws:logs:*:*:*"
       },
       {
+        Sid    = "VPCNetworkInterfaces"
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+          "ec2:AssignPrivateIpAddresses",
+          "ec2:UnassignPrivateIpAddresses"
+        ]
+        Resource = "*"
+      },
+      {
         Sid    = "SQSConsume"
         Effect = "Allow"
         Action = [
@@ -119,16 +145,22 @@ resource "aws_iam_role_policy" "lambda_app" {
         Resource = var.sqs_queue_arn
       },
       {
-        Sid    = "S3Documentos"
-        Effect = "Allow"
-        Action = ["s3:PutObject", "s3:GetObject"]
+        Sid      = "SecretsManagerRead"
+        Effect   = "Allow"
+        Action   = ["secretsmanager:GetSecretValue"]
+        Resource = "arn:aws:secretsmanager:*:*:secret:${var.project}-aurora-*"
+      },
+      {
+        Sid      = "S3Documentos"
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:GetObject"]
         Resource = "${var.s3_documentos_arn}/*"
       },
       {
-        Sid    = "InvokeLambda"
-        Effect = "Allow"
-        Action = ["lambda:InvokeFunction"]
-        Resource = "*"
+        Sid      = "SNSPublish"
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = var.sns_topic_arn
       }
     ]
   })

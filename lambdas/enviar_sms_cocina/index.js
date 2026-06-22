@@ -18,8 +18,8 @@ function construirMensaje(pedido) {
 
 /**
  * Handler principal.
- * Es invocado directamente (InvocationType "Event") por la
- * Lambda procesar_pedido, con el siguiente payload:
+ * Es invocado por SNS cuando procesar_pedido publica un mensaje al topic.
+ * El evento SNS contiene el pedido en record.Sns.Message como string JSON:
  * {
  *   "id_pedido": "string",
  *   "mesa": "string" | number,
@@ -30,24 +30,30 @@ function construirMensaje(pedido) {
  * de entorno TELEFONO_COCINA (formato E.164, ej: +51999999999).
  */
 exports.handler = async (event) => {
-    console.log("Payload recibido:", JSON.stringify(event));
+    console.log("Evento SNS recibido:", JSON.stringify(event));
 
     try {
-        const mensaje = construirMensaje(event);
         const telefonoCocina = process.env.TELEFONO_COCINA;
 
         if (!telefonoCocina) {
             throw new Error("La variable de entorno TELEFONO_COCINA no esta configurada");
         }
 
-        const command = new PublishCommand({
-            PhoneNumber: telefonoCocina,
-            Message: mensaje,
-        });
+        for (const record of event.Records) {
+            const pedido = JSON.parse(record.Sns.Message);
+            console.log(`Procesando pedido ${pedido.id_pedido} para SMS`);
 
-        const resultado = await snsClient.send(command);
+            const mensaje = construirMensaje(pedido);
 
-        console.log(`SMS enviado a cocina. MessageId: ${resultado.MessageId}`);
+            const command = new PublishCommand({
+                PhoneNumber: telefonoCocina,
+                Message: mensaje,
+            });
+
+            const resultado = await snsClient.send(command);
+
+            console.log(`SMS enviado a cocina. MessageId: ${resultado.MessageId}`);
+        }
 
         return { statusCode: 200, body: "SMS enviado correctamente" };
     } catch (error) {

@@ -18,8 +18,7 @@ output "issuer_url" {
   value       = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.main.id}"
 }
 
-variable "aws_region" {
-  description = "Region AWS donde esta el User Pool"
-  type        = string
-  default     = "us-east-2"
+output "user_pool_domain" {
+  description = "Nombre del dominio del User Pool (para endpoints Cognito)"
+  value       = aws_cognito_user_pool_domain.main.domain
 }

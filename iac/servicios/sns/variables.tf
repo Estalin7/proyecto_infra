@@ -8,8 +8,8 @@ variable "environment" {
   type        = string
 }
 
-variable "lambda_procesar_pedido_arn" {
-  description = "ARN de la Lambda procesar_pedido (output del modulo lambda)"
+variable "lambda_enviar_sms_cocina_arn" {
+  description = "ARN de la Lambda enviar_sms_cocina (output del modulo lambda)"
   type        = string
 }
 

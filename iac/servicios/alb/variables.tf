@@ -13,18 +13,13 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "public_subnet_ids" {
-  description = "IDs de las subnets publicas donde se despliega el ALB"
+variable "private_subnet_ids" {
+  description = "IDs de las subnets privadas donde se despliega el ALB interno"
   type        = list(string)
 }
 
 variable "sg_alb_id" {
   description = "Security Group ID del ALB"
-  type        = string
-}
-
-variable "acm_certificate_arn" {
-  description = "ARN del certificado ACM para el listener HTTPS"
   type        = string
 }
 
@@ -38,4 +33,9 @@ variable "health_check_path" {
   description = "Path del health check del backend"
   type        = string
   default     = "/actuator/health"
+}
+
+variable "s3_logs_bucket_id" {
+  description = "ID del bucket S3 para almacenar los logs del ALB"
+  type        = string
 }

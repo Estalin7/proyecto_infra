@@ -8,9 +8,9 @@ output "alb_dns_name" {
   value       = aws_lb.main.dns_name
 }
 
-output "listener_https_arn" {
-  description = "ARN del listener HTTPS (usado por API Gateway VPC Link)"
-  value       = aws_lb_listener.https.arn
+output "listener_http_arn" {
+  description = "ARN del listener HTTP (usado por API Gateway VPC Link)"
+  value       = aws_lb_listener.http.arn
 }
 
 output "target_group_arn" {

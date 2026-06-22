@@ -1,19 +1,58 @@
 const { Client } = require("pg");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const {
+    SecretsManagerClient,
+    GetSecretValueCommand,
+} = require("@aws-sdk/client-secrets-manager");
 
 const s3Client = new S3Client({});
+const secretsClient = new SecretsManagerClient({});
+
+// Cache del secreto para reutilizar en invocaciones subsecuentes (warm starts)
+let cachedSecret = null;
+
+/**
+ * Obtiene las credenciales de Aurora desde AWS Secrets Manager.
+ * Cachea el secreto durante el ciclo de vida de la función.
+ */
+async function obtenerCredencialesDB() {
+    if (cachedSecret) {
+        return cachedSecret;
+    }
+
+    try {
+        const response = await secretsClient.send(
+            new GetSecretValueCommand({
+                SecretId: process.env.AURORA_SECRET_ARN,
+            })
+        );
+
+        cachedSecret = JSON.parse(response.SecretString);
+        return cachedSecret;
+    } catch (error) {
+        console.error("Error al obtener credenciales de Secrets Manager:", error.message);
+        throw error;
+    }
+}
 
 /**
  * Crea y conecta un cliente PostgreSQL para Aurora.
+ * Las credenciales se obtienen de AWS Secrets Manager.
+ * NODE_EXTRA_CA_CERTS está configurado en la Lambda para usar los certificados
+ * CA de AWS incluidos en el runtime de Node.js.
  */
 async function conectarBD() {
+    const credentials = await obtenerCredencialesDB();
+
     const client = new Client({
-        host: process.env.AURORA_HOST,
-        port: process.env.AURORA_PORT || 5432,
+        host: credentials.host || process.env.AURORA_HOST,
+        port: credentials.port || process.env.AURORA_PORT || 5432,
         database: process.env.AURORA_DB_NAME,
-        user: process.env.AURORA_USER,
-        password: process.env.AURORA_PASSWORD,
-        ssl: { rejectUnauthorized: false },
+        user: credentials.username,
+        password: credentials.password,
+        ssl: {
+            rejectUnauthorized: true,
+        },
     });
 
     await client.connect();

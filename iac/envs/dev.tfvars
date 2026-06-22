@@ -1,3 +1,3 @@
-aws_region   = "us-east-2"
-project_name = "restaurant-project"
-environment  = "dev"
+aws_region  = "us-east-2"
+project     = "restaurant-project"
+environment = "dev"

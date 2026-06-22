@@ -1,3 +1,10 @@
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
 # ── HTTP API ─────────────────────────────────────────────────
 resource "aws_apigatewayv2_api" "main" {
   name          = "${var.project}-api-${var.environment}"
@@ -71,6 +78,16 @@ resource "aws_apigatewayv2_stage" "main" {
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gw.arn
+    format = jsonencode({
+      requestId      = "$context.requestId"
+      ip             = "$context.identity.sourceIp"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      resourcePath   = "$context.resourcePath"
+      status         = "$context.status"
+      protocol       = "$context.protocol"
+      responseLength = "$context.responseLength"
+    })
   }
 
   tags = {

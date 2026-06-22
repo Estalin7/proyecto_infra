@@ -1,5 +1,16 @@
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 resource "aws_sns_topic" "main" {
   name = "${var.project}-events-${var.environment}"
+
+  # Habilitar cifrado SSE
+  kms_master_key_id = "alias/aws/sns"
 
   tags = {
     Name        = "${var.project}-events-${var.environment}"
@@ -8,11 +19,11 @@ resource "aws_sns_topic" "main" {
   }
 }
 
-# ── Suscripcion: Lambda procesar_pedido ──────────────────────
-resource "aws_sns_topic_subscription" "procesar_pedido" {
+# ── Suscripcion: Lambda enviar_sms_cocina ────────────────────
+resource "aws_sns_topic_subscription" "enviar_sms_cocina" {
   topic_arn = aws_sns_topic.main.arn
   protocol  = "lambda"
-  endpoint  = var.lambda_procesar_pedido_arn
+  endpoint  = var.lambda_enviar_sms_cocina_arn
 }
 
 # ── Suscripcion: Lambda actualizar_inventario ────────────────
@@ -22,11 +33,11 @@ resource "aws_sns_topic_subscription" "actualizar_inventario" {
   endpoint  = var.lambda_actualizar_inventario_arn
 }
 
-# ── Permiso: SNS puede invocar la Lambda procesar_pedido ─────
-resource "aws_lambda_permission" "sns_procesar_pedido" {
+# ── Permiso: SNS puede invocar la Lambda enviar_sms_cocina ───
+resource "aws_lambda_permission" "sns_enviar_sms_cocina" {
   statement_id  = "AllowSNSInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = var.lambda_procesar_pedido_arn
+  function_name = var.lambda_enviar_sms_cocina_arn
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.main.arn
 }

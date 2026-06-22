@@ -23,6 +23,11 @@ variable "sqs_pedidos_url" {
   type        = string
 }
 
+variable "sqs_queue_arn" {
+  description = "ARN de la cola SQS FIFO de pedidos para event source mapping"
+  type        = string
+}
+
 variable "aurora_host" {
   description = "Endpoint del cluster Aurora (PostgreSQL)"
   type        = string
@@ -39,8 +44,8 @@ variable "aurora_username" {
   sensitive   = true
 }
 
-variable "aurora_password" {
-  description = "Contrasena de la base de datos Aurora PostgreSQL"
+variable "aurora_secret_arn" {
+  description = "ARN del secreto de Secrets Manager que contiene las credenciales de Aurora"
   type        = string
   sensitive   = true
 }
@@ -57,5 +62,20 @@ variable "s3_documentos_bucket" {
 
 variable "telefono_cocina" {
   description = "Numero de telefono de cocina en formato E.164 (ej: +51999999999) para recibir SMS via SNS"
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "IDs de las subnets privadas para el vpc_config de Lambda"
+  type        = list(string)
+}
+
+variable "sg_lambda_id" {
+  description = "ID del Security Group de Lambda"
+  type        = string
+}
+
+variable "sns_topic_arn" {
+  description = "ARN del SNS Topic para publicar eventos de pedidos procesados"
   type        = string
 }

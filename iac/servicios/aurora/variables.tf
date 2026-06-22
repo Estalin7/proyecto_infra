@@ -25,12 +25,6 @@ variable "db_username" {
   sensitive   = true
 }
 
-variable "db_password" {
-  description = "Contrasena del usuario administrador (usar Secrets Manager en prod)"
-  type        = string
-  sensitive   = true
-}
-
 variable "private_subnet_ids" {
   description = "IDs de las subnets privadas"
   type        = list(string)

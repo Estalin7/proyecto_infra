@@ -1,14 +1,29 @@
-
 # alb
-# Crea: ALB  HTTPS (443) apuntando a las EC2 de Operaciones CRUD.
+# Crea: ALB INTERNO conectado via VPC Link desde API Gateway
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 resource "aws_lb" "main" {
   name               = "${var.project}-alb-${var.environment}"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
   security_groups    = [var.sg_alb_id]
-  subnets            = var.public_subnet_ids
+  subnets            = var.private_subnet_ids
 
   enable_deletion_protection = var.environment == "prod" ? true : false
+
+  # Habilitar access logs hacia S3
+  access_logs {
+    bucket  = var.s3_logs_bucket_id
+    enabled = true
+    prefix  = "alb-logs"
+  }
 
   tags = {
     Name        = "${var.project}-alb-${var.environment}"
@@ -44,29 +59,11 @@ resource "aws_lb_target_group" "crud" {
   }
 }
 
-# ── Listener HTTP (80) → redirige a HTTPS ────────────────────
+# ── Listener HTTP (80) → Target Group ──────────────────────
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-# ── Listener HTTPS (443) → Target Group ──────────────────────
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = var.acm_certificate_arn
 
   default_action {
     type             = "forward"

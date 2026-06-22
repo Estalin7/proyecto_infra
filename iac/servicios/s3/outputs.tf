@@ -22,3 +22,12 @@ output "documentos_bucket_arn" {
   description = "ARN del bucket de documentos"
   value       = aws_s3_bucket.documentos.arn
 }
+output "logs_bucket_id" {
+  description = "ID del bucket S3 de logs"
+  value       = aws_s3_bucket.logs.id
+}
+
+output "logs_bucket_arn" {
+  description = "ARN del bucket S3 de logs"
+  value       = aws_s3_bucket.logs.arn
+}

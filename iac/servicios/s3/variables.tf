@@ -11,4 +11,5 @@ variable "environment" {
 variable "cloudfront_distribution_arn" {
   description = "ARN de la distribucion CloudFront (para la politica OAC del bucket frontend)"
   type        = string
+  default     = ""
 }

@@ -37,3 +37,9 @@ telefono_cocina         = "CAMBIAR_ESTO"
 
 sqs_visibility_timeout = 300
 sqs_max_receive_count  = 3
+
+# CORS origins para API Gateway (actualizar con dominios reales)
+cors_allow_origins = [
+  "https://restaurante-carloncho.com",
+  "https://www.restaurante-carloncho.com"
+]

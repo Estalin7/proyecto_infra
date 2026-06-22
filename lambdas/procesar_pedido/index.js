@@ -1,20 +1,58 @@
 const { Client } = require("pg");
-const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
+const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
+const {
+    SecretsManagerClient,
+    GetSecretValueCommand,
+} = require("@aws-sdk/client-secrets-manager");
 
-const lambdaClient = new LambdaClient({});
+const snsClient = new SNSClient({ region: process.env.AWS_REGION });
+const secretsClient = new SecretsManagerClient({ region: process.env.AWS_REGION });
+
+// Cache del secreto para reutilizar en invocaciones subsecuentes (warm starts)
+let cachedSecret = null;
+
+/**
+ * Obtiene las credenciales de Aurora desde AWS Secrets Manager.
+ * Cachea el secreto durante el ciclo de vida de la función.
+ */
+async function obtenerCredencialesDB() {
+    if (cachedSecret) {
+        return cachedSecret;
+    }
+
+    try {
+        const response = await secretsClient.send(
+            new GetSecretValueCommand({
+                SecretId: process.env.AURORA_SECRET_ARN,
+            })
+        );
+
+        cachedSecret = JSON.parse(response.SecretString);
+        return cachedSecret;
+    } catch (error) {
+        console.error("Error al obtener credenciales de Secrets Manager:", error.message);
+        throw error;
+    }
+}
 
 /**
  * Crea y conecta un cliente PostgreSQL para Aurora.
- * Las credenciales se leen de variables de entorno.
+ * Las credenciales se obtienen de AWS Secrets Manager.
+ * NODE_EXTRA_CA_CERTS está configurado en la Lambda para usar los certificados
+ * CA de AWS incluidos en el runtime de Node.js.
  */
 async function conectarBD() {
+    const credentials = await obtenerCredencialesDB();
+
     const client = new Client({
-        host: process.env.AURORA_HOST,
-        port: process.env.AURORA_PORT || 5432,
+        host: credentials.host || process.env.AURORA_HOST,
+        port: credentials.port || process.env.AURORA_PORT || 5432,
         database: process.env.AURORA_DB_NAME,
-        user: process.env.AURORA_USER,
-        password: process.env.AURORA_PASSWORD,
-        ssl: { rejectUnauthorized: false },
+        user: credentials.username,
+        password: credentials.password,
+        ssl: {
+            rejectUnauthorized: true,
+        },
     });
 
     await client.connect();
@@ -39,29 +77,35 @@ async function guardarPedido(client, pedido) {
 }
 
 /**
- * Invoca de forma asincrona la Lambda enviar_sms_cocina,
- * pasandole los items del pedido para armar el mensaje.
+ * Publica un evento en SNS Topic para notificar que el pedido fue procesado.
+ * SNS distribuirá el mensaje a:
+ * - Lambda enviar_sms_cocina: envia SMS a cocina
+ * - Lambda actualizar_inventario: descuenta stock y guarda en S3
  */
-async function invocarEnvioSMS(pedido) {
-    const payload = {
+async function publicarEnSNS(pedido) {
+    const mensaje = {
         id_pedido: pedido.id_pedido,
         mesa: pedido.mesa,
+        cliente: pedido.cliente,
         items: pedido.items,
+        total: pedido.total,
+        timestamp: new Date().toISOString(),
     };
 
-    const command = new InvokeCommand({
-        FunctionName: process.env.LAMBDA_ENVIAR_SMS_ARN,
-        InvocationType: "Event", // asincrono, no espera respuesta
-        Payload: Buffer.from(JSON.stringify(payload)),
+    const command = new PublishCommand({
+        TopicArn: process.env.SNS_TOPIC_ARN,
+        Message: JSON.stringify(mensaje),
+        Subject: `Pedido ${pedido.id_pedido} procesado`,
     });
 
-    await lambdaClient.send(command);
+    await snsClient.send(command);
+    console.log(`Evento publicado en SNS para pedido ${pedido.id_pedido}`);
 }
 
 /**
  * Handler principal.
- * Se invoca via SNS. El cuerpo real del pedido viene en
- * record.Sns.Message como string JSON.
+ * Se invoca via SQS (event source mapping).
+ * El cuerpo del pedido viene en record.body como string JSON.
  *
  * Estructura esperada del pedido:
  * {
@@ -71,34 +115,39 @@ async function invocarEnvioSMS(pedido) {
  *   "items": [{ "nombre": "string", "cantidad": number }],
  *   "total": number
  * }
+ *
+ * Retorna batch item failures para reintentar solo los mensajes fallidos.
  */
 exports.handler = async (event) => {
     console.log("Evento recibido:", JSON.stringify(event));
 
+    const batchItemFailures = [];
     let client;
 
     try {
         client = await conectarBD();
 
         for (const record of event.Records) {
-            const pedido = JSON.parse(record.Sns.Message);
+            try {
+                const pedido = JSON.parse(record.body);
 
-            console.log(`Procesando pedido ${pedido.id_pedido} - mesa ${pedido.mesa}`);
+                console.log(`Procesando pedido ${pedido.id_pedido} - mesa ${pedido.mesa}`);
 
-            // 1. Guardar pedido en Aurora
-            await guardarPedido(client, pedido);
+                // 1. Guardar pedido en Aurora
+                await guardarPedido(client, pedido);
 
-            // 2. Notificar a cocina via SMS
-            await invocarEnvioSMS(pedido);
+                // 2. Publicar evento en SNS (SNS notificará a enviar_sms y actualizar_inventario)
+                await publicarEnSNS(pedido);
 
-            console.log(`Pedido ${pedido.id_pedido} procesado correctamente`);
+                console.log(`Pedido ${pedido.id_pedido} procesado correctamente`);
+            } catch (error) {
+                console.error(`Error al procesar mensaje ${record.messageId}:`, error.message);
+                // Reportar este mensaje como fallido para reintento
+                batchItemFailures.push({ itemIdentifier: record.messageId });
+            }
         }
 
-        return { statusCode: 200, body: "Pedidos procesados correctamente" };
-    } catch (error) {
-        console.error("Error al procesar el pedido:", error);
-        // Lanzar el error para que SQS reintente segun la redrive policy
-        throw error;
+        return { batchItemFailures };
     } finally {
         if (client) {
             await client.end();

@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 resource "aws_cloudfront_origin_access_control" "main" {
   name                              = "${var.project}-oac-${var.environment}"
   description                       = "OAC para bucket S3 frontend ${var.project}"

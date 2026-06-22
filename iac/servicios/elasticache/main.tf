@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 resource "aws_elasticache_subnet_group" "main" {
   name       = "${var.project}-redis-subnet-group-${var.environment}"
   subnet_ids = var.private_subnet_ids
@@ -23,8 +31,8 @@ resource "aws_elasticache_replication_group" "main" {
   security_group_ids = [var.sg_elasticache_id]
 
   # Habilitar encriptacion en transito y en reposo
-  at_rest_encryption_enabled  = true
-  transit_encryption_enabled  = true
+  at_rest_encryption_enabled = true
+  transit_encryption_enabled = true
 
   # Habilitar backups automaticos (solo prod)
   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
