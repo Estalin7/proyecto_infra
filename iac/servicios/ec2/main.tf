@@ -1,11 +1,3 @@
-# ============================================================
-# MODULE: compute
-# Crea: 2 instancias EC2 Ubuntu 22.04 t3.medium (una por AZ)
-#       en subnets privadas + registro en el Target Group ALB.
-#       Ansible se encarga de instalar el JAR despues.
-# ============================================================
-
-# Busca el AMI de Ubuntu 22.04 LTS mas reciente en us-east-2
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical (propietario oficial Ubuntu)

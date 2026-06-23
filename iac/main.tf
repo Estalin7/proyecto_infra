@@ -93,6 +93,7 @@ module "route53" {
   domain_name               = var.domain_name
   cloudfront_domain_name    = module.cloudfront.domain_name
   cloudfront_hosted_zone_id = module.cloudfront.hosted_zone_id
+  dnssec_kms_key_arn = var.dnssec_kms_key_arn
   acm_validation_records = merge(
     module.acm.cloudfront_validation_records,
     module.acm.alb_validation_records
@@ -180,6 +181,7 @@ module "elasticache" {
   num_cache_nodes    = var.redis_num_nodes
   private_subnet_ids = module.vpc.private_subnet_ids
   sg_elasticache_id  = module.vpc.sg_elasticache_id
+  redis_auth_token = var.redis_auth_token
 }
 
 # ── 15. Aurora PostgreSQL (Multi-AZ) ─────────────────────────

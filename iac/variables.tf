@@ -143,3 +143,14 @@ variable "telefono_cocina" {
   description = "Numero de telefono de cocina en formato E.164 (ej: +51999999999) para recibir SMS via SNS"
   type        = string
 }
+
+variable "redis_auth_token" {
+  description = "Token de autenticacion para ElastiCache Redis"
+  type        = string
+  sensitive   = true
+}
+
+variable "dnssec_kms_key_arn" {
+  description = "ARN de la KMS key para DNSSEC de Route 53 (debe estar en us-east-1)"
+  type        = string
+}

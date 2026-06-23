@@ -72,6 +72,23 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
+# ── Route table privada (sin NAT Gateway, solo VPC Endpoints) ─
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name        = "${var.project}-rt-private-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  count          = length(aws_subnet.private)
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private.id
+}
+
 # ── Security Group: ALB ──────────────────────────────────────
 resource "aws_security_group" "alb" {
   name        = "${var.project}-sg-alb-${var.environment}"
@@ -82,14 +99,6 @@ resource "aws_security_group" "alb" {
     description = "HTTPS desde internet"
     from_port   = 443
     to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTP (redireccion a HTTPS)"
-    from_port   = 80
-    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -141,19 +150,26 @@ resource "aws_security_group" "ec2" {
 # ── Security Group: Aurora (solo acepta tráfico de EC2) ──────
 resource "aws_security_group" "aurora" {
   name        = "${var.project}-sg-aurora-${var.environment}"
-  description = "Permite trafico MySQL desde las EC2"
+  description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "MySQL desde EC2"
-    from_port       = 3306
-    to_port         = 3306
+    description     = "PostgreSQL desde EC2"
+    from_port       = 5432
+    to_port         = 5432
     protocol        = "tcp"
     security_groups = [aws_security_group.ec2.id]
   }
 
+  ingress {
+    description     = "PostgreSQL desde Lambda"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+  }
+
   egress {
-    description = "Sin trafico saliente permitido"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -182,7 +198,6 @@ resource "aws_security_group" "elasticache" {
   }
 
   egress {
-    description = "Sin trafico saliente permitido"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -195,3 +210,254 @@ resource "aws_security_group" "elasticache" {
     Environment = var.environment
   }
 }
+# ── Security Group: API Gateway VPC Link ──────────────────────
+# El VPC Link debe alcanzar el ALB en la VPC
+resource "aws_security_group" "api_gateway" {
+  name        = "${var.project}-sg-api-gateway-${var.environment}"
+  description = "Permite trafico del VPC Link de API Gateway hacia el ALB"
+  vpc_id      = aws_vpc.main.id
+
+  tags = {
+    Name        = "${var.project}-sg-api-gateway-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── Regla: ALB acepta HTTP desde VPC Link ────────────────────
+resource "aws_security_group_rule" "alb_from_api_gateway" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.api_gateway.id
+  security_group_id        = aws_security_group.alb.id
+  description              = "HTTP desde VPC Link"
+}
+
+# ── Regla: VPC Link egress hacia ALB ─────────────────────────
+resource "aws_security_group_rule" "api_gateway_to_alb" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.alb.id
+  security_group_id        = aws_security_group.api_gateway.id
+  description              = "Hacia ALB HTTP"
+}
+
+# ── Security Group: VPC Endpoints (SSM, Secrets Manager, Lambda) ──
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
+  description = "Permite trafico HTTPS desde EC2 y Lambda hacia VPC Endpoints"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "HTTPS desde EC2"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2.id]
+  }
+
+  ingress {
+    description     = "HTTPS desde Lambda"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+  }
+
+  egress {
+    description = "Salida libre para respuestas"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── Security Group: Lambda (para vpc_config) ─────────────────
+resource "aws_security_group" "lambda" {
+  name        = "${var.project}-sg-lambda-${var.environment}"
+  description = "Permite trafico de Lambdas hacia Aurora y Redis"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    description = "Salida libre (Lambda necesita acceso a servicios AWS)"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.project}-sg-lambda-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ============================================================
+# VPC ENDPOINTS para SSM (sin NAT Gateway)
+# ============================================================
+
+# ── VPC Endpoint: SSM (Systems Manager) ──────────────────────
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "${var.project}-vpce-ssm-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── VPC Endpoint: SSM Messages ───────────────────────────────
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "${var.project}-vpce-ssmmessages-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── VPC Endpoint: EC2 Messages (para SSM) ────────────────────
+resource "aws_vpc_endpoint" "ec2messages" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "${var.project}-vpce-ec2messages-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── VPC Endpoint: S3 Gateway (para descargar artefactos) ─────
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.private.id]
+
+  tags = {
+    Name        = "${var.project}-vpce-s3-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── VPC Endpoint: Secrets Manager (para Lambdas leer credenciales) ──
+resource "aws_vpc_endpoint" "secretsmanager" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.secretsmanager"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "${var.project}-vpce-secretsmanager-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── VPC Endpoint: SNS (para Lambdas publicar eventos) ────────────────
+resource "aws_vpc_endpoint" "sns" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.sns"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "${var.project}-vpce-sns-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name              = "/aws/vpc/flow-logs/${var.project}-${var.environment}"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "${var.project}-vpc-flow-logs-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_role" "vpc_flow_logs" {
+  name = "${var.project}-vpc-flow-logs-role-${var.environment}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "vpc-flow-logs.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "vpc_flow_logs" {
+  name = "${var.project}-vpc-flow-logs-policy-${var.environment}"
+  role = aws_iam_role.vpc_flow_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
+resource "aws_flow_log" "main" {
+  vpc_id          = aws_vpc.main.id
+  traffic_type    = "ALL"
+  iam_role_arn    = aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
+
+  tags = {
+    Name        = "${var.project}-flow-log-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+# ── Data source para obtener la región actual ────────────────
+data "aws_region" "current" {}

@@ -29,3 +29,10 @@ variable "sg_elasticache_id" {
   description = "Security Group ID de ElastiCache"
   type        = string
 }
+
+
+variable "redis_auth_token" {
+  description = "Token de autenticacion para Redis (minimo 16 caracteres, maximo 128)"
+  type        = string
+  sensitive   = true
+}

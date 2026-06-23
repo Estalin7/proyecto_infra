@@ -33,3 +33,8 @@ variable "acm_validation_records" {
   }))
   default = {}
 }
+
+variable "dnssec_kms_key_arn" {
+  description = "ARN de la KMS key para firmar DNSSEC (debe estar en us-east-1, tipo ECC_NIST_P256)"
+  type        = string
+}

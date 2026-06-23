@@ -32,3 +32,18 @@ output "sg_elasticache_id" {
   description = "ID del Security Group de ElastiCache"
   value       = aws_security_group.elasticache.id
 }
+
+output "sg_api_gateway_id" {
+  description = "ID del Security Group del VPC Link de API Gateway"
+  value       = aws_security_group.api_gateway.id
+}
+
+output "sg_lambda_id" {
+  description = "ID del Security Group de Lambda"
+  value       = aws_security_group.lambda.id
+}
+
+output "sg_vpc_endpoints_id" {
+  description = "ID del Security Group de los VPC Endpoints"
+  value       = aws_security_group.vpc_endpoints.id
+}
