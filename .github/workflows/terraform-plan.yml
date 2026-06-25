@@ -34,14 +34,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            ${{ env.AWS_REGION }}
 
-      # ── 3. Instalar Terraform ─────────────────────────────────
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-          # El wrapper de Node.js causa problemas con exit codes;
-          # sin el wrapper, terraform se ejecuta directamente.
-          terraform_wrapper: false
+      # ── 3. Instalar Terraform (Manual para evitar wrappers) ────
+      - name: Install Terraform
+        run: |
+          curl -fsSL https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip -o terraform.zip
+          unzip terraform.zip
+          sudo mv terraform /usr/local/bin/
+          terraform -version
 
       # ── 4. Terraform Init ─────────────────────────────────────
       - name: Terraform Init
