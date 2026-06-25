@@ -63,9 +63,9 @@ resource "aws_iam_role_policy" "ec2_app" {
         Resource = local.sns_topic_arn
       },
       {
-        Sid    = "S3Documentos"
-        Effect = "Allow"
-        Action = ["s3:PutObject", "s3:GetObject"]
+        Sid      = "S3Documentos"
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:GetObject"]
         Resource = "${var.s3_documentos_arn}/*"
       }
     ]
@@ -127,9 +127,9 @@ resource "aws_iam_role_policy" "lambda_app" {
         Resource = local.sqs_queue_arn
       },
       {
-        Sid    = "S3Documentos"
-        Effect = "Allow"
-        Action = ["s3:PutObject", "s3:GetObject"]
+        Sid      = "S3Documentos"
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:GetObject"]
         Resource = "${var.s3_documentos_arn}/*"
       },
       {

@@ -61,9 +61,9 @@ resource "aws_elasticache_replication_group" "main" {
 
   # Habilitar encriptacion en transito y en reposo
   at_rest_encryption_enabled = true
-  kms_key_id = aws_kms_key.elasticache.arn
+  kms_key_id                 = aws_kms_key.elasticache.arn
   transit_encryption_enabled = true
-  auth_token = var.redis_auth_token
+  auth_token                 = var.redis_auth_token
 
   # Actualizaciones automaticas de version menor → Fix CKV_AWS_191
   auto_minor_version_upgrade = true

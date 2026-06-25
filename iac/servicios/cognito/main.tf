@@ -65,9 +65,9 @@ resource "aws_cognito_user_pool_client" "main" {
   ]
 
   # Duracion de tokens
-  access_token_validity  = 8    # horas
-  id_token_validity      = 8    # horas
-  refresh_token_validity = 30   # dias
+  access_token_validity  = 8  # horas
+  id_token_validity      = 8  # horas
+  refresh_token_validity = 30 # dias
 
   token_validity_units {
     access_token  = "hours"

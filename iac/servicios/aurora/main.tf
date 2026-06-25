@@ -83,7 +83,7 @@ resource "aws_rds_cluster" "main" {
   final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
 
   storage_encrypted = true
-  kms_key_id = aws_kms_key.aurora.arn
+  kms_key_id        = aws_kms_key.aurora.arn
 
   # Autenticacion IAM en vez de solo usuario/clave → Fix CKV_AWS_162
   iam_database_authentication_enabled = true
@@ -115,8 +115,8 @@ resource "aws_rds_cluster_instance" "writer" {
   db_subnet_group_name       = aws_db_subnet_group.main.name
   publicly_accessible        = false
   auto_minor_version_upgrade = true
-  monitoring_interval = 60
-  monitoring_role_arn = aws_iam_role.rds_enhanced_monitoring.arn
+  monitoring_interval        = 60
+  monitoring_role_arn        = aws_iam_role.rds_enhanced_monitoring.arn
 
   #checkov:skip=CKV_AWS_353:Performance Insights no requerido para este proyecto academico
 

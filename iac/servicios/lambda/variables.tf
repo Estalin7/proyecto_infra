@@ -11,7 +11,7 @@ variable "environment" {
 variable "lambda_role_arn" {
   description = "ARN del rol IAM para las Lambdas (output del modulo iam)"
   type        = string
-} 
+}
 
 variable "sqs_pedidos_url" {
   description = "URL de la cola SQS FIFO de pedidos"
