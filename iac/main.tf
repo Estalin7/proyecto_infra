@@ -40,14 +40,8 @@ module "iam" {
 module "s3" {
   source = "./servicios/s3"
 
-<<<<<<< HEAD
-  project                     = var.project
-  environment                 = var.environment
-
-=======
   project     = var.project
   environment = var.environment
->>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
 }
 
 # ── 5. ACM (certificados TLS, CloudFront en us-east-1) ───────

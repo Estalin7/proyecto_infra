@@ -138,17 +138,7 @@ resource "aws_security_group" "ec2" {
   description = "Permite trafico desde el ALB hacia las EC2"
   vpc_id      = aws_vpc.main.id
 
-<<<<<<< HEAD
-=======
-  ingress {
-    description     = "Puerto app desde ALB"
-    from_port       = var.app_port
-    to_port         = var.app_port
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
 
->>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
   tags = {
     Name        = "${var.project}-sg-ec2-${var.environment}"
     Project     = var.project
@@ -164,17 +154,7 @@ resource "aws_security_group" "aurora" {
   description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
 
-<<<<<<< HEAD
-=======
-  egress {
-    description = "Sin trafico saliente permitido"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["127.0.0.1/32"]
-  }
 
->>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
   tags = {
     Name        = "${var.project}-sg-aurora-${var.environment}"
     Project     = var.project
@@ -190,17 +170,7 @@ resource "aws_security_group" "elasticache" {
   description = "Permite trafico Redis desde las EC2"
   vpc_id      = aws_vpc.main.id
 
-<<<<<<< HEAD
-=======
-  egress {
-    description = "Sin trafico saliente permitido"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["127.0.0.1/32"]
-  }
 
->>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
   tags = {
     Name        = "${var.project}-sg-redis-${var.environment}"
     Project     = var.project
@@ -409,7 +379,6 @@ resource "aws_security_group_rule" "api_gateway_to_alb" {
   description              = "Hacia ALB HTTPS"
 }
 
-<<<<<<< HEAD
 # ── Reglas EC2 ───────────────────────────────────────────────
 resource "aws_security_group_rule" "ec2_ingress_alb" {
   type                     = "ingress"
@@ -575,38 +544,7 @@ resource "aws_security_group_rule" "endpoints_egress_lambda" {
   description              = "HTTPS de respuesta hacia Lambda"
 }
 
-# ── Security Group: VPC Endpoints (SSM, Secrets Manager, Lambda) ──
-resource "aws_security_group" "vpc_endpoints" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
-  name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
-  description = "Permite trafico HTTPS desde EC2 y Lambda hacia VPC Endpoints"
-  vpc_id      = aws_vpc.main.id
-
-  tags = {
-    Name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-# ── Security Group: Lambda (para vpc_config) ─────────────────
-resource "aws_security_group" "lambda" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
-  name        = "${var.project}-sg-lambda-${var.environment}"
-  description = "Permite trafico de Lambdas hacia Aurora y Redis"
-  vpc_id      = aws_vpc.main.id
-
-  tags = {
-    Name        = "${var.project}-sg-lambda-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-
-=======
 # ── VPC Endpoints (Interface) ────────────────────────────────
->>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"

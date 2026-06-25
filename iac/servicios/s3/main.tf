@@ -136,12 +136,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
   }
 }
 
-<<<<<<< HEAD
-# CloudFront OAC es el único que puede leer el frontend.
-
-
-=======
->>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
 # Lifecycle del frontend → CKV2_AWS_61
 resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
   bucket = aws_s3_bucket.frontend.id
