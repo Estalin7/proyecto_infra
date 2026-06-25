@@ -1,9 +1,11 @@
-
-#   - cert_cloudfront: region us-east-1 (obligatorio para CF)
-#   - cert_alb:        region us-east-2 
-# CloudFront solo acepta certificados de us-east-1.
-# Por eso se usa un provider alias "us_east_1"
-
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws.us_east_1]
+    }
+  }
+}
 resource "aws_acm_certificate" "cloudfront" {
   provider          = aws.us_east_1
   domain_name       = var.domain_name

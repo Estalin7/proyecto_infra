@@ -38,11 +38,6 @@ output "sg_api_gateway_id" {
   value       = aws_security_group.api_gateway.id
 }
 
-output "sg_lambda_id" {
-  description = "ID del Security Group de Lambda"
-  value       = aws_security_group.lambda.id
-}
-
 output "sg_vpc_endpoints_id" {
   description = "ID del Security Group de los VPC Endpoints"
   value       = aws_security_group.vpc_endpoints.id
