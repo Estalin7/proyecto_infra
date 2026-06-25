@@ -94,6 +94,7 @@ module "route53" {
   cloudfront_domain_name    = module.cloudfront.domain_name
   cloudfront_hosted_zone_id = module.cloudfront.hosted_zone_id
   dnssec_kms_key_arn = var.dnssec_kms_key_arn
+  aws_account_id = data.aws_caller_identity.current.account_id
   acm_validation_records = merge(
     module.acm.cloudfront_validation_records,
     module.acm.alb_validation_records
@@ -118,14 +119,14 @@ module "alb" {
   project             = var.project
   environment         = var.environment
   vpc_id              = module.vpc.vpc_id
-  public_subnet_ids   = module.vpc.public_subnet_ids
+  private_subnet_ids   = module.vpc.private_subnet_ids
   sg_alb_id           = module.vpc.sg_alb_id
   acm_certificate_arn = module.acm.cert_alb_arn
   app_port            = var.app_port
   health_check_path   = var.health_check_path
   alb_logs_bucket     = module.s3.alb_logs_bucket
 
-  depends_on = [module.acm]
+  depends_on = [module.acm, module.s3]
 }
 
 # ── 11. SQS FIFO (depende de DLQ y de los roles IAM) ─────────
@@ -151,6 +152,7 @@ module "iam" {
   sqs_queue_arn     = module.sqs.queue_arn
   sns_topic_arn     = module.sns.topic_arn
   s3_documentos_arn = module.s3.documentos_bucket_arn
+  aws_region = var.aws_region
 
   depends_on = [module.sqs, module.s3, module.sns]
 }
@@ -210,9 +212,15 @@ module "lambda" {
   sqs_pedidos_url      = module.sqs.queue_url
   aurora_host          = module.aurora.cluster_endpoint
   aurora_db_name       = module.aurora.db_name
+  aurora_username      = var.db_username
+  aurora_password      = var.db_password
   redis_host           = module.elasticache.primary_endpoint
   s3_documentos_bucket = module.s3.documentos_bucket_id
+  telefono_cocina      = var.telefono_cocina
   dlq_arn              = module.dlq.dlq_arn
+  private_subnet_ids   = module.vpc.private_subnet_ids
+  sg_lambda_id         = module.vpc.sg_lambda_id
+  kms_key_arn          = var.kms_key_arn
 
   depends_on = [module.iam, module.aurora, module.elasticache, module.sqs]
 }
@@ -223,8 +231,8 @@ module "sns" {
 
   project                          = var.project
   environment                      = var.environment
-  lambda_procesar_pedido_arn       = module.lambda.procesar_pedido_arn
-  lambda_actualizar_inventario_arn = module.lambda.actualizar_inventario_arn
+  lambda_procesar_inventario_arn = module.lambda.lambda_procesar_inventario_arn
+  lambda_procesar_pedido_arn     = module.lambda.lambda_procesar_pedido
 
   depends_on = [module.lambda]
 }
@@ -233,16 +241,18 @@ module "sns" {
 module "api_gateway" {
   source = "./servicios/api_gateway"
 
-  project            = var.project
-  environment        = var.environment
-  cognito_client_id  = module.cognito.client_id
-  cognito_issuer_url = module.cognito.issuer_url
-  alb_listener_arn   = module.alb.listener_https_arn
+  project = var.project
+  environment = var.environment
+  cognito_client_id = module.cognito.cognito_client_id
+  cognito_issuer_url = module.cognito.cognito_issuer_url
+  alb_listener_arn = module.alb.alb_listener_arn
   private_subnet_ids = module.vpc.private_subnet_ids
-  sg_api_gateway_id  = module.vpc.sg_alb_id
-  cors_allow_origins = ["https://${var.domain_name}", "https://www.${var.domain_name}"]
+  sg_api_gateway_id = module.vpc.sg_api_gateway_id
+  cors_allow_origins = var.cors_allow_origins
+  kms_key_arn = var.kms_key_arn
 
   depends_on = [module.cognito, module.alb]
 }
+data "aws_caller_identity" "current" {}
 
 

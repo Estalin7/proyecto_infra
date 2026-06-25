@@ -38,3 +38,8 @@ variable "dnssec_kms_key_arn" {
   description = "ARN de la KMS key para firmar DNSSEC (debe estar en us-east-1, tipo ECC_NIST_P256)"
   type        = string
 }
+
+variable "aws_account_id" {
+  description = "ID de la cuenta AWS (para la politica del log group de Route 53)"
+  type        = string
+}

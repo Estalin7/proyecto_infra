@@ -35,7 +35,7 @@ resource "aws_iam_role_policy" "ec2_app" {
           "ssmmessages:OpenControlChannel",
           "ssmmessages:OpenDataChannel"
         ]
-        Resource = "*"
+        Resource = "arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:instance/*"
       },
       {
         Sid    = "SQSAccess"
@@ -49,9 +49,9 @@ resource "aws_iam_role_policy" "ec2_app" {
         Resource = var.sqs_queue_arn
       },
       {
-        Sid    = "SNSPublish"
-        Effect = "Allow"
-        Action = ["sns:Publish"]
+        Sid      = "SNSPublish"
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
         Resource = var.sns_topic_arn
       },
       {
@@ -106,7 +106,7 @@ resource "aws_iam_role_policy" "lambda_app" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/*"
       },
       {
         Sid    = "SQSConsume"
@@ -128,8 +128,14 @@ resource "aws_iam_role_policy" "lambda_app" {
         Sid    = "InvokeLambda"
         Effect = "Allow"
         Action = ["lambda:InvokeFunction"]
-        Resource = "*"
+        Resource = [
+          "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${var.project}-procesar-pedido-${var.environment}",
+          "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${var.project}-enviar-sms-cocina-${var.environment}",
+          "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${var.project}-actualizar-inventario-${var.environment}"
+        ]
       }
     ]
   })
 }
+
+data "aws_caller_identity" "current" {}

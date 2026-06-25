@@ -47,3 +47,8 @@ output "sg_vpc_endpoints_id" {
   description = "ID del Security Group de los VPC Endpoints"
   value       = aws_security_group.vpc_endpoints.id
 }
+
+output "sg_lambda_id" {
+  description = "ID del Security Group de las Lambdas"
+  value       = aws_security_group.lambda.id
+}

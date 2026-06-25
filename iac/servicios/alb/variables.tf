@@ -13,8 +13,8 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "public_subnet_ids" {
-  description = "IDs de las subnets publicas donde se despliega el ALB"
+variable "private_subnet_ids" {
+  description = "IDs de las subredes privadas donde se desplegará el ALB interno"
   type        = list(string)
 }
 

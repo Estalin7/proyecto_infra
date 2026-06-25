@@ -71,19 +71,69 @@ resource "aws_apigatewayv2_stage" "main" {
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gw.arn
+    format = jsonencode({
+      requestId      = "$context.requestId"
+      sourceIp       = "$context.identity.sourceIp"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      routeKey       = "$context.routeKey"
+      status         = "$context.status"
+      protocol       = "$context.protocol"
+      responseLength = "$context.responseLength"
+      errorMessage   = "$context.error.message"
+    })
   }
+}
+
+# ── KMS key para CloudWatch Log Group (Fix CKV_AWS_158) ──────
+resource "aws_kms_key" "api_gw_logs" {
+  description             = "KMS key para logs de API Gateway ${var.project}-${var.environment}"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EnableRootAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowCloudWatchLogs"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 
   tags = {
-    Name        = "${var.project}-api-stage-${var.environment}"
+    Name        = "${var.project}-kms-apigw-logs-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 # ── CloudWatch Log Group para el API GW ──────────────────────
 resource "aws_cloudwatch_log_group" "api_gw" {
   name              = "/aws/apigateway/${var.project}-${var.environment}"
   retention_in_days = 365 # Minimo 1 año → Fix CKV_AWS_338
+  kms_key_id        = aws_kms_key.api_gw_logs.arn
 
   tags = {
     Project     = var.project

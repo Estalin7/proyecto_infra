@@ -112,3 +112,69 @@ resource "aws_wafv2_web_acl" "main" {
     Environment = var.environment
   }
 }
+
+# ── KMS key para WAF logs (Fix CKV_AWS_158) ──────────────────
+resource "aws_kms_key" "waf_logs" {
+  provider                = aws.us_east_1
+  description             = "KMS key para WAF logs ${var.project}-${var.environment}"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EnableRootAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowCloudWatchLogs"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.us-east-1.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "${var.project}-kms-waf-logs-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── CloudWatch Log Group para WAF (Fix CKV2_AWS_31) ──────────
+# IMPORTANTE: el nombre DEBE empezar con "aws-waf-logs-"
+resource "aws_cloudwatch_log_group" "waf_logs" {
+  provider          = aws.us_east_1
+  name              = "aws-waf-logs-${var.project}-${var.environment}"
+  retention_in_days = 365
+  kms_key_id        = aws_kms_key.waf_logs.arn
+
+  tags = {
+    Name        = "${var.project}-waf-logs-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── Logging Configuration del WAF (Fix CKV2_AWS_31) ──────────
+resource "aws_wafv2_web_acl_logging_configuration" "main" {
+  provider                = aws.us_east_1
+  log_destination_configs = [aws_cloudwatch_log_group.waf_logs.arn]
+  resource_arn            = aws_wafv2_web_acl.main.arn
+}
+
+data "aws_caller_identity" "current" {}

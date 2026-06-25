@@ -64,3 +64,18 @@ variable "dlq_arn" {
   description = "ARN de la DLQ para capturar invocaciones fallidas de las Lambdas"
   type        = string
 }
+
+variable "private_subnet_ids" {
+  description = "Lista de IDs de las subredes privadas donde se desplegaran las Lambdas"
+  type        = list(string)
+}
+
+variable "sg_lambda_id" {
+  description = "ID del Security Group para las funciones Lambda"
+  type        = string
+}
+
+variable "kms_key_arn" {
+  description = "ARN de la llave KMS para encriptar las variables de entorno de Lambda"
+  type        = string
+}

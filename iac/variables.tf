@@ -154,3 +154,14 @@ variable "dnssec_kms_key_arn" {
   description = "ARN de la KMS key para DNSSEC de Route 53 (debe estar en us-east-1)"
   type        = string
 }
+
+variable "kms_key_arn" {
+  description = "ARN de la KMS key para cifrar variables de entorno de Lambda"
+  type        = string
+}
+
+variable "cors_allow_origins" {
+  description = "Lista de origenes permitidos en CORS del API Gateway"
+  type        = list(string)
+  default     = ["https://restaurante-carloncho.com", "https://www.restaurante-carloncho.com"]
+}

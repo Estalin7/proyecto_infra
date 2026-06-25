@@ -10,6 +10,16 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name        = "${var.project}-default-sg-restringido-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
 # ── Internet Gateway ────────────────────────────────────────
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
@@ -91,6 +101,7 @@ resource "aws_route_table_association" "private" {
 
 # ── Security Group: ALB ──────────────────────────────────────
 resource "aws_security_group" "alb" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-alb-${var.environment}"
   description = "Permite trafico HTTPS entrante al ALB"
   vpc_id      = aws_vpc.main.id
@@ -120,6 +131,7 @@ resource "aws_security_group" "alb" {
 
 # ── Security Group: EC2 (solo acepta tráfico del ALB) ────────
 resource "aws_security_group" "ec2" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-ec2-${var.environment}"
   description = "Permite trafico desde el ALB hacia las EC2"
   vpc_id      = aws_vpc.main.id
@@ -149,6 +161,7 @@ resource "aws_security_group" "ec2" {
 
 # ── Security Group: Aurora (solo acepta tráfico de EC2) ──────
 resource "aws_security_group" "aurora" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-aurora-${var.environment}"
   description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
@@ -170,6 +183,7 @@ resource "aws_security_group" "aurora" {
   }
 
   egress {
+    description = "Sin trafico saliente permitido"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -185,6 +199,7 @@ resource "aws_security_group" "aurora" {
 
 # ── Security Group: ElastiCache (solo acepta tráfico de EC2) ─
 resource "aws_security_group" "elasticache" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-redis-${var.environment}"
   description = "Permite trafico Redis desde las EC2"
   vpc_id      = aws_vpc.main.id
@@ -198,6 +213,7 @@ resource "aws_security_group" "elasticache" {
   }
 
   egress {
+    description = "Sin trafico saliente permitido"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -210,9 +226,9 @@ resource "aws_security_group" "elasticache" {
     Environment = var.environment
   }
 }
-# ── Security Group: API Gateway VPC Link ──────────────────────
-# El VPC Link debe alcanzar el ALB en la VPC
+
 resource "aws_security_group" "api_gateway" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-api-gateway-${var.environment}"
   description = "Permite trafico del VPC Link de API Gateway hacia el ALB"
   vpc_id      = aws_vpc.main.id
@@ -269,11 +285,19 @@ resource "aws_security_group" "vpc_endpoints" {
   }
 
   egress {
-    description = "Salida libre para respuestas"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "HTTPS de respuesta hacia EC2"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2.id]
+  }
+
+  egress {
+    description     = "HTTPS de respuesta hacia Lambda"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
   }
 
   tags = {
@@ -285,16 +309,33 @@ resource "aws_security_group" "vpc_endpoints" {
 
 # ── Security Group: Lambda (para vpc_config) ─────────────────
 resource "aws_security_group" "lambda" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-lambda-${var.environment}"
   description = "Permite trafico de Lambdas hacia Aurora y Redis"
   vpc_id      = aws_vpc.main.id
 
   egress {
-    description = "Salida libre (Lambda necesita acceso a servicios AWS)"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "PostgreSQL hacia Aurora"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.aurora.id]
+  }
+
+  egress {
+    description     = "Redis hacia ElastiCache"
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.elasticache.id]
+  }
+
+  egress {
+    description     = "HTTPS hacia VPC Endpoints"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.vpc_endpoints.id]
   }
 
   tags = {
@@ -304,11 +345,7 @@ resource "aws_security_group" "lambda" {
   }
 }
 
-# ============================================================
-# VPC ENDPOINTS para SSM (sin NAT Gateway)
-# ============================================================
 
-# ── VPC Endpoint: SSM (Systems Manager) ──────────────────────
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
@@ -401,9 +438,52 @@ resource "aws_vpc_endpoint" "sns" {
     Environment = var.environment
   }
 }
+
+# ── KMS key para VPC Flow Logs (Fix CKV_AWS_158) ─────────────
+resource "aws_kms_key" "vpc_flow_logs" {
+  description             = "KMS key para VPC Flow Logs ${var.project}-${var.environment}"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EnableRootAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowCloudWatchLogs"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "${var.project}-kms-vpc-logs-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name              = "/aws/vpc/flow-logs/${var.project}-${var.environment}"
-  retention_in_days = 30
+  retention_in_days = 365
+  kms_key_id        = aws_kms_key.vpc_flow_logs.arn
 
   tags = {
     Name        = "${var.project}-vpc-flow-logs-${var.environment}"
@@ -442,7 +522,10 @@ resource "aws_iam_role_policy" "vpc_flow_logs" {
         "logs:DescribeLogGroups",
         "logs:DescribeLogStreams"
       ]
-      Resource = "*"
+      Resource = [
+        aws_cloudwatch_log_group.vpc_flow_logs.arn,
+        "${aws_cloudwatch_log_group.vpc_flow_logs.arn}:*"
+      ]
     }]
   })
 }

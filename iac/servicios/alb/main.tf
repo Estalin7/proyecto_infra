@@ -1,10 +1,10 @@
 # ALB  apuntando a las EC2 CRUD.
 resource "aws_lb" "main" {
   name               = "${var.project}-alb-${var.environment}"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
   security_groups    = [var.sg_alb_id]
-  subnets            = var.public_subnet_ids
+  subnets            = var.private_subnet_ids
 
   enable_deletion_protection = var.environment == "prod" ? true : false
   drop_invalid_header_fields = true
@@ -21,7 +21,6 @@ resource "aws_lb" "main" {
     Environment = var.environment
   }
 }
-
 
 # ── Target Group (EC2 instancias CRUD) ───────────────────────
 resource "aws_lb_target_group" "crud" {

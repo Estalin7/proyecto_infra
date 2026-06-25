@@ -37,3 +37,8 @@ variable "cors_allow_origins" {
   description = "https://restaurante-carloncho.com"
   type        = list(string)
 }
+
+variable "kms_key_arn" {
+  description = "ARN de la llave KMS para encriptar los logs de API Gateway"
+  type        = string
+}
