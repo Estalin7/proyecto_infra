@@ -9,8 +9,8 @@ env:
   TF_VERSION: "1.9.0"
   AWS_REGION: "us-east-2"
   WORKING_DIR: "iac"
-  # Silenciar warning de deprecacion de Node 20 para actions antiguas
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  # Forzar uso de Node 24 para apagar el warning de deprecacion de Node 20
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   terraform-plan:
@@ -57,7 +57,7 @@ jobs:
         run: terraform validate
 
       # ── 7. Terraform Plan ─────────────────────────────────────
-      # Sin -detailed-exitcode: terraform plan devuelve 0 si tuvo exito
+      # Usamos -detailed-exitcode y aceptamos 0 y 2 como exitosos
       # Usamos TF_VAR_* para evitar problemas de comillas en bash con secrets
       - name: Terraform Plan
         env:
@@ -67,14 +67,18 @@ jobs:
           TF_VAR_telefono_cocina: ${{ secrets.TELEFONO_COCINA }}
         run: |
           set +e
-          terraform plan -input=false -no-color -out=tfplan
+          terraform plan -detailed-exitcode -input=false -no-color -out=tfplan
           EXIT_CODE=$?
           echo "Terraform plan finished with exit code: $EXIT_CODE"
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "❌ Fallo el plan de Terraform"
+          
+          # 0 = sin cambios, 2 = con cambios (ambos son exitos)
+          if [ $EXIT_CODE -eq 0 ] || [ $EXIT_CODE -eq 2 ]; then
+            echo "✅ Plan completado exitosamente (hay cambios pendientes)"
+            exit 0
+          else
+            echo "❌ Fallo el plan de Terraform (exit code 1)"
             exit 1
           fi
-          exit 0
 
       # ── 8. Subir el plan como artefacto ──────────────────────
       - name: Upload Plan Artifact
