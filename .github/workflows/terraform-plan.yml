@@ -1,0 +1,71 @@
+name: Terraform Plan
+
+on:
+  push:
+    branches:
+      - hotfix
+
+env:
+  TF_VERSION: "1.7.0"
+  AWS_REGION: "us-east-2"
+  WORKING_DIR: "iac"
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      # ── 1. Checkout del repositorio ──────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Configurar credenciales AWS ───────────────────────
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      # ── 3. Instalar Terraform ─────────────────────────────────
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      # ── 4. Terraform Init ─────────────────────────────────────
+      - name: Terraform Init
+        run: terraform init
+
+      # ── 5. Terraform Format Check ─────────────────────────────
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      # ── 6. Terraform Validate ─────────────────────────────────
+      - name: Terraform Validate
+        run: terraform validate
+
+      # ── 7. Terraform Plan ─────────────────────────────────────
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="redis_auth_token=${{ secrets.REDIS_AUTH_TOKEN }}" \
+            -var="telefono_cocina=${{ secrets.TELEFONO_COCINA }}" \
+            -no-color \
+            -out=tfplan
+
+      # ── 8. Subir el plan como artefacto ──────────────────────
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: ${{ env.WORKING_DIR }}/tfplan
+          retention-days: 5
