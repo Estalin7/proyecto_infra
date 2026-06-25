@@ -136,22 +136,6 @@ resource "aws_security_group" "ec2" {
   description = "Permite trafico desde el ALB hacia las EC2"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    description     = "Puerto app desde ALB"
-    from_port       = var.app_port
-    to_port         = var.app_port
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-    description     = "PostgreSQL saliente hacia Aurora"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.aurora.id]
-  }
-
   tags = {
     Name        = "${var.project}-sg-ec2-${var.environment}"
     Project     = var.project
@@ -166,30 +150,6 @@ resource "aws_security_group" "aurora" {
   description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    description     = "PostgreSQL desde EC2"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  ingress {
-    description     = "PostgreSQL desde Lambda"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lambda.id]
-  }
-
-  egress {
-    description = "Sin trafico saliente permitido"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["127.0.0.1/32"]
-  }
-
   tags = {
     Name        = "${var.project}-sg-aurora-${var.environment}"
     Project     = var.project
@@ -203,22 +163,6 @@ resource "aws_security_group" "elasticache" {
   name        = "${var.project}-sg-redis-${var.environment}"
   description = "Permite trafico Redis desde las EC2"
   vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description     = "Redis desde EC2"
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  egress {
-    description = "Sin trafico saliente permitido"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["127.0.0.1/32"]
-  }
 
   tags = {
     Name        = "${var.project}-sg-redis-${var.environment}"
@@ -262,43 +206,177 @@ resource "aws_security_group_rule" "api_gateway_to_alb" {
   description              = "Hacia ALB HTTP"
 }
 
+# ── Reglas EC2 ───────────────────────────────────────────────
+resource "aws_security_group_rule" "ec2_ingress_alb" {
+  type                     = "ingress"
+  from_port                = var.app_port
+  to_port                  = var.app_port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.alb.id
+  security_group_id        = aws_security_group.ec2.id
+  description              = "Puerto app desde ALB"
+}
+
+resource "aws_security_group_rule" "ec2_egress_aurora" {
+  type                     = "egress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.aurora.id
+  security_group_id        = aws_security_group.ec2.id
+  description              = "PostgreSQL saliente hacia Aurora"
+}
+
+resource "aws_security_group_rule" "ec2_egress_redis" {
+  type                     = "egress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.elasticache.id
+  security_group_id        = aws_security_group.ec2.id
+  description              = "Redis saliente hacia ElastiCache"
+}
+
+# ── Reglas Aurora ─────────────────────────────────────────────
+resource "aws_security_group_rule" "aurora_ingress_ec2" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.aurora.id
+  description              = "PostgreSQL desde EC2"
+}
+
+resource "aws_security_group_rule" "aurora_ingress_lambda" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.aurora.id
+  description              = "PostgreSQL desde Lambda"
+}
+
+resource "aws_security_group_rule" "aurora_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["127.0.0.1/32"]
+  security_group_id = aws_security_group.aurora.id
+  description       = "Sin trafico saliente permitido"
+}
+
+# ── Reglas ElastiCache ────────────────────────────────────────
+resource "aws_security_group_rule" "elasticache_ingress_ec2" {
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.elasticache.id
+  description              = "Redis desde EC2"
+}
+
+resource "aws_security_group_rule" "elasticache_ingress_lambda" {
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.elasticache.id
+  description              = "Redis desde Lambda"
+}
+
+resource "aws_security_group_rule" "elasticache_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["127.0.0.1/32"]
+  security_group_id = aws_security_group.elasticache.id
+  description       = "Sin trafico saliente permitido"
+}
+
+# ── Reglas Lambda ─────────────────────────────────────────────
+resource "aws_security_group_rule" "lambda_egress_aurora" {
+  type                     = "egress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.aurora.id
+  security_group_id        = aws_security_group.lambda.id
+  description              = "PostgreSQL hacia Aurora"
+}
+
+resource "aws_security_group_rule" "lambda_egress_redis" {
+  type                     = "egress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.elasticache.id
+  security_group_id        = aws_security_group.lambda.id
+  description              = "Redis hacia ElastiCache"
+}
+
+resource "aws_security_group_rule" "lambda_egress_endpoints" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.vpc_endpoints.id
+  security_group_id        = aws_security_group.lambda.id
+  description              = "HTTPS hacia VPC Endpoints"
+}
+
+# ── Reglas VPC Endpoints ──────────────────────────────────────
+resource "aws_security_group_rule" "endpoints_ingress_ec2" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS desde EC2"
+}
+
+resource "aws_security_group_rule" "endpoints_ingress_lambda" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS desde Lambda"
+}
+
+resource "aws_security_group_rule" "endpoints_egress_ec2" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS de respuesta hacia EC2"
+}
+
+resource "aws_security_group_rule" "endpoints_egress_lambda" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS de respuesta hacia Lambda"
+}
+
 # ── Security Group: VPC Endpoints (SSM, Secrets Manager, Lambda) ──
 resource "aws_security_group" "vpc_endpoints" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
   description = "Permite trafico HTTPS desde EC2 y Lambda hacia VPC Endpoints"
   vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description     = "HTTPS desde EC2"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  ingress {
-    description     = "HTTPS desde Lambda"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lambda.id]
-  }
-
-  egress {
-    description     = "HTTPS de respuesta hacia EC2"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  egress {
-    description     = "HTTPS de respuesta hacia Lambda"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lambda.id]
-  }
 
   tags = {
     Name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
@@ -313,30 +391,6 @@ resource "aws_security_group" "lambda" {
   name        = "${var.project}-sg-lambda-${var.environment}"
   description = "Permite trafico de Lambdas hacia Aurora y Redis"
   vpc_id      = aws_vpc.main.id
-
-  egress {
-    description     = "PostgreSQL hacia Aurora"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.aurora.id]
-  }
-
-  egress {
-    description     = "Redis hacia ElastiCache"
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elasticache.id]
-  }
-
-  egress {
-    description     = "HTTPS hacia VPC Endpoints"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.vpc_endpoints.id]
-  }
 
   tags = {
     Name        = "${var.project}-sg-lambda-${var.environment}"

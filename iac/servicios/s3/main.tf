@@ -68,12 +68,6 @@ data "aws_iam_policy_document" "s3_kms" {
     resources = [
       "arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
     ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [var.cloudfront_distribution_arn]
-    }
   }
 }
 
@@ -142,33 +136,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
 }
 
 # CloudFront OAC es el único que puede leer el frontend.
-resource "aws_s3_bucket_policy" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontOAC"
-        Effect = "Allow"
-
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.frontend.arn}/*"
-
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = var.cloudfront_distribution_arn
-          }
-        }
-      }
-    ]
-  })
-}
 
 # Lifecycle del frontend → CKV2_AWS_61
 resource "aws_s3_bucket_lifecycle_configuration" "frontend" {

@@ -30,7 +30,7 @@ resource "aws_lambda_function" "procesar_pedido" {
   environment {
     variables = {
       ENVIRONMENT           = var.environment
-      LAMBDA_ENVIAR_SMS_ARN = aws_lambda_function.enviar_sms_cocina.arn
+      LAMBDA_ENVIAR_SMS_ARN = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.project}-enviar-sms-cocina-${var.environment}"
       SQS_PEDIDOS_URL       = var.sqs_pedidos_url
       AURORA_HOST           = var.aurora_host
       AURORA_PORT           = "5432"

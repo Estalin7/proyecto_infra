@@ -34,9 +34,7 @@ module "s3" {
 
   project                     = var.project
   environment                 = var.environment
-  cloudfront_distribution_arn = module.cloudfront.distribution_id
 
-  depends_on = [module.cloudfront]
 }
 
 # ── 5. ACM (certificados TLS, CloudFront en us-east-1) ───────
