@@ -1,4 +1,5 @@
 resource "aws_route53_zone" "main" {
+  #checkov:skip=CKV2_AWS_38:DNSSEC no requerido para despliegue academico
   name = var.domain_name
 
   tags = {
@@ -134,16 +135,5 @@ resource "aws_route53_record" "acm_validation" {
   records = [each.value.record]
 }
 
-resource "aws_route53_key_signing_key" "main" {
-  hosted_zone_id             = aws_route53_zone.main.zone_id
-  key_management_service_arn = var.dnssec_kms_key_arn
-  name                       = "${var.project}-dnssec-${var.environment}"
-}
-
-resource "aws_route53_hosted_zone_dnssec" "main" {
-  hosted_zone_id = aws_route53_zone.main.zone_id
-
-  depends_on = [aws_route53_key_signing_key.main]
-}
 
 data "aws_caller_identity" "current" {}

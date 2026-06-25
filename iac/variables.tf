@@ -120,10 +120,7 @@ variable "cf_price_class" {
 }
 
 # ── Lambda
-variable "lambda_artifacts_bucket" {
-  description = "Nombre del bucket S3 donde estan los ZIPs de las Lambdas (debe existir antes del apply)"
-  type        = string
-}
+
 
 # ── SQS ──────────────────────────────────────────────────────
 variable "sqs_visibility_timeout" {
@@ -148,16 +145,6 @@ variable "redis_auth_token" {
   description = "Token de autenticacion para ElastiCache Redis"
   type        = string
   sensitive   = true
-}
-
-variable "dnssec_kms_key_arn" {
-  description = "ARN de la KMS key para DNSSEC de Route 53 (debe estar en us-east-1)"
-  type        = string
-}
-
-variable "kms_key_arn" {
-  description = "ARN de la KMS key para cifrar variables de entorno de Lambda"
-  type        = string
 }
 
 variable "cors_allow_origins" {

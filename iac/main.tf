@@ -93,7 +93,6 @@ module "route53" {
   domain_name               = var.domain_name
   cloudfront_domain_name    = module.cloudfront.domain_name
   cloudfront_hosted_zone_id = module.cloudfront.hosted_zone_id
-  dnssec_kms_key_arn = var.dnssec_kms_key_arn
   aws_account_id = data.aws_caller_identity.current.account_id
   acm_validation_records = merge(
     module.acm.cloudfront_validation_records,
@@ -124,7 +123,6 @@ module "alb" {
   acm_certificate_arn = module.acm.cert_alb_arn
   app_port            = var.app_port
   health_check_path   = var.health_check_path
-  alb_logs_bucket     = module.s3.alb_logs_bucket
 
   depends_on = [module.acm, module.s3]
 }
@@ -208,7 +206,6 @@ module "lambda" {
   project              = var.project
   environment          = var.environment
   lambda_role_arn      = module.iam.lambda_role_arn
-  artifacts_bucket     = var.lambda_artifacts_bucket
   sqs_pedidos_url      = module.sqs.queue_url
   aurora_host          = module.aurora.cluster_endpoint
   aurora_db_name       = module.aurora.db_name
@@ -220,7 +217,6 @@ module "lambda" {
   dlq_arn              = module.dlq.dlq_arn
   private_subnet_ids   = module.vpc.private_subnet_ids
   sg_lambda_id         = module.vpc.sg_lambda_id
-  kms_key_arn          = var.kms_key_arn
 
   depends_on = [module.iam, module.aurora, module.elasticache, module.sqs]
 }
@@ -249,7 +245,6 @@ module "api_gateway" {
   private_subnet_ids = module.vpc.private_subnet_ids
   sg_api_gateway_id = module.vpc.sg_api_gateway_id
   cors_allow_origins = var.cors_allow_origins
-  kms_key_arn = var.kms_key_arn
 
   depends_on = [module.cognito, module.alb]
 }

@@ -1,5 +1,6 @@
 # ALB  apuntando a las EC2 CRUD.
 resource "aws_lb" "main" {
+  #checkov:skip=CKV_AWS_91:Access logs del ALB deshabilitados para despliegue academico
   name               = "${var.project}-alb-${var.environment}"
   internal           = true
   load_balancer_type = "application"
@@ -10,9 +11,9 @@ resource "aws_lb" "main" {
   drop_invalid_header_fields = true
 
   access_logs {
-    bucket  = var.alb_logs_bucket
+    bucket  = ""
     prefix  = "${var.project}/${var.environment}/alb"
-    enabled = true
+    enabled = false
   }
 
   tags = {

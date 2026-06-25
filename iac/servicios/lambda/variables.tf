@@ -11,12 +11,7 @@ variable "environment" {
 variable "lambda_role_arn" {
   description = "ARN del rol IAM para las Lambdas (output del modulo iam)"
   type        = string
-}
-
-variable "artifacts_bucket" {
-  description = "Nombre del bucket S3 donde estan los ZIPs de las Lambdas"
-  type        = string
-}
+} 
 
 variable "sqs_pedidos_url" {
   description = "URL de la cola SQS FIFO de pedidos"
@@ -72,10 +67,5 @@ variable "private_subnet_ids" {
 
 variable "sg_lambda_id" {
   description = "ID del Security Group para las funciones Lambda"
-  type        = string
-}
-
-variable "kms_key_arn" {
-  description = "ARN de la llave KMS para encriptar las variables de entorno de Lambda"
   type        = string
 }
