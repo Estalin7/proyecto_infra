@@ -56,34 +56,10 @@ jobs:
         run: terraform validate
 
       # ── 7. Terraform Plan ─────────────────────────────────────
-      # Usamos -detailed-exitcode y aceptamos 0 y 2 como exitosos
-      # Usamos TF_VAR_* para evitar problemas de comillas en bash con secrets
       - name: Terraform Plan
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
           TF_VAR_telefono_cocina: ${{ secrets.TELEFONO_COCINA }}
-        run: |
-          set +e
-          terraform plan -detailed-exitcode -input=false -no-color -out=tfplan
-          EXIT_CODE=$?
-          echo "Terraform plan finished with exit code: $EXIT_CODE"
-          
-          # 0 = sin cambios, 2 = con cambios (ambos son exitos)
-          if [ $EXIT_CODE -eq 0 ] || [ $EXIT_CODE -eq 2 ]; then
-            echo "✅ Plan completado exitosamente (hay cambios pendientes)"
-            exit 0
-          else
-            echo "❌ Fallo el plan de Terraform (exit code 1)"
-            exit 1
-          fi
-
-      # ── 8. Subir el plan como artefacto ──────────────────────
-      - name: Upload Plan Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: ${{ env.WORKING_DIR }}/tfplan
-          retention-days: 5
+        run: terraform plan -input=false -no-color
