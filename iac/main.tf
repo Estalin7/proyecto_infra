@@ -86,6 +86,10 @@ module "cloudfront" {
 
 # ── 8. Route 53 (depende de CloudFront y ACM) ────────────────
 module "route53" {
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
   source = "./servicios/route53"
 
   project                   = var.project
