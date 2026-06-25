@@ -67,7 +67,6 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   filename         = "${path.module}/../../../lambdas/enviar_sms_cocina/enviar_sms_cocina.zip"
   source_code_hash = filebase64sha256("${path.module}/../../../lambdas/enviar_sms_cocina/enviar_sms_cocina.zip")
 
-  code_signing_config_arn = aws_lambda_code_signing_config.lambda_signing.arn
   # Habilitar X-Ray tracing → Fix CKV_AWS_50
   tracing_config {
     mode = "Active"
@@ -112,7 +111,6 @@ resource "aws_lambda_function" "actualizar_inventario" {
   filename         = "${path.module}/../../../lambdas/actualizar_inventario/actualizar_inventario.zip"
   source_code_hash = filebase64sha256("${path.module}/../../../lambdas/actualizar_inventario/actualizar_inventario.zip")
 
-  code_signing_config_arn = aws_lambda_code_signing_config.lambda_signing.arn
   # Habilitar X-Ray tracing → Fix CKV_AWS_50
   tracing_config {
     mode = "Active"

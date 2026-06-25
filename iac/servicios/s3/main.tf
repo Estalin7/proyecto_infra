@@ -11,6 +11,8 @@ data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 
 # CLAVE KMS PARA FRONTEND Y DOCUMENTOS
+# Nota: la condicion CloudFront se aplica en la bucket policy del root module
+# para evitar el ciclo s3 <-> cloudfront.
 
 data "aws_iam_policy_document" "s3_kms" {
 
@@ -68,12 +70,6 @@ data "aws_iam_policy_document" "s3_kms" {
     resources = [
       "arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
     ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [var.cloudfront_distribution_arn]
-    }
   }
 }
 
@@ -96,7 +92,6 @@ resource "aws_kms_alias" "s3_app" {
 }
 
 # BUCKET FRONTEND
-
 
 resource "aws_s3_bucket" "frontend" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida para este proyecto academico
@@ -139,35 +134,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
       kms_master_key_id = aws_kms_key.s3_app.arn
     }
   }
-}
-
-# CloudFront OAC es el único que puede leer el frontend.
-resource "aws_s3_bucket_policy" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontOAC"
-        Effect = "Allow"
-
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.frontend.arn}/*"
-
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = var.cloudfront_distribution_arn
-          }
-        }
-      }
-    ]
-  })
 }
 
 # Lifecycle del frontend → CKV2_AWS_61
@@ -267,7 +233,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "documentos" {
 
 resource "aws_s3_bucket" "logs" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida para este proyecto academico
-
 
   bucket = "${var.project}-logs-${var.environment}"
 
