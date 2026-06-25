@@ -9,6 +9,8 @@ env:
   TF_VERSION: "1.9.0"
   AWS_REGION: "us-east-2"
   WORKING_DIR: "iac"
+  # Silenciar warning de deprecacion de Node 20 para actions antiguas
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   terraform-plan:
@@ -56,17 +58,23 @@ jobs:
 
       # ── 7. Terraform Plan ─────────────────────────────────────
       # Sin -detailed-exitcode: terraform plan devuelve 0 si tuvo exito
-      # (con o sin cambios) y 1 solo si hay un error real.
+      # Usamos TF_VAR_* para evitar problemas de comillas en bash con secrets
       - name: Terraform Plan
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
+          TF_VAR_telefono_cocina: ${{ secrets.TELEFONO_COCINA }}
         run: |
-          terraform plan \
-            -var="db_username=${{ secrets.DB_USERNAME }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}" \
-            -var="redis_auth_token=${{ secrets.REDIS_AUTH_TOKEN }}" \
-            -var="telefono_cocina=${{ secrets.TELEFONO_COCINA }}" \
-            -input=false \
-            -no-color \
-            -out=tfplan
+          set +e
+          terraform plan -input=false -no-color -out=tfplan
+          EXIT_CODE=$?
+          echo "Terraform plan finished with exit code: $EXIT_CODE"
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "❌ Fallo el plan de Terraform"
+            exit 1
+          fi
+          exit 0
 
       # ── 8. Subir el plan como artefacto ──────────────────────
       - name: Upload Plan Artifact
