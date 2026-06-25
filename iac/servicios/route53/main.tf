@@ -6,6 +6,7 @@ terraform {
     }
   }
 }
+
 resource "aws_route53_zone" "main" {
   #checkov:skip=CKV2_AWS_38:DNSSEC no requerido para despliegue academico
   name = var.domain_name
@@ -105,7 +106,7 @@ resource "aws_route53_query_log" "main" {
   depends_on = [aws_cloudwatch_log_resource_policy.route53_queries]
 }
 
-# ── Registro apex (restaurant.com) → CloudFront ─────────────
+# ── Registro apex → CloudFront ────────────────────────────────
 resource "aws_route53_record" "apex" {
   zone_id = aws_route53_zone.main.zone_id
   name    = var.domain_name
@@ -118,7 +119,7 @@ resource "aws_route53_record" "apex" {
   }
 }
 
-# ── Registro www (www.restaurant.com) → CloudFront ──────────
+# ── Registro www → CloudFront ─────────────────────────────────
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.main.zone_id
   name    = "www.${var.domain_name}"
@@ -131,8 +132,7 @@ resource "aws_route53_record" "www" {
   }
 }
 
-# ── Registros CNAME para validacion ACM (DNS validation) ─────
-# Se crean dinamicamente desde los registros que devuelve ACM
+# ── Registros CNAME para validacion ACM ──────────────────────
 resource "aws_route53_record" "acm_validation" {
   for_each = var.acm_validation_records
 
@@ -142,6 +142,5 @@ resource "aws_route53_record" "acm_validation" {
   ttl     = 60
   records = [each.value.record]
 }
-
 
 data "aws_caller_identity" "current" {}

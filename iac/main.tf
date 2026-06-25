@@ -97,7 +97,7 @@ module "route53" {
   domain_name               = var.domain_name
   cloudfront_domain_name    = module.cloudfront.domain_name
   cloudfront_hosted_zone_id = module.cloudfront.hosted_zone_id
-  aws_account_id = data.aws_caller_identity.current.account_id
+  aws_account_id            = data.aws_caller_identity.current.account_id
   acm_validation_records = merge(
     module.acm.cloudfront_validation_records,
     module.acm.alb_validation_records
@@ -122,7 +122,7 @@ module "alb" {
   project             = var.project
   environment         = var.environment
   vpc_id              = module.vpc.vpc_id
-  private_subnet_ids   = module.vpc.private_subnet_ids
+  private_subnet_ids  = module.vpc.private_subnet_ids
   sg_alb_id           = module.vpc.sg_alb_id
   acm_certificate_arn = module.acm.cert_alb_arn
   app_port            = var.app_port
@@ -154,7 +154,7 @@ module "iam" {
   sqs_queue_arn     = module.sqs.queue_arn
   sns_topic_arn     = module.sns.topic_arn
   s3_documentos_arn = module.s3.documentos_bucket_arn
-  aws_region = var.aws_region
+  aws_region        = var.aws_region
 
   depends_on = [module.sqs, module.s3, module.sns]
 }
@@ -185,7 +185,7 @@ module "elasticache" {
   num_cache_nodes    = var.redis_num_nodes
   private_subnet_ids = module.vpc.private_subnet_ids
   sg_elasticache_id  = module.vpc.sg_elasticache_id
-  redis_auth_token = var.redis_auth_token
+  redis_auth_token   = var.redis_auth_token
 }
 
 # ── 15. Aurora PostgreSQL (Multi-AZ) ─────────────────────────
@@ -229,8 +229,8 @@ module "lambda" {
 module "sns" {
   source = "./servicios/sns"
 
-  project                          = var.project
-  environment                      = var.environment
+  project                        = var.project
+  environment                    = var.environment
   lambda_procesar_inventario_arn = module.lambda.lambda_procesar_inventario_arn
   lambda_procesar_pedido_arn     = module.lambda.lambda_procesar_pedido
 
@@ -241,13 +241,13 @@ module "sns" {
 module "api_gateway" {
   source = "./servicios/api_gateway"
 
-  project = var.project
-  environment = var.environment
-  cognito_client_id = module.cognito.cognito_client_id
+  project            = var.project
+  environment        = var.environment
+  cognito_client_id  = module.cognito.cognito_client_id
   cognito_issuer_url = module.cognito.cognito_issuer_url
-  alb_listener_arn = module.alb.alb_listener_arn
+  alb_listener_arn   = module.alb.alb_listener_arn
   private_subnet_ids = module.vpc.private_subnet_ids
-  sg_api_gateway_id = module.vpc.sg_api_gateway_id
+  sg_api_gateway_id  = module.vpc.sg_api_gateway_id
   cors_allow_origins = var.cors_allow_origins
 
   depends_on = [module.cognito, module.alb]
