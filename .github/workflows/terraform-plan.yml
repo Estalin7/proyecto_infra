@@ -37,6 +37,9 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          # Deshabilitar el wrapper de Node.js para manejar exit codes manualmente.
+          # Sin esto, exit code 2 (plan con cambios) se convierte en 1 (error).
+          terraform_wrapper: false
 
       # ── 4. Terraform Init ─────────────────────────────────────
       - name: Terraform Init
