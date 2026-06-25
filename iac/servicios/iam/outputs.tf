@@ -12,3 +12,8 @@ output "lambda_role_arn" {
   description = "ARN del rol IAM para las Lambdas"
   value       = aws_iam_role.lambda.arn
 }
+
+output "lambda_sqs_role_arn" {
+  description = "Lista de ARNs de roles (EC2 + Lambda) que pueden usar la cola SQS"
+  value       = [aws_iam_role.ec2.arn, aws_iam_role.lambda.arn]
+}

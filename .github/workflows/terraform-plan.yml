@@ -6,7 +6,7 @@ on:
       - hotfix
 
 env:
-  TF_VERSION: "1.7.0"
+  TF_VERSION: "1.9.0"
   AWS_REGION: "us-east-2"
   WORKING_DIR: "iac"
 
@@ -37,10 +37,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          # Deshabilitar el wrapper de Node.js para manejar exit codes manualmente.
+          # Sin esto, exit code 2 (plan con cambios) se convierte en 1 (error).
+          terraform_wrapper: false
 
       # ── 4. Terraform Init ─────────────────────────────────────
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
       # ── 5. Terraform Format Check ─────────────────────────────
       - name: Terraform Format Check
@@ -52,18 +55,45 @@ jobs:
         run: terraform validate
 
       # ── 7. Terraform Plan ─────────────────────────────────────
+      # -detailed-exitcode: 0=sin cambios, 1=error, 2=hay cambios (plan OK)
+      # Se captura en TF_EXIT_CODE para distinguir error real de "hay cambios"
       - name: Terraform Plan
+        id: plan
         run: |
+          set +e
           terraform plan \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="redis_auth_token=${{ secrets.REDIS_AUTH_TOKEN }}" \
             -var="telefono_cocina=${{ secrets.TELEFONO_COCINA }}" \
+            -input=false \
             -no-color \
+            -detailed-exitcode \
             -out=tfplan
+          TF_EXIT_CODE=$?
+          echo "exit_code=$TF_EXIT_CODE" >> $GITHUB_OUTPUT
+          # exit 2 = plan OK con cambios, no es un error
+          if [ $TF_EXIT_CODE -eq 1 ]; then
+            echo "❌ terraform plan falló con errores"
+            exit 1
+          fi
+          echo "✅ terraform plan completado (exit code: $TF_EXIT_CODE)"
 
-      # ── 8. Subir el plan como artefacto ──────────────────────
+      # ── 8. Resumen del plan en el summary de GitHub ───────────
+      - name: Plan Summary
+        if: always()
+        run: |
+          if [ "${{ steps.plan.outputs.exit_code }}" == "0" ]; then
+            echo "### ✅ Sin cambios de infraestructura" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.plan.outputs.exit_code }}" == "2" ]; then
+            echo "### 📋 Plan con cambios pendientes de aplicar" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Plan falló" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # ── 9. Subir el plan como artefacto ──────────────────────
       - name: Upload Plan Artifact
+        if: steps.plan.outputs.exit_code == '2'
         uses: actions/upload-artifact@v4
         with:
           name: tfplan

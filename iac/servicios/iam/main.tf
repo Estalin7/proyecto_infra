@@ -1,4 +1,12 @@
 
+# Los ARNs de SQS y SNS se construyen localmente usando el convenio de
+# nombres definido en sus respectivos modulos, evitando la dependencia circular:
+#   iam -> sqs -> iam   y   iam -> sns -> lambda -> iam
+locals {
+  sqs_queue_arn = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-cola-pedidos-${var.environment}.fifo"
+  sns_topic_arn = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-events-${var.environment}"
+}
+
 resource "aws_iam_role" "ec2" {
   name = "${var.project}-ec2-role-${var.environment}"
 
@@ -46,13 +54,13 @@ resource "aws_iam_role_policy" "ec2_app" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Resource = var.sqs_queue_arn
+        Resource = local.sqs_queue_arn
       },
       {
         Sid      = "SNSPublish"
         Effect   = "Allow"
         Action   = ["sns:Publish"]
-        Resource = var.sns_topic_arn
+        Resource = local.sns_topic_arn
       },
       {
         Sid    = "S3Documentos"
@@ -116,7 +124,7 @@ resource "aws_iam_role_policy" "lambda_app" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Resource = var.sqs_queue_arn
+        Resource = local.sqs_queue_arn
       },
       {
         Sid    = "S3Documentos"

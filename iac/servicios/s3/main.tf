@@ -11,6 +11,8 @@ data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 
 # CLAVE KMS PARA FRONTEND Y DOCUMENTOS
+# Nota: la condicion CloudFront se aplica en la bucket policy del root module
+# para evitar el ciclo s3 <-> cloudfront.
 
 data "aws_iam_policy_document" "s3_kms" {
 
@@ -91,7 +93,6 @@ resource "aws_kms_alias" "s3_app" {
 
 # BUCKET FRONTEND
 
-
 resource "aws_s3_bucket" "frontend" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida para este proyecto academico
   bucket = "${var.project}-frontend-${var.environment}"
@@ -135,9 +136,12 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
   }
 }
 
+<<<<<<< HEAD
 # CloudFront OAC es el único que puede leer el frontend.
 
 
+=======
+>>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
 # Lifecycle del frontend → CKV2_AWS_61
 resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
   bucket = aws_s3_bucket.frontend.id
@@ -235,7 +239,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "documentos" {
 
 resource "aws_s3_bucket" "logs" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida para este proyecto academico
-
 
   bucket = "${var.project}-logs-${var.environment}"
 

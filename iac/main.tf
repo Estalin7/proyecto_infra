@@ -19,22 +19,35 @@ module "dlq" {
   environment = var.environment
 }
 
-# ── 3. IAM (depende de SQS, SNS, S3 -> se resuelve con depends_on) ──
-# SQS necesita los roles de IAM para la politica de acceso, e IAM
-# necesita los ARNs de SQS/SNS/S3. Para romper el ciclo, IAM se
-# declara despues de SQS/S3/SNS pero estos usan placeholders via
-# depends_on; aqui usamos el orden real de creacion:
-#   dlq -> sqs (con allowed_role_arns) -> iam -> resto
-# Por eso iam recibe sqs_queue_arn y s3_documentos_arn directamente,
-# y sqs recibe los role arns de iam (con depends_on para forzar orden).
+# ── 3. IAM ────────────────────────────────────────────────────
+# IAM se crea antes que SQS y SNS. Los ARNs de SQS y SNS se
+# construyen internamente en el modulo IAM usando el convenio
+# de nombres, rompiendo los ciclos iam->sqs->iam e iam->sns->lambda->iam.
+module "iam" {
+  source = "./servicios/iam"
 
-# ── 4. S3 (depende de CloudFront para la politica OAC) ───────
+  project           = var.project
+  environment       = var.environment
+  s3_documentos_arn = module.s3.documentos_bucket_arn
+  aws_region        = var.aws_region
+
+  depends_on = [module.s3]
+}
+
+# ── 4. S3 (sin dependencia de CloudFront) ────────────────────
+# La bucket policy OAC se aplica en este mismo archivo (ver abajo)
+# despues de crear CloudFront, rompiendo el ciclo s3 <-> cloudfront.
 module "s3" {
   source = "./servicios/s3"
 
+<<<<<<< HEAD
   project                     = var.project
   environment                 = var.environment
 
+=======
+  project     = var.project
+  environment = var.environment
+>>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
 }
 
 # ── 5. ACM (certificados TLS, CloudFront en us-east-1) ───────
@@ -82,6 +95,39 @@ module "cloudfront" {
   depends_on = [module.acm, module.waf]
 }
 
+# ── Bucket Policy OAC (rompe ciclo CloudFront <-> S3) ─────────
+# Se aplica aqui, en el root module, despues de que tanto S3 como
+# CloudFront ya existen, evitando la dependencia circular.
+resource "aws_s3_bucket_policy" "frontend_oac" {
+  bucket = module.s3.frontend_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontOAC"
+        Effect = "Allow"
+
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+
+        Action   = "s3:GetObject"
+        Resource = "${module.s3.frontend_bucket_arn}/*"
+
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = module.cloudfront.distribution_id
+          }
+        }
+      }
+    ]
+  })
+
+  depends_on = [module.s3, module.cloudfront]
+}
+
 # ── 8. Route 53 (depende de CloudFront y ACM) ────────────────
 module "route53" {
   providers = {
@@ -126,10 +172,12 @@ module "alb" {
   app_port            = var.app_port
   health_check_path   = var.health_check_path
 
-  depends_on = [module.acm, module.s3]
+  depends_on = [module.acm]
 }
 
-# ── 11. SQS FIFO (depende de DLQ y de los roles IAM) ─────────
+# ── 11. SQS FIFO (depende de DLQ e IAM) ──────────────────────
+# IAM se crea antes que SQS para poder pasar los role ARNs a la
+# queue policy sin ciclo.
 module "sqs" {
   source = "./servicios/sqs"
 
@@ -140,24 +188,10 @@ module "sqs" {
   max_receive_count  = var.sqs_max_receive_count
   allowed_role_arns  = module.iam.lambda_sqs_role_arn
 
-  depends_on = [module.dlq]
+  depends_on = [module.dlq, module.iam]
 }
 
-# ── 12. IAM (recibe ARNs de SQS, SNS, S3) ────────────────────
-module "iam" {
-  source = "./servicios/iam"
-
-  project           = var.project
-  environment       = var.environment
-  sqs_queue_arn     = module.sqs.queue_arn
-  sns_topic_arn     = module.sns.topic_arn
-  s3_documentos_arn = module.s3.documentos_bucket_arn
-  aws_region        = var.aws_region
-
-  depends_on = [module.sqs, module.s3, module.sns]
-}
-
-# ── 13. EC2 (depende de vpc, ALB, IAM) ───────────────────────
+# ── 12. EC2 (depende de vpc, ALB, IAM) ───────────────────────
 module "ec2" {
   source = "./servicios/ec2"
 
@@ -173,7 +207,7 @@ module "ec2" {
   depends_on = [module.alb, module.iam]
 }
 
-# ── 14. ElastiCache Redis ─────────────────────────────────────
+# ── 13. ElastiCache Redis ─────────────────────────────────────
 module "elasticache" {
   source = "./servicios/elasticache"
 
@@ -186,7 +220,7 @@ module "elasticache" {
   redis_auth_token   = var.redis_auth_token
 }
 
-# ── 15. Aurora PostgreSQL (Multi-AZ) ─────────────────────────
+# ── 14. Aurora PostgreSQL (Multi-AZ) ─────────────────────────
 module "aurora" {
   source = "./servicios/aurora"
 
@@ -201,7 +235,7 @@ module "aurora" {
   availability_zones = var.availability_zones
 }
 
-# ── 16. Lambda (depende de IAM, S3, SQS, Aurora, Redis) ──────
+# ── 15. Lambda (depende de IAM, S3, SQS, Aurora, Redis) ──────
 module "lambda" {
   source = "./servicios/lambda"
 
@@ -223,33 +257,32 @@ module "lambda" {
   depends_on = [module.iam, module.aurora, module.elasticache, module.sqs]
 }
 
-# ── 17. SNS (depende de Lambda) ──────────────────────────────
+# ── 16. SNS (depende de Lambda) ──────────────────────────────
 module "sns" {
   source = "./servicios/sns"
 
   project                        = var.project
   environment                    = var.environment
-  lambda_procesar_inventario_arn = module.lambda.lambda_procesar_inventario_arn
-  lambda_procesar_pedido_arn     = module.lambda.lambda_procesar_pedido
+  lambda_procesar_inventario_arn = module.lambda.actualizar_inventario_arn
+  lambda_procesar_pedido_arn     = module.lambda.procesar_pedido_arn
 
   depends_on = [module.lambda]
 }
 
-# ── 18. API Gateway (depende de Cognito, ALB, vpc) ───────────
+# ── 17. API Gateway (depende de Cognito, ALB, vpc) ───────────
 module "api_gateway" {
   source = "./servicios/api_gateway"
 
   project            = var.project
   environment        = var.environment
-  cognito_client_id  = module.cognito.cognito_client_id
-  cognito_issuer_url = module.cognito.cognito_issuer_url
-  alb_listener_arn   = module.alb.alb_listener_arn
+  cognito_client_id  = module.cognito.client_id
+  cognito_issuer_url = module.cognito.issuer_url
+  alb_listener_arn   = module.alb.listener_https_arn
   private_subnet_ids = module.vpc.private_subnet_ids
   sg_api_gateway_id  = module.vpc.sg_api_gateway_id
   cors_allow_origins = var.cors_allow_origins
 
   depends_on = [module.cognito, module.alb]
 }
+
 data "aws_caller_identity" "current" {}
-
-

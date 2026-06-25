@@ -129,13 +129,26 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# ── Security Group: EC2 (solo acepta tráfico del ALB) ────────
+# ── Security Group: EC2 ──────────────────────────────────────
+# Sin reglas inline que referencien otros SGs para evitar ciclos.
+# Las reglas cross-SG se definen como aws_security_group_rule mas abajo.
 resource "aws_security_group" "ec2" {
   #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-ec2-${var.environment}"
   description = "Permite trafico desde el ALB hacia las EC2"
   vpc_id      = aws_vpc.main.id
 
+<<<<<<< HEAD
+=======
+  ingress {
+    description     = "Puerto app desde ALB"
+    from_port       = var.app_port
+    to_port         = var.app_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+>>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
   tags = {
     Name        = "${var.project}-sg-ec2-${var.environment}"
     Project     = var.project
@@ -143,13 +156,25 @@ resource "aws_security_group" "ec2" {
   }
 }
 
-# ── Security Group: Aurora (solo acepta tráfico de EC2) ──────
+# ── Security Group: Aurora ───────────────────────────────────
+# Sin reglas inline cross-SG para evitar ciclos.
 resource "aws_security_group" "aurora" {
   #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-aurora-${var.environment}"
   description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
 
+<<<<<<< HEAD
+=======
+  egress {
+    description = "Sin trafico saliente permitido"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["127.0.0.1/32"]
+  }
+
+>>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
   tags = {
     Name        = "${var.project}-sg-aurora-${var.environment}"
     Project     = var.project
@@ -157,13 +182,25 @@ resource "aws_security_group" "aurora" {
   }
 }
 
-# ── Security Group: ElastiCache (solo acepta tráfico de EC2) ─
+# ── Security Group: ElastiCache ──────────────────────────────
+# Sin reglas inline cross-SG para evitar ciclos.
 resource "aws_security_group" "elasticache" {
   #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-redis-${var.environment}"
   description = "Permite trafico Redis desde las EC2"
   vpc_id      = aws_vpc.main.id
 
+<<<<<<< HEAD
+=======
+  egress {
+    description = "Sin trafico saliente permitido"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["127.0.0.1/32"]
+  }
+
+>>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
   tags = {
     Name        = "${var.project}-sg-redis-${var.environment}"
     Project     = var.project
@@ -171,6 +208,7 @@ resource "aws_security_group" "elasticache" {
   }
 }
 
+# ── Security Group: API Gateway VPC Link ─────────────────────
 resource "aws_security_group" "api_gateway" {
   #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
   name        = "${var.project}-sg-api-gateway-${var.environment}"
@@ -184,7 +222,172 @@ resource "aws_security_group" "api_gateway" {
   }
 }
 
-# ── Regla: ALB acepta HTTP desde VPC Link ────────────────────
+# ── Security Group: VPC Endpoints ────────────────────────────
+# Sin reglas inline cross-SG para evitar ciclos.
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
+  description = "Permite trafico HTTPS desde EC2 y Lambda hacia VPC Endpoints"
+  vpc_id      = aws_vpc.main.id
+
+  tags = {
+    Name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── Security Group: Lambda ────────────────────────────────────
+# Sin reglas inline cross-SG para evitar ciclos.
+resource "aws_security_group" "lambda" {
+  #checkov:skip=CKV2_AWS_5:SG adjunto a recursos en modulos externos, falso positivo de analisis estatico entre modulos
+  name        = "${var.project}-sg-lambda-${var.environment}"
+  description = "Permite trafico de Lambdas hacia Aurora y Redis"
+  vpc_id      = aws_vpc.main.id
+
+  tags = {
+    Name        = "${var.project}-sg-lambda-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# REGLAS CROSS-SG (separadas para romper ciclos de dependencia)
+# ═══════════════════════════════════════════════════════════════
+
+# ── EC2 → Aurora (egress) ────────────────────────────────────
+resource "aws_security_group_rule" "ec2_to_aurora" {
+  type                     = "egress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.aurora.id
+  security_group_id        = aws_security_group.ec2.id
+  description              = "PostgreSQL saliente hacia Aurora"
+}
+
+# ── Aurora ← EC2 (ingress) ───────────────────────────────────
+resource "aws_security_group_rule" "aurora_from_ec2" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.aurora.id
+  description              = "PostgreSQL desde EC2"
+}
+
+# ── Aurora ← Lambda (ingress) ────────────────────────────────
+resource "aws_security_group_rule" "aurora_from_lambda" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.aurora.id
+  description              = "PostgreSQL desde Lambda"
+}
+
+# ── Lambda → Aurora (egress) ─────────────────────────────────
+resource "aws_security_group_rule" "lambda_to_aurora" {
+  type                     = "egress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.aurora.id
+  security_group_id        = aws_security_group.lambda.id
+  description              = "PostgreSQL hacia Aurora"
+}
+
+# ── ElastiCache ← EC2 (ingress) ──────────────────────────────
+resource "aws_security_group_rule" "elasticache_from_ec2" {
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.elasticache.id
+  description              = "Redis desde EC2"
+}
+
+# ── ElastiCache ← Lambda (ingress) ───────────────────────────
+resource "aws_security_group_rule" "elasticache_from_lambda" {
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.elasticache.id
+  description              = "Redis desde Lambda"
+}
+
+# ── Lambda → ElastiCache (egress) ────────────────────────────
+resource "aws_security_group_rule" "lambda_to_elasticache" {
+  type                     = "egress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.elasticache.id
+  security_group_id        = aws_security_group.lambda.id
+  description              = "Redis hacia ElastiCache"
+}
+
+# ── VPC Endpoints ← EC2 (ingress) ────────────────────────────
+resource "aws_security_group_rule" "vpc_endpoints_from_ec2" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS desde EC2"
+}
+
+# ── VPC Endpoints ← Lambda (ingress) ─────────────────────────
+resource "aws_security_group_rule" "vpc_endpoints_from_lambda" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS desde Lambda"
+}
+
+# ── VPC Endpoints → EC2 (egress) ─────────────────────────────
+resource "aws_security_group_rule" "vpc_endpoints_to_ec2" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS de respuesta hacia EC2"
+}
+
+# ── VPC Endpoints → Lambda (egress) ──────────────────────────
+resource "aws_security_group_rule" "vpc_endpoints_to_lambda" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.vpc_endpoints.id
+  description              = "HTTPS de respuesta hacia Lambda"
+}
+
+# ── Lambda → VPC Endpoints (egress) ──────────────────────────
+resource "aws_security_group_rule" "lambda_to_vpc_endpoints" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.vpc_endpoints.id
+  security_group_id        = aws_security_group.lambda.id
+  description              = "HTTPS hacia VPC Endpoints"
+}
+
+# ── Regla: ALB acepta HTTPS desde VPC Link ───────────────────
 resource "aws_security_group_rule" "alb_from_api_gateway" {
   type                     = "ingress"
   from_port                = 443
@@ -192,7 +395,7 @@ resource "aws_security_group_rule" "alb_from_api_gateway" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.api_gateway.id
   security_group_id        = aws_security_group.alb.id
-  description              = "HTTP desde VPC Link"
+  description              = "HTTPS desde VPC Link"
 }
 
 # ── Regla: VPC Link egress hacia ALB ─────────────────────────
@@ -203,9 +406,10 @@ resource "aws_security_group_rule" "api_gateway_to_alb" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.alb.id
   security_group_id        = aws_security_group.api_gateway.id
-  description              = "Hacia ALB HTTP"
+  description              = "Hacia ALB HTTPS"
 }
 
+<<<<<<< HEAD
 # ── Reglas EC2 ───────────────────────────────────────────────
 resource "aws_security_group_rule" "ec2_ingress_alb" {
   type                     = "ingress"
@@ -400,6 +604,9 @@ resource "aws_security_group" "lambda" {
 }
 
 
+=======
+# ── VPC Endpoints (Interface) ────────────────────────────────
+>>>>>>> 8bb7eb65a18cd4d89bb5eb197682c87bf73a975d
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
@@ -461,7 +668,7 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
-# ── VPC Endpoint: Secrets Manager (para Lambdas leer credenciales) ──
+# ── VPC Endpoint: Secrets Manager ────────────────────────────
 resource "aws_vpc_endpoint" "secretsmanager" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.secretsmanager"
@@ -477,7 +684,7 @@ resource "aws_vpc_endpoint" "secretsmanager" {
   }
 }
 
-# ── VPC Endpoint: SNS (para Lambdas publicar eventos) ────────────────
+# ── VPC Endpoint: SNS ────────────────────────────────────────
 resource "aws_vpc_endpoint" "sns" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.sns"
@@ -493,7 +700,7 @@ resource "aws_vpc_endpoint" "sns" {
   }
 }
 
-# ── KMS key para VPC Flow Logs (Fix CKV_AWS_158) ─────────────
+# ── KMS key para VPC Flow Logs ────────────────────────────────
 resource "aws_kms_key" "vpc_flow_logs" {
   description             = "KMS key para VPC Flow Logs ${var.project}-${var.environment}"
   deletion_window_in_days = 7
@@ -596,5 +803,7 @@ resource "aws_flow_log" "main" {
     Environment = var.environment
   }
 }
-# ── Data source para obtener la región actual ────────────────
+
+# ── Data sources ─────────────────────────────────────────────
 data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
