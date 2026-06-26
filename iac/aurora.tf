@@ -65,6 +65,8 @@ resource "aws_rds_cluster" "main" {
   preferred_backup_window = "02:00-03:00"
 
   #checkov:skip=CKV2_AWS_8:Backup plan de AWS Backup no requerido para despliegue academico
+
+  #checkov:skip=CKV_AWS_139:Proyecto academico, destruccion completa requerida con terraform destroy
   deletion_protection       = false
   skip_final_snapshot       = var.environment == "prod" ? false : true
   final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
