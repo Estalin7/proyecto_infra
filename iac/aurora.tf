@@ -64,8 +64,6 @@ resource "aws_rds_cluster" "main" {
   backup_retention_period = var.environment == "prod" ? 7 : 1
   preferred_backup_window = "02:00-03:00"
 
-  #checkov:skip=CKV_AWS_139:Proyecto academico, destruccion completa requerida
-  #checkov:skip=CKV2_AWS_27:Query logging no requerido para despliegue academico
   #checkov:skip=CKV2_AWS_8:Backup plan de AWS Backup no requerido para despliegue academico
   deletion_protection       = false
   skip_final_snapshot       = var.environment == "prod" ? false : true
