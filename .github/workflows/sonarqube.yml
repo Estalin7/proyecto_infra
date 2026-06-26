@@ -8,17 +8,8 @@ on:
 
     branches:
 
-      - main
+      - hotfix
 
-      - develop
-
-  pull_request:
-
-    branches:
-
-      - main
-
-      - develop
 
 
 
