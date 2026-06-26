@@ -119,6 +119,13 @@ variable "cf_price_class" {
   default     = "PriceClass_100"
 }
 
+variable "cf_geo_whitelist" {
+  description = "Lista de paises permitidos en CloudFront (ISO 3166-1 alpha-2)"
+  type        = list(string)
+  default     = ["PE", "US", "ES"]
+}
+
+
 # ── Lambda
 
 

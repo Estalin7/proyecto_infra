@@ -1,3 +1,4 @@
+# ── Terraform ────────────────────────────────────────────────
 .terraform/
 *.tfstate
 *.tfstate.*
@@ -5,4 +6,17 @@
 *.tfvars.backup
 crash.log
 crash.*.log
-terraform.tfvars
+terraform.tfvars
+
+# ── Variables de entorno sensibles ───────────────────────────
+.env
+*.env.local
+
+# ── Lambda ZIPs (se generan en CI/CD, no se versionan) ───────
+lambdas/**/*.zip
+
+# ── OS / IDE ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
