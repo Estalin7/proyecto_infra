@@ -272,11 +272,11 @@ resource "aws_s3_bucket_policy" "logs" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Sid    = "AllowS3ServerAccessLogs"
-      Effect = "Allow"
+      Sid       = "AllowS3ServerAccessLogs"
+      Effect    = "Allow"
       Principal = { Service = "logging.s3.amazonaws.com" }
-      Action   = "s3:PutObject"
-      Resource = "${aws_s3_bucket.logs.arn}/logs/*"
+      Action    = "s3:PutObject"
+      Resource  = "${aws_s3_bucket.logs.arn}/logs/*"
       Condition = {
         ArnLike      = { "aws:SourceArn" = [aws_s3_bucket.frontend.arn, aws_s3_bucket.documentos.arn] }
         StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
@@ -463,11 +463,11 @@ resource "aws_s3_bucket_policy" "frontend_oac" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Sid    = "AllowCloudFrontOAC"
-      Effect = "Allow"
+      Sid       = "AllowCloudFrontOAC"
+      Effect    = "Allow"
       Principal = { Service = "cloudfront.amazonaws.com" }
-      Action   = "s3:GetObject"
-      Resource = "${aws_s3_bucket.frontend.arn}/*"
+      Action    = "s3:GetObject"
+      Resource  = "${aws_s3_bucket.frontend.arn}/*"
       Condition = {
         StringEquals = {
           "AWS:SourceArn" = aws_cloudfront_distribution.main.arn
@@ -513,11 +513,11 @@ resource "aws_kms_key" "route53_logs" {
         Resource = "*"
       },
       {
-        Sid    = "AllowCloudWatchLogs"
-        Effect = "Allow"
+        Sid       = "AllowCloudWatchLogs"
+        Effect    = "Allow"
         Principal = { Service = "logs.us-east-1.amazonaws.com" }
-        Action   = ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"]
-        Resource = "*"
+        Action    = ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"]
+        Resource  = "*"
       }
     ]
   })
@@ -550,11 +550,11 @@ resource "aws_cloudwatch_log_resource_policy" "route53_queries" {
   policy_document = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Sid    = "AllowRoute53Logging"
-      Effect = "Allow"
+      Sid       = "AllowRoute53Logging"
+      Effect    = "Allow"
       Principal = { Service = "route53.amazonaws.com" }
-      Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-      Resource = "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/route53/*"
+      Action    = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource  = "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/route53/*"
     }]
   })
 }
