@@ -1,0 +1,51 @@
+plugin: aws_ec2
+
+# Configuración de conexión AWS
+regions:
+  - us-east-2
+
+# Filtros para descubrir instancias
+filters:
+  # Solo instancias en estado 'running'
+  instance-state-name: running
+  # Solo instancias con tag Environment=prod (o cualquier ambiente)
+  tag:Environment:
+    - prod
+    - dev
+    - qa
+  # Solo instancias con rol de backend CRUD
+  tag:Role: crud
+
+# Composición de variables de host
+compose:
+  # Usar IP privada como variable ansible_host
+  ansible_host: private_ip_address
+
+# Grupos dinámicos basados en tags
+groups:
+  # Grupo por ambiente
+  env_{{ tag_Environment }}: inventory_hostname is defined
+  # Grupo por rol
+  role_{{ tag_Role }}: inventory_hostname is defined
+
+# Variables para la conexión SSM
+vars:
+  # Usar SSM como conector en lugar de SSH
+  ansible_connection: aws_ssm
+  # Puerto dummy (SSM no usa SSH)
+  ansible_port: 443
+  # Región AWS para SSM
+  ansible_aws_ssm_region: us-east-2
+  # Usuario de la instancia
+  ansible_user: ubuntu
+  # Shell
+  ansible_shell_type: bash
+
+# Keyed variables
+keyed_groups:
+  # Crear grupos como tag_Environment_<valor>, ej: tag_Environment_prod
+  - key: tag_Environment
+    prefix: tag_Environment
+  # Crear grupos como tag_Role_<valor>, ej: tag_Role_crud
+  - key: tag_Role
+    prefix: tag_Role
