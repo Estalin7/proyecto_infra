@@ -559,6 +559,7 @@ resource "aws_cloudwatch_log_resource_policy" "route53_queries" {
   })
 }
 
+
 resource "aws_route53_query_log" "main" {
   zone_id                  = aws_route53_zone.main.zone_id
   cloudwatch_log_group_arn = aws_cloudwatch_log_group.route53_queries.arn
