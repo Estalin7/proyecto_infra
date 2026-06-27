@@ -111,7 +111,7 @@ resource "aws_route_table_association" "private" {
 # ═══════════════════════════════════════════════════════════════
 
 resource "aws_security_group" "alb" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al ALB en este mismo archivo
+
   name        = "${var.project}-sg-alb-${var.environment}"
   description = "Permite trafico HTTPS entrante al ALB"
   vpc_id      = aws_vpc.main.id
@@ -140,7 +140,7 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_security_group" "ec2" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto a las instancias EC2 en este mismo archivo
+
   name        = "${var.project}-sg-ec2-${var.environment}"
   description = "Permite trafico desde el ALB hacia las EC2"
   vpc_id      = aws_vpc.main.id
@@ -153,7 +153,7 @@ resource "aws_security_group" "ec2" {
 }
 
 resource "aws_security_group" "aurora" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al cluster Aurora en este mismo archivo
+
   name        = "${var.project}-sg-aurora-${var.environment}"
   description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
@@ -166,7 +166,7 @@ resource "aws_security_group" "aurora" {
 }
 
 resource "aws_security_group" "elasticache" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al cluster Redis en este mismo archivo
+
   name        = "${var.project}-sg-redis-${var.environment}"
   description = "Permite trafico Redis desde las EC2"
   vpc_id      = aws_vpc.main.id
@@ -179,7 +179,7 @@ resource "aws_security_group" "elasticache" {
 }
 
 resource "aws_security_group" "api_gateway" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al VPC Link en este mismo archivo
+
   name        = "${var.project}-sg-api-gateway-${var.environment}"
   description = "Permite trafico del VPC Link de API Gateway hacia el ALB"
   vpc_id      = aws_vpc.main.id
@@ -204,7 +204,7 @@ resource "aws_security_group" "vpc_endpoints" {
 }
 
 resource "aws_security_group" "lambda" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto a las Lambdas en este mismo archivo
+  
   name        = "${var.project}-sg-lambda-${var.environment}"
   description = "Permite trafico de Lambdas hacia Aurora y Redis"
   vpc_id      = aws_vpc.main.id
@@ -604,7 +604,7 @@ resource "aws_flow_log" "main" {
 # ═══════════════════════════════════════════════════════════════
 
 resource "aws_lb" "main" {
-  #checkov:skip=CKV_AWS_91:Access logs del ALB deshabilitados para despliegue academico
+  
   name               = "${var.project}-alb-${var.environment}"
   internal           = true
   load_balancer_type = "application"
@@ -615,9 +615,9 @@ resource "aws_lb" "main" {
   drop_invalid_header_fields = true
 
   access_logs {
-    bucket  = ""
+    bucket  = aws_s3_bucket.logs.id
     prefix  = "${var.project}/${var.environment}/alb"
-    enabled = false
+    enabled = true
   }
 
   tags = {
