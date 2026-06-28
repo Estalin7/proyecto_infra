@@ -1,9 +1,3 @@
-# ============================================================
-# variables.tf
-# Variables generales del proyecto. Los valores concretos
-# van en terraform.tfvars (no subir secrets al repo).
-# ============================================================
-
 variable "project" {
   description = "Nombre del proyecto"
   type        = string
@@ -92,6 +86,12 @@ variable "db_username" {
   sensitive   = true
 }
 
+variable "db_password" {
+  description = "Contrasena del usuario administrador de Aurora"
+  type        = string
+  sensitive   = true
+}
+
 # ── Redis ────────────────────────────────────────────────────
 variable "redis_node_type" {
   description = "Tipo de nodo ElastiCache Redis"
@@ -119,11 +119,15 @@ variable "cf_price_class" {
   default     = "PriceClass_100"
 }
 
-# ── Lambda ───────────────────────────────────────────────────
-variable "lambda_artifacts_bucket" {
-  description = "Nombre del bucket S3 donde estan los ZIPs de las Lambdas (debe existir antes del apply)"
-  type        = string
+variable "cf_geo_whitelist" {
+  description = "Lista de paises permitidos en CloudFront (ISO 3166-1 alpha-2)"
+  type        = list(string)
+  default     = ["PE", "US", "ES"]
 }
+
+
+# ── Lambda
+
 
 # ── SQS ──────────────────────────────────────────────────────
 variable "sqs_visibility_timeout" {
@@ -144,9 +148,14 @@ variable "telefono_cocina" {
   type        = string
 }
 
-# ── API Gateway ──────────────────────────────────────────────
+variable "redis_auth_token" {
+  description = "Token de autenticacion para ElastiCache Redis"
+  type        = string
+  sensitive   = true
+}
+
 variable "cors_allow_origins" {
-  description = "Lista de origenes CORS permitidos en API Gateway"
+  description = "Lista de origenes permitidos en CORS del API Gateway"
   type        = list(string)
   default     = ["https://restaurante-carloncho.com", "https://www.restaurante-carloncho.com"]
 }
