@@ -1,10 +1,3 @@
-# ============================================================
-# eks.tf  (EC2 CRUD)
-# Crea: instancias EC2 Ubuntu con SSM (sin SSH abierto),
-#       registradas en el Target Group del ALB.
-# Nota: en el diagrama estas son las EC2 de Operaciones CRUD.
-# ============================================================
-
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical
