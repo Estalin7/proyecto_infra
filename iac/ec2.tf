@@ -48,10 +48,8 @@ resource "aws_instance" "crud" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-    apt-get update -y
-    snap install amazon-ssm-agent --classic
-    systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
-    systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
+    systemctl enable amazon-ssm-agent
+    systemctl start amazon-ssm-agent
   EOF
   )
 

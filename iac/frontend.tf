@@ -374,11 +374,6 @@ resource "aws_cloudfront_distribution" "main" {
   price_class         = var.cf_price_class
   comment             = "${var.project} CDN frontend ${var.environment}"
 
-  logging_config {
-    bucket          = "${var.project}-logs-${var.environment}.s3.amazonaws.com"
-    prefix          = "${var.project}/${var.environment}/cloudfront"
-    include_cookies = false
-  }
 
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
