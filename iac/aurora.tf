@@ -164,7 +164,8 @@ resource "aws_rds_cluster_instance" "writer" {
   monitoring_interval = 60
   monitoring_role_arn = aws_iam_role.rds_enhanced_monitoring.arn
 
-  #checkov:skip=CKV_AWS_353:Performance Insights no requerido para este proyecto academico
+  performance_insights_enabled    = true
+  performance_insights_kms_key_id = aws_kms_key.aurora.arn
 
   tags = {
     Name        = "${var.project}-aurora-writer-${var.environment}"
