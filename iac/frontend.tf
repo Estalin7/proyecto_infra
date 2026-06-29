@@ -592,15 +592,17 @@ resource "aws_route53_record" "www" {
 # Registros CNAME para validación ACM (CloudFront + ALB)
 resource "aws_route53_record" "acm_validation" {
   for_each = {
-    for dvo in concat(
-      tolist(aws_acm_certificate.cloudfront.domain_validation_options),
-      tolist(aws_acm_certificate.alb.domain_validation_options)
-    ) : dvo.domain_name => dvo
+    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
   }
 
-  zone_id = aws_route53_zone.main.zone_id
-  name    = each.value.resource_record_name
-  type    = each.value.resource_record_type
-  ttl     = 60
-  records = [each.value.resource_record_value]
+  allow_overwrite = true
+  zone_id         = aws_route53_zone.main.zone_id
+  name            = each.value.name
+  type            = each.value.type
+  ttl             = 60
+  records         = [each.value.record]
 }
