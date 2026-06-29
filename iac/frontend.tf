@@ -444,7 +444,6 @@ resource "aws_cloudfront_distribution" "main" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
-  #checkov:skip=CKV2_AWS_47:WAF con AWSManagedRulesKnownBadInputsRuleSet definido en waf.tf
   web_acl_id = aws_wafv2_web_acl.main.arn
 
   depends_on = [aws_acm_certificate_validation.cloudfront]
