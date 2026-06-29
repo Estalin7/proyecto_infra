@@ -1,4 +1,5 @@
 resource "aws_lb" "main" {
+  #checkov:skip=CKV2_AWS_28:ALB es interno; no está expuesto a internet, el WAF protege CloudFront como única entrada pública
   name               = "${var.project}-alb-${var.environment}"
   internal           = true
   load_balancer_type = "application"
