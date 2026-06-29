@@ -8,6 +8,7 @@
 # Seguridad:
 #   - Logs cifrados con una clave KMS administrada por el cliente
 #   - Variables de entorno cifradas con la misma clave KMS
+#   - Configuración de firma de código mediante AWS Signer
 # ============================================================
 
 # ── KMS para logs y variables de entorno de Lambda ───────────
@@ -92,10 +93,47 @@ resource "aws_kms_alias" "lambda_logs" {
   target_key_id = aws_kms_key.lambda_logs.key_id
 }
 
+# ── Perfil de AWS Signer para paquetes ZIP de Lambda ─────────
+resource "aws_signer_signing_profile" "lambda" {
+  platform_id = "AWSLambda-SHA384-ECDSA"
+
+  signature_validity_period {
+    value = 5
+    type  = "YEARS"
+  }
+
+  tags = {
+    Name        = "${var.project}-lambda-signing-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── Configuración de validación de firma para Lambda ─────────
+resource "aws_lambda_code_signing_config" "main" {
+  description = "Validacion de firma de codigo para las funciones Lambda de ${var.project}-${var.environment}"
+
+  allowed_publishers {
+    signing_profile_version_arns = [
+      aws_signer_signing_profile.lambda.version_arn
+    ]
+  }
+
+  policies {
+    # Permite los ZIP actuales, pero genera una alerta si no
+    # cumplen con la firma configurada.
+    untrusted_artifact_on_deployment = "Warn"
+  }
+
+  tags = {
+    Name        = "${var.project}-lambda-code-signing-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
 # ── Lambda 1: procesar_pedido ────────────────────────────────
 resource "aws_lambda_function" "procesar_pedido" {
-  #checkov:skip=CKV_AWS_272:Code signing pendiente de implementar con AWS Signer
-
   function_name                  = "${var.project}-procesar-pedido-${var.environment}"
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
@@ -104,8 +142,11 @@ resource "aws_lambda_function" "procesar_pedido" {
   memory_size                    = 256
   reserved_concurrent_executions = 10
 
-  # Corrige CKV_AWS_173.
+  # Cifrado de variables de entorno — CKV_AWS_173.
   kms_key_arn = aws_kms_key.lambda_logs.arn
+
+  # Validación de firma de código — CKV_AWS_272.
+  code_signing_config_arn = aws_lambda_code_signing_config.main.arn
 
   dead_letter_config {
     target_arn = aws_sqs_queue.dlq.arn
@@ -155,8 +196,6 @@ resource "aws_lambda_function" "procesar_pedido" {
 
 # ── Lambda 2: enviar_sms_cocina ──────────────────────────────
 resource "aws_lambda_function" "enviar_sms_cocina" {
-  #checkov:skip=CKV_AWS_272:Code signing pendiente de implementar con AWS Signer
-
   function_name                  = "${var.project}-enviar-sms-cocina-${var.environment}"
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
@@ -165,8 +204,11 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   memory_size                    = 128
   reserved_concurrent_executions = 10
 
-  # Corrige CKV_AWS_173.
+  # Cifrado de variables de entorno — CKV_AWS_173.
   kms_key_arn = aws_kms_key.lambda_logs.arn
+
+  # Validación de firma de código — CKV_AWS_272.
+  code_signing_config_arn = aws_lambda_code_signing_config.main.arn
 
   dead_letter_config {
     target_arn = aws_sqs_queue.dlq.arn
@@ -207,8 +249,6 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
 
 # ── Lambda 3: actualizar_inventario ──────────────────────────
 resource "aws_lambda_function" "actualizar_inventario" {
-  #checkov:skip=CKV_AWS_272:Code signing pendiente de implementar con AWS Signer
-
   function_name                  = "${var.project}-actualizar-inventario-${var.environment}"
   role                           = aws_iam_role.lambda.arn
   handler                        = "index.handler"
@@ -217,8 +257,11 @@ resource "aws_lambda_function" "actualizar_inventario" {
   memory_size                    = 256
   reserved_concurrent_executions = 10
 
-  # CKV_AWS_173
+  # Cifrado de variables de entorno — CKV_AWS_173.
   kms_key_arn = aws_kms_key.lambda_logs.arn
+
+  # Validación de firma de código — CKV_AWS_272.
+  code_signing_config_arn = aws_lambda_code_signing_config.main.arn
 
   dead_letter_config {
     target_arn = aws_sqs_queue.dlq.arn
