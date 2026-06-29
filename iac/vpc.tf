@@ -1,10 +1,3 @@
-# ============================================================
-# vpc-alb.tf
-# Crea: VPC, subnets, IGW, route tables, security groups,
-#       reglas cross-SG, VPC Endpoints, VPC Flow Logs y ALB.
-# ============================================================
-
-# ── VPC ──────────────────────────────────────────────────────
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -111,7 +104,6 @@ resource "aws_route_table_association" "private" {
 # ═══════════════════════════════════════════════════════════════
 
 resource "aws_security_group" "alb" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al ALB en este mismo archivo
   name        = "${var.project}-sg-alb-${var.environment}"
   description = "Permite trafico HTTPS entrante al ALB"
   vpc_id      = aws_vpc.main.id
@@ -140,7 +132,6 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_security_group" "ec2" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto a las instancias EC2 en este mismo archivo
   name        = "${var.project}-sg-ec2-${var.environment}"
   description = "Permite trafico desde el ALB hacia las EC2"
   vpc_id      = aws_vpc.main.id
@@ -153,7 +144,6 @@ resource "aws_security_group" "ec2" {
 }
 
 resource "aws_security_group" "aurora" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al cluster Aurora en este mismo archivo
   name        = "${var.project}-sg-aurora-${var.environment}"
   description = "Permite trafico PostgreSQL desde las EC2"
   vpc_id      = aws_vpc.main.id
@@ -166,7 +156,6 @@ resource "aws_security_group" "aurora" {
 }
 
 resource "aws_security_group" "elasticache" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al cluster Redis en este mismo archivo
   name        = "${var.project}-sg-redis-${var.environment}"
   description = "Permite trafico Redis desde las EC2"
   vpc_id      = aws_vpc.main.id
@@ -179,7 +168,6 @@ resource "aws_security_group" "elasticache" {
 }
 
 resource "aws_security_group" "api_gateway" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto al VPC Link en este mismo archivo
   name        = "${var.project}-sg-api-gateway-${var.environment}"
   description = "Permite trafico del VPC Link de API Gateway hacia el ALB"
   vpc_id      = aws_vpc.main.id
@@ -204,7 +192,6 @@ resource "aws_security_group" "vpc_endpoints" {
 }
 
 resource "aws_security_group" "lambda" {
-  #checkov:skip=CKV2_AWS_5:SG adjunto a las Lambdas en este mismo archivo
   name        = "${var.project}-sg-lambda-${var.environment}"
   description = "Permite trafico de Lambdas hacia Aurora y Redis"
   vpc_id      = aws_vpc.main.id
@@ -401,7 +388,7 @@ resource "aws_security_group_rule" "api_gateway_to_alb" {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# VPC ENDPOINTS (acceso a AWS APIs sin pasar por internet)
+# VPC ENDPOINTS
 # ═══════════════════════════════════════════════════════════════
 
 resource "aws_vpc_endpoint" "ssm" {
@@ -596,87 +583,5 @@ resource "aws_flow_log" "main" {
     Name        = "${var.project}-flow-log-${var.environment}"
     Project     = var.project
     Environment = var.environment
-  }
-}
-
-# ═══════════════════════════════════════════════════════════════
-# ALB (Application Load Balancer interno)
-# ═══════════════════════════════════════════════════════════════
-
-resource "aws_lb" "main" {
-  #checkov:skip=CKV_AWS_91:Access logs del ALB deshabilitados para despliegue academico
-  name               = "${var.project}-alb-${var.environment}"
-  internal           = true
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.private[*].id
-
-  enable_deletion_protection = var.environment == "prod" ? true : false
-  drop_invalid_header_fields = true
-
-  access_logs {
-    bucket  = ""
-    prefix  = "${var.project}/${var.environment}/alb"
-    enabled = false
-  }
-
-  tags = {
-    Name        = "${var.project}-alb-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_lb_target_group" "crud" {
-  name        = "${var.project}-tg-crud-${var.environment}"
-  port        = var.app_port
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
-  target_type = "instance"
-
-  health_check {
-    enabled             = true
-    path                = var.health_check_path
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 5
-    interval            = 30
-    matcher             = "200"
-  }
-
-  tags = {
-    Name        = "${var.project}-tg-crud-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.alb.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.crud.arn
   }
 }

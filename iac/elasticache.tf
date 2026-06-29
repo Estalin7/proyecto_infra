@@ -1,9 +1,3 @@
-# ============================================================
-# elasticache.tf
-# Crea: ElastiCache Redis 7 con cifrado KMS, Multi-AZ y
-#       backups automáticos en prod.
-# ============================================================
-
 resource "aws_elasticache_subnet_group" "main" {
   name       = "${var.project}-redis-subnet-group-${var.environment}"
   subnet_ids = aws_subnet.private[*].id
@@ -57,8 +51,9 @@ resource "aws_elasticache_replication_group" "main" {
   port                 = 6379
   parameter_group_name = "default.redis7"
   engine_version       = "7.0"
-
   num_cache_clusters = 2
+  automatic_failover_enabled = true
+  
   subnet_group_name  = aws_elasticache_subnet_group.main.name
   security_group_ids = [aws_security_group.elasticache.id]
 
@@ -72,7 +67,6 @@ resource "aws_elasticache_replication_group" "main" {
   snapshot_retention_limit = var.environment == "prod" ? 7 : 0
   snapshot_window          = "03:00-04:00"
 
-  automatic_failover_enabled = true
 
   tags = {
     Name        = "${var.project}-redis-${var.environment}"

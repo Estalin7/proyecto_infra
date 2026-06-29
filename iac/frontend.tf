@@ -375,7 +375,7 @@ resource "aws_cloudfront_distribution" "main" {
   comment             = "${var.project} CDN frontend ${var.environment}"
 
   logging_config {
-    bucket          = "${var.project}-logs-${var.environment}.s3.amazonaws.com"
+    bucket          = aws_s3_bucket.logs.bucket_domain_name
     prefix          = "${var.project}/${var.environment}/cloudfront"
     include_cookies = false
   }
@@ -557,6 +557,7 @@ resource "aws_cloudwatch_log_resource_policy" "route53_queries" {
     }]
   })
 }
+
 
 resource "aws_route53_query_log" "main" {
   zone_id                  = aws_route53_zone.main.zone_id

@@ -1,10 +1,3 @@
-# ============================================================
-# eks.tf  (EC2 CRUD)
-# Crea: instancias EC2 Ubuntu con SSM (sin SSH abierto),
-#       registradas en el Target Group del ALB.
-# Nota: en el diagrama estas son las EC2 de Operaciones CRUD.
-# ============================================================
-
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical
@@ -48,10 +41,8 @@ resource "aws_instance" "crud" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-    apt-get update -y
-    snap install amazon-ssm-agent --classic
-    systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
-    systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
+    systemctl enable amazon-ssm-agent
+    systemctl start amazon-ssm-agent
   EOF
   )
 

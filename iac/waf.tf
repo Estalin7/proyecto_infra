@@ -104,6 +104,29 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+  # Corrige CKV2_AWS_47 junto con KnownBadInputsRuleSet.
+  rule {
+    name     = "AWSManagedRulesAnonymousIpList"
+    priority = 5
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAnonymousIpList"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${var.project}-anonymous-ip-list"
+      sampled_requests_enabled   = true
+    }
+  }
+
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "${var.project}-waf"
@@ -125,27 +148,33 @@ resource "aws_kms_key" "waf_logs" {
 
   policy = jsonencode({
     Version = "2012-10-17"
+
     Statement = [
       {
         Sid    = "EnableRootAccess"
         Effect = "Allow"
+
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         }
+
         Action   = "kms:*"
         Resource = "*"
       },
       {
         Sid    = "AllowCloudWatchLogs"
         Effect = "Allow"
+
         Principal = {
           Service = "logs.us-east-1.amazonaws.com"
         }
+
         Action = [
           "kms:Encrypt",
           "kms:Decrypt",
           "kms:GenerateDataKey"
         ]
+
         Resource = "*"
       }
     ]
@@ -158,7 +187,7 @@ resource "aws_kms_key" "waf_logs" {
   }
 }
 
-# IMPORTANTE: el nombre DEBE empezar con "aws-waf-logs-"
+# El nombre debe comenzar con "aws-waf-logs-".
 resource "aws_cloudwatch_log_group" "waf_logs" {
   provider          = aws.us_east_1
   name              = "aws-waf-logs-${var.project}-${var.environment}"
