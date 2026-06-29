@@ -23,18 +23,6 @@ resource "aws_cognito_user_pool" "main" {
     temporary_password_validity_days = 7
   }
 
-  schema {
-    name                = "username"
-    attribute_data_type = "String"
-    mutable             = false
-    required            = true
-
-    string_attribute_constraints {
-      min_length = 3
-      max_length = 50
-    }
-  }
-
   mfa_configuration = "OFF"
 
   account_recovery_setting {

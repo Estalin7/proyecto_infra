@@ -5,7 +5,8 @@
 
 # ── DLQ: mensajes fallidos ────────────────────────────────────
 resource "aws_sqs_queue" "dlq" {
-  name = "${var.project}-dlq-${var.environment}"
+  name       = "${var.project}-dlq-${var.environment}.fifo"
+  fifo_queue = true
 
   message_retention_seconds  = 1209600 # 14 dias
   visibility_timeout_seconds = 300
