@@ -23,7 +23,7 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_lb_target_group" "crud" {
-  name        = "${var.project}-tg-crud-${var.environment}"
+  name        = substr("${var.project}-tg-crud-${var.environment}", 0, 32)
   port        = var.app_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
