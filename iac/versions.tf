@@ -13,17 +13,17 @@ terraform {
     }
   }
 
-  backend "local" {
-    path = "terraform.tfstate"
-  }
-
-  # backend "s3" {
-  #   bucket         = "restaurante-carloncho-tfstate"
-  #   key            = "restaurante-carloncho/terraform.tfstate"
-  #   region         = "us-east-2"
-  #   encrypt        = true
-  #   dynamodb_table = "restaurante-carloncho-tf-lock"
+  # backend "local" {
+  #   path = "terraform.tfstate"
   # }
+
+  backend "s3" {
+    bucket         = "restaurante-carloncho-tfstate"
+    key            = "restaurante-carloncho/terraform.tfstate"
+    region         = "us-east-2"
+    encrypt        = true
+    dynamodb_table = "restaurante-carloncho-tf-lock"
+  }
 }
 
 # ── Provider principal: us-east-2 ────────────────────────────
