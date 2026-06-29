@@ -36,7 +36,7 @@ redis_node_type = "cache.t3.medium"
 waf_rate_limit = 2000
 
 # ── CloudFront ───────────────────────────────────────────────
-cf_price_class  = "PriceClass_100"
+cf_price_class   = "PriceClass_100"
 cf_geo_whitelist = ["PE", "US", "ES"]
 
 # ── SQS ──────────────────────────────────────────────────────

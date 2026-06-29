@@ -26,8 +26,8 @@ db_name               = "restaurantdb_dev"
 
 redis_node_type = "cache.t3.micro"
 
-waf_rate_limit  = 5000
-cf_price_class  = "PriceClass_100"
+waf_rate_limit   = 5000
+cf_price_class   = "PriceClass_100"
 cf_geo_whitelist = ["PE", "US"]
 
 sqs_visibility_timeout = 300

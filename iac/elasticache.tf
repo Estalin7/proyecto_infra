@@ -27,11 +27,11 @@ resource "aws_kms_key" "elasticache" {
         Resource = "*"
       },
       {
-        Sid    = "AllowElastiCacheUse"
-        Effect = "Allow"
+        Sid       = "AllowElastiCacheUse"
+        Effect    = "Allow"
         Principal = { Service = "elasticache.amazonaws.com" }
-        Action   = ["kms:Decrypt", "kms:GenerateDataKey"]
-        Resource = "*"
+        Action    = ["kms:Decrypt", "kms:GenerateDataKey"]
+        Resource  = "*"
       }
     ]
   })
@@ -47,13 +47,13 @@ resource "aws_elasticache_replication_group" "main" {
   replication_group_id = "${var.project}-redis-${var.environment}"
   description          = "Redis cache para ${var.project} - ${var.environment}"
 
-  node_type            = var.redis_node_type
-  port                 = 6379
-  parameter_group_name = "default.redis7"
-  engine_version       = "7.0"
-  num_cache_clusters = 2
+  node_type                  = var.redis_node_type
+  port                       = 6379
+  parameter_group_name       = "default.redis7"
+  engine_version             = "7.0"
+  num_cache_clusters         = 2
   automatic_failover_enabled = true
-  
+
   subnet_group_name  = aws_elasticache_subnet_group.main.name
   security_group_ids = [aws_security_group.elasticache.id]
 
