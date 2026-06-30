@@ -119,7 +119,7 @@ jobs:
           echo "propagacion y vuelve a correr este workflow con"
           echo "phase = full-apply"
           echo "=================================================="
-          terraform output -raw route53_name_servers
+          terraform output -json route53_name_servers | jq -r '.[]'
 
       # ── 5b. FASE 2: verifica propagacion DNS antes del apply completo ──
       - name: Verificar propagacion DNS
