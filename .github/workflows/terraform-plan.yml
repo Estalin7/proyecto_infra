@@ -40,6 +40,34 @@ jobs:
           sudo mv terraform /usr/local/bin/
           terraform -version
 
+      # ── 3.5. Bootstrap Backend ───────────────────────────────
+      - name: Bootstrap Backend
+        run: |
+          if ! aws s3api head-bucket --bucket restaurante-carloncho-tfstate --region ${{ env.AWS_REGION }} 2>/dev/null; then
+            echo "Bucket no existe, creando..."
+            aws s3api create-bucket \
+              --bucket restaurante-carloncho-tfstate \
+              --region ${{ env.AWS_REGION }} \
+              --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
+
+            aws s3api put-bucket-versioning \
+              --bucket restaurante-carloncho-tfstate \
+              --versioning-configuration Status=Enabled
+
+            aws s3api put-bucket-encryption \
+              --bucket restaurante-carloncho-tfstate \
+              --server-side-encryption-configuration '{
+                "Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]
+              }'
+
+            aws s3api put-public-access-block \
+              --bucket restaurante-carloncho-tfstate \
+              --public-access-block-configuration \
+              BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+          else
+            echo "Bucket ya existe, continuando."
+          fi
+
       # ── 4. Terraform Init ─────────────────────────────────────
       - name: Terraform Init
         run: terraform init -input=false
