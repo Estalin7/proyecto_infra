@@ -47,7 +47,7 @@ resource "aws_iam_role_policy" "ec2_app" {
         Sid      = "SQSAccess"
         Effect   = "Allow"
         Action   = ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-        Resource = local.sqs_queue_arn
+        Resource = [local.sqs_queue_arn, local.sqs_lambda_dlq_arn]
       },
       {
         Sid      = "SNSPublish"
@@ -106,7 +106,7 @@ resource "aws_iam_role_policy" "lambda_app" {
         Sid      = "SQSConsume"
         Effect   = "Allow"
         Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes", "sqs:SendMessage"]
-        Resource = [local.sqs_queue_arn, local.sqs_dlq_arn, local.lambda_dlq_arn]
+        Resource = [local.sqs_queue_arn, local.sqs_dlq_arn]
       },
       {
         Sid      = "S3Documentos"

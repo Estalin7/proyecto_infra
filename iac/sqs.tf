@@ -3,7 +3,7 @@
 # Crea: DLQ (Dead Letter Queue) + Cola FIFO de pedidos.
 # ============================================================
 
-# ── DLQ: mensajes fallidos (para SQS FIFO) ────────────────────
+# ── DLQ: mensajes fallidos ────────────────────────────────────
 resource "aws_sqs_queue" "dlq" {
   name       = "${var.project}-dlq-${var.environment}.fifo"
   fifo_queue = true
@@ -19,15 +19,39 @@ resource "aws_sqs_queue" "dlq" {
   }
 }
 
-# ── DLQ: mensajes fallidos (para Lambdas - Standard) ──────────
+# ── DLQ de Lambda: standard, separada de la DLQ FIFO de pedidos ──
 resource "aws_sqs_queue" "lambda_dlq" {
   name = "${var.project}-lambda-dlq-${var.environment}"
 
-  message_retention_seconds  = 1209600 # 14 dias
-  sqs_managed_sse_enabled    = true
+  message_retention_seconds = 1209600 # 14 dias
+  sqs_managed_sse_enabled   = true
 
   tags = {
     Name        = "${var.project}-lambda-dlq-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "lambda_dlq_not_empty" {
+  alarm_name          = "${var.project}-lambda-dlq-mensajes-${var.environment}"
+  alarm_description   = "Hay invocaciones de Lambda fallidas en la DLQ. Revisar."
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    QueueName = aws_sqs_queue.lambda_dlq.name
+  }
+
+  alarm_actions = []
+
+  tags = {
     Project     = var.project
     Environment = var.environment
   }

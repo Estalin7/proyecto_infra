@@ -258,10 +258,11 @@ resource "aws_s3_bucket_public_access_block" "logs" {
 resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
   rule {
-    bucket_key_enabled = true
+    # ALB access logs no soportan buckets cifrados con SSE-KMS,
+    # solo AES256 (SSE-S3). El bucket es destino de logs, no de
+    # datos de negocio, por lo que AES256 es suficiente.
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3_app.arn
+      sse_algorithm = "AES256"
     }
   }
 }
