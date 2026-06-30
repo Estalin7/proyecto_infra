@@ -6,7 +6,7 @@ resource "aws_lb" "main" {
   security_groups    = [aws_security_group.alb.id]
   subnets            = aws_subnet.private[*].id
 
-  enable_deletion_protection = var.environment == "prod" ? true : false
+  enable_deletion_protection = false
   drop_invalid_header_fields = true
 
   access_logs {
