@@ -149,7 +149,7 @@ resource "aws_lambda_function" "procesar_pedido" {
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
 
   dead_letter_config {
-    target_arn = aws_sqs_queue.dlq.arn
+    target_arn = aws_sqs_queue.lambda_dlq.arn
   }
 
   filename = "${path.module}/../lambdas/procesar_pedido/procesar_pedido.zip"
@@ -211,7 +211,7 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
 
   dead_letter_config {
-    target_arn = aws_sqs_queue.dlq.arn
+    target_arn = aws_sqs_queue.lambda_dlq.arn
   }
 
   filename = "${path.module}/../lambdas/enviar_sms_cocina/enviar_sms_cocina.zip"
@@ -264,7 +264,7 @@ resource "aws_lambda_function" "actualizar_inventario" {
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
 
   dead_letter_config {
-    target_arn = aws_sqs_queue.dlq.arn
+    target_arn = aws_sqs_queue.lambda_dlq.arn
   }
 
   filename = "${path.module}/../lambdas/actualizar_inventario/actualizar_inventario.zip"

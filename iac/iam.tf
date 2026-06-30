@@ -106,7 +106,7 @@ resource "aws_iam_role_policy" "lambda_app" {
         Sid      = "SQSConsume"
         Effect   = "Allow"
         Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes", "sqs:SendMessage"]
-        Resource = [local.sqs_queue_arn, local.sqs_dlq_arn]
+        Resource = [local.sqs_queue_arn, local.sqs_dlq_arn, local.lambda_dlq_arn]
       },
       {
         Sid      = "S3Documentos"

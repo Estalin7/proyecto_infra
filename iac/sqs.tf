@@ -3,7 +3,7 @@
 # Crea: DLQ (Dead Letter Queue) + Cola FIFO de pedidos.
 # ============================================================
 
-# ── DLQ: mensajes fallidos ────────────────────────────────────
+# ── DLQ: mensajes fallidos (para SQS FIFO) ────────────────────
 resource "aws_sqs_queue" "dlq" {
   name       = "${var.project}-dlq-${var.environment}.fifo"
   fifo_queue = true
@@ -14,6 +14,20 @@ resource "aws_sqs_queue" "dlq" {
 
   tags = {
     Name        = "${var.project}-dlq-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── DLQ: mensajes fallidos (para Lambdas - Standard) ──────────
+resource "aws_sqs_queue" "lambda_dlq" {
+  name = "${var.project}-lambda-dlq-${var.environment}"
+
+  message_retention_seconds  = 1209600 # 14 dias
+  sqs_managed_sse_enabled    = true
+
+  tags = {
+    Name        = "${var.project}-lambda-dlq-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
