@@ -18,10 +18,10 @@ terraform {
   # }
 
   backend "s3" {
-    bucket         = "restaurante-carloncho-tfstate"
-    key            = "restaurante-carloncho/terraform.tfstate"
-    region         = "us-east-2"
-    encrypt        = true
+    bucket  = "restaurante-carloncho-tfstate"
+    key     = "restaurante-carloncho/terraform.tfstate"
+    region  = "us-east-2"
+    encrypt = true
   }
 }
 
