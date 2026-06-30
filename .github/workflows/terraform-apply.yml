@@ -51,39 +51,46 @@ jobs:
           aws s3api head-bucket --bucket restaurante-carloncho-tfstate 2>/dev/null || \
           aws s3api create-bucket --bucket restaurante-carloncho-tfstate --region ${{ env.AWS_REGION }} --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
 
-      # ── 3.6. Limpiar recursos huerfanos de un apply anterior ──
       - name: Limpiar recursos huerfanos
         run: |
           echo "Borrando log groups..."
-          aws logs delete-log-group --log-group-name "/aws/apigateway/restaurante-carloncho-prod" || true
-          aws logs delete-log-group --log-group-name "/aws/route53/restaurant.com" || true
-          aws logs delete-log-group --log-group-name "/aws/vpc/flow-logs/restaurante-carloncho-prod" || true
-          aws logs delete-log-group --log-group-name "aws-waf-logs-restaurante-carloncho-prod" || true
+          aws logs delete-log-group --log-group-name "/aws/apigateway/restaurante-carloncho-prod" 2>/dev/null || true
+          aws logs delete-log-group --log-group-name "/aws/route53/restaurant.com" 2>/dev/null || true
+          aws logs delete-log-group --log-group-name "/aws/vpc/flow-logs/restaurante-carloncho-prod" 2>/dev/null || true
+          aws logs delete-log-group --log-group-name "aws-waf-logs-restaurante-carloncho-prod" 2>/dev/null || true
 
           echo "Borrando KMS aliases..."
-          aws kms delete-alias --alias-name "alias/restaurante-carloncho-s3-prod" || true
-          aws kms delete-alias --alias-name "alias/restaurante-carloncho-lambda-prod" || true
+          aws kms delete-alias --alias-name "alias/restaurante-carloncho-s3-prod" 2>/dev/null || true
+          aws kms delete-alias --alias-name "alias/restaurante-carloncho-lambda-prod" 2>/dev/null || true
 
           echo "Borrando recursos RDS..."
-          aws rds delete-db-subnet-group --db-subnet-group-name "restaurante-carloncho-aurora-subnet-group-prod" || true
-          aws rds delete-db-cluster-parameter-group --db-cluster-parameter-group-name "restaurante-carloncho-aurora-logging-prod" || true
+          aws rds delete-db-subnet-group --db-subnet-group-name "restaurante-carloncho-aurora-subnet-group-prod" 2>/dev/null || true
+          aws rds delete-db-cluster-parameter-group --db-cluster-parameter-group-name "restaurante-carloncho-aurora-logging-prod" 2>/dev/null || true
 
           echo "Borrando CloudFront OAC..."
           OAC_ID=$(aws cloudfront list-origin-access-controls \
             --query "OriginAccessControlList.Items[?Name=='restaurante-carloncho-oac-prod'].Id" \
-            --output text)
-          if [ -n "$OAC_ID" ]; then
-            ETAG=$(aws cloudfront get-origin-access-control --id "$OAC_ID" --query "ETag" --output text)
-            aws cloudfront delete-origin-access-control --id "$OAC_ID" --if-match "$ETAG" || true
+            --output text 2>/dev/null || true)
+          if [ -n "$OAC_ID" ] && [ "$OAC_ID" != "None" ]; then
+            ETAG=$(aws cloudfront get-origin-access-control --id "$OAC_ID" --query "ETag" --output text 2>/dev/null || true)
+            if [ -n "$ETAG" ] && [ "$ETAG" != "None" ]; then
+              aws cloudfront delete-origin-access-control --id "$OAC_ID" --if-match "$ETAG" 2>/dev/null || true
+            fi
+          else
+            echo "OAC ya no existe, saltando."
           fi
 
           echo "Borrando CloudFront Response Headers Policy..."
           RHP_ID=$(aws cloudfront list-response-headers-policies \
             --query "ResponseHeadersPolicyList.Items[?ResponseHeadersPolicy.ResponseHeadersPolicyConfig.Name=='restaurante-carloncho-response-headers-prod'].ResponseHeadersPolicy.Id" \
-            --output text)
-          if [ -n "$RHP_ID" ]; then
-            ETAG=$(aws cloudfront get-response-headers-policy --id "$RHP_ID" --query "ETag" --output text)
-            aws cloudfront delete-response-headers-policy --id "$RHP_ID" --if-match "$ETAG" || true
+            --output text 2>/dev/null || true)
+          if [ -n "$RHP_ID" ] && [ "$RHP_ID" != "None" ]; then
+            ETAG=$(aws cloudfront get-response-headers-policy --id "$RHP_ID" --query "ETag" --output text 2>/dev/null || true)
+            if [ -n "$ETAG" ] && [ "$ETAG" != "None" ]; then
+              aws cloudfront delete-response-headers-policy --id "$RHP_ID" --if-match "$ETAG" 2>/dev/null || true
+            fi
+          else
+            echo "Response Headers Policy ya no existe, saltando."
           fi
 
           echo "Limpieza completada."
