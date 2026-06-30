@@ -1,65 +1,14 @@
 # ============================================================
 # frontend.tf
-# Crea: ACM (certs CloudFront + ALB), S3 (frontend, docs,
-#       logs), CloudFront CDN, bucket policy OAC, Route 53
-#       (hosted zone, records apex/www, validacion ACM).
+# Crea: S3 (frontend, docs, logs), CloudFront CDN (dominio
+#       default *.cloudfront.net, sin dominio propio), OAC.
 # ============================================================
 
-# ═══════════════════════════════════════════════════════════════
-# ACM CERTIFICADOS TLS
-# ═══════════════════════════════════════════════════════════════
+# Nota: se descartaron ACM, Route 53 y dominio personalizado.
+# CloudFront usa su certificado y dominio default
+# (*.cloudfront.net), que ya viene con HTTPS incluido.
+# El ALB es interno y no necesita certificado propio.
 
-# Certificado para CloudFront (DEBE estar en us-east-1)
-resource "aws_acm_certificate" "cloudfront" {
-  provider          = aws.us_east_1
-  domain_name       = var.domain_name
-  validation_method = "DNS"
-
-  subject_alternative_names = [
-    "www.${var.domain_name}"
-  ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name        = "${var.project}-cert-cloudfront-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-# Certificado para ALB (us-east-2, misma region del ALB)
-resource "aws_acm_certificate" "alb" {
-  domain_name       = var.domain_name
-  validation_method = "DNS"
-
-  subject_alternative_names = [
-    "www.${var.domain_name}"
-  ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name        = "${var.project}-cert-alb-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_acm_certificate_validation" "cloudfront" {
-  provider                = aws.us_east_1
-  certificate_arn         = aws_acm_certificate.cloudfront.arn
-  validation_record_fqdns = [for record in aws_acm_certificate.cloudfront.domain_validation_options : record.resource_record_name]
-}
-
-resource "aws_acm_certificate_validation" "alb" {
-  certificate_arn         = aws_acm_certificate.alb.arn
-  validation_record_fqdns = [for record in aws_acm_certificate.alb.domain_validation_options : record.resource_record_name]
-}
 
 # ═══════════════════════════════════════════════════════════════
 # S3 BUCKETS
@@ -382,7 +331,6 @@ resource "aws_cloudfront_distribution" "main" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = [var.domain_name, "www.${var.domain_name}"]
   price_class         = var.cf_price_class
   comment             = "${var.project} CDN frontend ${var.environment}"
 
@@ -451,14 +399,10 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.cloudfront.arn
-    ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2021"
+    cloudfront_default_certificate = true
   }
 
   web_acl_id = aws_wafv2_web_acl.main.arn
-
-  depends_on = [aws_acm_certificate_validation.cloudfront]
 
   tags = {
     Name        = "${var.project}-cf-${var.environment}"
@@ -490,131 +434,7 @@ resource "aws_s3_bucket_policy" "frontend_oac" {
   depends_on = [aws_s3_bucket.frontend, aws_cloudfront_distribution.main]
 }
 
-# ═══════════════════════════════════════════════════════════════
-# ROUTE 53
-# ═══════════════════════════════════════════════════════════════
-
-resource "aws_route53_zone" "main" {
-  #checkov:skip=CKV2_AWS_38:DNSSEC no requerido para despliegue academico
-  name = var.domain_name
-
-  tags = {
-    Name        = "${var.project}-hz-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_kms_key" "route53_logs" {
-  provider                = aws.us_east_1
-  description             = "KMS key para Route 53 query logs ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid       = "AllowCloudWatchLogs"
-        Effect    = "Allow"
-        Principal = { Service = "logs.us-east-1.amazonaws.com" }
-        Action    = ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"]
-        Resource  = "*"
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-route53-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-# Route 53 query logs SIEMPRE van a us-east-1
-resource "aws_cloudwatch_log_group" "route53_queries" {
-  provider          = aws.us_east_1
-  name              = "/aws/route53/${var.domain_name}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.route53_logs.arn
-
-  tags = {
-    Name        = "${var.project}-route53-query-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_cloudwatch_log_resource_policy" "route53_queries" {
-  provider    = aws.us_east_1
-  policy_name = "${var.project}-route53-query-log-policy-${var.environment}"
-
-  policy_document = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Sid       = "AllowRoute53Logging"
-      Effect    = "Allow"
-      Principal = { Service = "route53.amazonaws.com" }
-      Action    = ["logs:CreateLogStream", "logs:PutLogEvents"]
-      Resource  = "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/route53/*"
-    }]
-  })
-}
-
-
-resource "aws_route53_query_log" "main" {
-  zone_id                  = aws_route53_zone.main.zone_id
-  cloudwatch_log_group_arn = aws_cloudwatch_log_group.route53_queries.arn
-  depends_on               = [aws_cloudwatch_log_resource_policy.route53_queries]
-}
-
-resource "aws_route53_record" "apex" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = var.domain_name
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.main.domain_name
-    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-resource "aws_route53_record" "www" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = "www.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.main.domain_name
-    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-# Registros CNAME para validación ACM (CloudFront + ALB)
-resource "aws_route53_record" "acm_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  allow_overwrite = true
-  zone_id         = aws_route53_zone.main.zone_id
-  name            = each.value.name
-  type            = each.value.type
-  ttl             = 60
-  records         = [each.value.record]
-}
+# Nota: se eliminó toda la sección de Route 53 (hosted zone,
+# query logs, registros apex/www, validacion ACM) ya que el
+# proyecto no usa un dominio personalizado. CloudFront se sirve
+# desde su dominio default *.cloudfront.net.

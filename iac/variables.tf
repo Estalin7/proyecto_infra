@@ -16,12 +16,6 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
-# ── Dominio ──────────────────────────────────────────────────
-variable "domain_name" {
-  description = "Dominio principal del proyecto"
-  type        = string
-  default     = "restaurante-carloncho.com"
-}
 
 # ── Red ──────────────────────────────────────────────────────
 variable "vpc_cidr" {

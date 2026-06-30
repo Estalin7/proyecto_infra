@@ -1,15 +1,6 @@
 name: Terraform Apply
 on:
   workflow_dispatch:
-    inputs:
-      phase:
-        description: "Fase del apply"
-        required: true
-        type: choice
-        options:
-          - zone-only
-          - full-apply
-        default: zone-only
 
 env:
   TF_VERSION: "1.9.0"
@@ -48,14 +39,36 @@ jobs:
       # ── 3.5. Bootstrap Backend ───────────────────────────────
       - name: Bootstrap Backend
         run: |
-          aws s3api head-bucket --bucket restaurante-carloncho-tfstate 2>/dev/null || \
-          aws s3api create-bucket --bucket restaurante-carloncho-tfstate --region ${{ env.AWS_REGION }} --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
+          if ! aws s3api head-bucket --bucket restaurante-carloncho-tfstate --region ${{ env.AWS_REGION }} 2>/dev/null; then
+            echo "Bucket no existe, creando..."
+            aws s3api create-bucket \
+              --bucket restaurante-carloncho-tfstate \
+              --region ${{ env.AWS_REGION }} \
+              --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
 
+            aws s3api put-bucket-versioning \
+              --bucket restaurante-carloncho-tfstate \
+              --versioning-configuration Status=Enabled
+
+            aws s3api put-bucket-encryption \
+              --bucket restaurante-carloncho-tfstate \
+              --server-side-encryption-configuration '{
+                "Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]
+              }'
+
+            aws s3api put-public-access-block \
+              --bucket restaurante-carloncho-tfstate \
+              --public-access-block-configuration \
+              BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+          else
+            echo "Bucket ya existe, continuando."
+          fi
+
+      # ── 3.6. Limpiar recursos huerfanos de un apply anterior ──
       - name: Limpiar recursos huerfanos
         run: |
           echo "Borrando log groups..."
           aws logs delete-log-group --log-group-name "/aws/apigateway/restaurante-carloncho-prod" 2>/dev/null || true
-          aws logs delete-log-group --log-group-name "/aws/route53/restaurant.com" 2>/dev/null || true
           aws logs delete-log-group --log-group-name "/aws/vpc/flow-logs/restaurante-carloncho-prod" 2>/dev/null || true
           aws logs delete-log-group --log-group-name "aws-waf-logs-restaurante-carloncho-prod" 2>/dev/null || true
 
@@ -99,49 +112,8 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
-      # ── 5a. FASE 1: solo crea la zona Route53 y muestra los NS ──
-      # ── 5a. FASE 1: solo crea la zona Route53 y muestra los NS ──
-      - name: Terraform Apply - solo Route53 zone
-        if: ${{ inputs.phase == 'zone-only' }}
-        env:
-          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-          TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
-          TF_VAR_telefono_cocina: ${{ secrets.TELEFONO_COCINA }}
-        run: terraform apply -target=aws_route53_zone.main -auto-approve -input=false
-
-      - name: Mostrar nameservers
-        if: ${{ inputs.phase == 'zone-only' }}
-        run: |
-          echo "=================================================="
-          echo "Copia estos 4 nameservers y actualizalos en el"
-          echo "registrador de restaurant.com. Luego espera la"
-          echo "propagacion y vuelve a correr este workflow con"
-          echo "phase = full-apply"
-          echo "=================================================="
-          terraform output -json route53_name_servers | jq -r '.[]'
-
-      # ── 5b. FASE 2: verifica propagacion DNS antes del apply completo ──
-      - name: Verificar propagacion DNS
-        if: ${{ inputs.phase == 'full-apply' }}
-        run: |
-          for i in {1..5}; do
-            RESULT=$(dig +short NS restaurant.com @8.8.8.8)
-            echo "Intento $i - NS actuales: $RESULT"
-            if echo "$RESULT" | grep -q "awsdns"; then
-              echo "DNS propagado correctamente. Continuando con el apply."
-              exit 0
-            fi
-            echo "Aun no propaga, esperando 60s..."
-            sleep 60
-          done
-          echo "Los nameservers de restaurant.com aun no apuntan a AWS."
-          echo "Verifica el cambio en el registrador y vuelve a correr el workflow mas tarde."
-          exit 1
-
-      # ── 5c. FASE 2: Terraform Apply completo ─────────────────
+      # ── 5. Terraform Apply ───────────────────────────────────
       - name: Terraform Apply
-        if: ${{ inputs.phase == 'full-apply' }}
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}

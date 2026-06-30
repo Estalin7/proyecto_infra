@@ -9,11 +9,6 @@ output "cloudfront_domain_name" {
   value       = aws_cloudfront_distribution.main.domain_name
 }
 
-output "route53_name_servers" {
-  description = "Name servers de Route 53 (configurar en el registrador del dominio)"
-  value       = aws_route53_zone.main.name_servers
-}
-
 output "alb_dns_name" {
   description = "DNS name del ALB interno"
   value       = aws_lb.main.dns_name

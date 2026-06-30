@@ -10,7 +10,6 @@ project     = "restaurante-carloncho"
 environment = "dev"
 aws_region  = "us-east-2"
 
-domain_name = "dev.restaurant.com"
 
 vpc_cidr           = "10.2.0.0/16"
 private_subnets    = ["10.2.1.0/24", "10.2.2.0/24"]
@@ -36,5 +35,5 @@ sqs_max_receive_count  = 3
 cors_allow_origins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://dev.restaurant.com"
+  "*"
 ]
