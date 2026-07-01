@@ -106,7 +106,7 @@ resource "aws_iam_role_policy" "lambda_app" {
         Sid      = "SQSConsume"
         Effect   = "Allow"
         Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes", "sqs:SendMessage"]
-        Resource = [local.sqs_queue_arn, local.sqs_dlq_arn]
+        Resource = [local.sqs_queue_arn, local.sqs_dlq_arn, local.sqs_lambda_dlq_arn]
       },
       {
         Sid      = "S3Documentos"
@@ -125,24 +125,13 @@ resource "aws_iam_role_policy" "lambda_app" {
         ]
       },
       {
-        Sid    = "VPCAccessManage"
+        Sid    = "VPCAccess"
         Effect = "Allow"
         Action = [
           "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
           "ec2:DeleteNetworkInterface"
         ]
-        Resource = [
-          "arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:network-interface/*",
-          "arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:subnet/*",
-          "arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:security-group/*"
-        ]
-      },
-      {
-        # ec2:DescribeNetworkInterfaces no soporta restricción de recurso (requiere "*" por diseño de AWS)
-        #checkov:skip=CKV_AWS_355:DescribeNetworkInterfaces no admite resource-level permissions
-        Sid      = "VPCAccessDescribe"
-        Effect   = "Allow"
-        Action   = ["ec2:DescribeNetworkInterfaces"]
         Resource = "*"
       }
     ]

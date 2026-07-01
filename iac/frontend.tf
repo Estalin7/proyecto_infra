@@ -219,6 +219,41 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   }
 }
 
+data "aws_canonical_user_id" "current" {}
+
+resource "aws_s3_bucket_ownership_controls" "logs" {
+  bucket = aws_s3_bucket.logs.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "logs" {
+  depends_on = [aws_s3_bucket_ownership_controls.logs]
+  bucket = aws_s3_bucket.logs.id
+  access_control_policy {
+    owner {
+      id = data.aws_canonical_user_id.current.id
+    }
+    grant {
+      grantee {
+        id   = data.aws_canonical_user_id.current.id
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
+    }
+
+    grant {
+      grantee {
+        type = "CanonicalUser"
+        # The canonical user ID for awslogsdelivery account is predefined
+        id   = "c4c1ede66af53448b93c283ce9448c4ba468c9432aa01d700d3878632f77d2d0"
+      }
+      permission = "FULL_CONTROL"
+    }
+  }
+}
+
 data "aws_elb_service_account" "main" {}
 
 resource "aws_s3_bucket_policy" "logs" {

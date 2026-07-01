@@ -122,8 +122,7 @@ resource "aws_rds_cluster" "main" {
   #checkov:skip=CKV_AWS_139:Proyecto academico, destruccion completa requerida con terraform destroy
   deletion_protection = false
 
-  skip_final_snapshot = var.environment == "prod" ? false : true
-
+  skip_final_snapshot = true
   final_snapshot_identifier = (
     var.environment == "prod"
     ? "${var.project}-aurora-final-snapshot"

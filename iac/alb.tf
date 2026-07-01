@@ -20,6 +20,8 @@ resource "aws_lb" "main" {
     Project     = var.project
     Environment = var.environment
   }
+
+  depends_on = [aws_s3_bucket_policy.logs]
 }
 
 resource "aws_lb_target_group" "crud" {

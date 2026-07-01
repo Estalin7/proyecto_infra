@@ -51,8 +51,8 @@ resource "aws_elasticache_replication_group" "main" {
   port                       = 6379
   parameter_group_name       = "default.redis7"
   engine_version             = "7.0"
-  num_cache_clusters         = 2
-  automatic_failover_enabled = true
+  num_cache_clusters         = 1
+  automatic_failover_enabled = false
 
   subnet_group_name  = aws_elasticache_subnet_group.main.name
   security_group_ids = [aws_security_group.elasticache.id]

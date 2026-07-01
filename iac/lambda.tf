@@ -140,7 +140,7 @@ resource "aws_lambda_function" "procesar_pedido" {
   runtime                        = "nodejs20.x"
   timeout                        = 60
   memory_size                    = 256
-  reserved_concurrent_executions = 10
+
 
   # Cifrado de variables de entorno — CKV_AWS_173.
   kms_key_arn = aws_kms_key.lambda_logs.arn
@@ -202,7 +202,7 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   runtime                        = "nodejs20.x"
   timeout                        = 30
   memory_size                    = 128
-  reserved_concurrent_executions = 10
+
 
   # Cifrado de variables de entorno — CKV_AWS_173.
   kms_key_arn = aws_kms_key.lambda_logs.arn
@@ -255,7 +255,7 @@ resource "aws_lambda_function" "actualizar_inventario" {
   runtime                        = "nodejs20.x"
   timeout                        = 60
   memory_size                    = 256
-  reserved_concurrent_executions = 10
+
 
   # Cifrado de variables de entorno — CKV_AWS_173.
   kms_key_arn = aws_kms_key.lambda_logs.arn
