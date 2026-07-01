@@ -12,7 +12,7 @@ Diagrama propuesto:
 
 ---
 
-## 🚀 Guía de Despliegue de Infraestructura
+## Guía de Despliegue de Infraestructura del proyecto del restuarante Carloncho  
 
 El proyecto utiliza **Terraform** para levantar toda la infraestructura necesaria en AWS (Bases de datos, S3, CloudFront, Lambda, API Gateway, etc.) y **GitHub Actions** para automatizar el proceso.
 
