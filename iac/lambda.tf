@@ -134,12 +134,12 @@ resource "aws_lambda_code_signing_config" "main" {
 
 # ── Lambda 1: procesar_pedido ────────────────────────────────
 resource "aws_lambda_function" "procesar_pedido" {
-  function_name                  = "${var.project}-procesar-pedido-${var.environment}"
-  role                           = aws_iam_role.lambda.arn
-  handler                        = "index.handler"
-  runtime                        = "nodejs20.x"
-  timeout                        = 60
-  memory_size                    = 256
+  function_name = "${var.project}-procesar-pedido-${var.environment}"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 60
+  memory_size   = 256
 
 
   # Cifrado de variables de entorno — CKV_AWS_173.
@@ -196,12 +196,12 @@ resource "aws_lambda_function" "procesar_pedido" {
 
 # ── Lambda 2: enviar_sms_cocina ──────────────────────────────
 resource "aws_lambda_function" "enviar_sms_cocina" {
-  function_name                  = "${var.project}-enviar-sms-cocina-${var.environment}"
-  role                           = aws_iam_role.lambda.arn
-  handler                        = "index.handler"
-  runtime                        = "nodejs20.x"
-  timeout                        = 30
-  memory_size                    = 128
+  function_name = "${var.project}-enviar-sms-cocina-${var.environment}"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 30
+  memory_size   = 128
 
 
   # Cifrado de variables de entorno — CKV_AWS_173.
@@ -249,12 +249,12 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
 
 # ── Lambda 3: actualizar_inventario ──────────────────────────
 resource "aws_lambda_function" "actualizar_inventario" {
-  function_name                  = "${var.project}-actualizar-inventario-${var.environment}"
-  role                           = aws_iam_role.lambda.arn
-  handler                        = "index.handler"
-  runtime                        = "nodejs20.x"
-  timeout                        = 60
-  memory_size                    = 256
+  function_name = "${var.project}-actualizar-inventario-${var.environment}"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 60
+  memory_size   = 256
 
 
   # Cifrado de variables de entorno — CKV_AWS_173.

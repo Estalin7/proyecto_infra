@@ -247,7 +247,7 @@ resource "aws_s3_bucket_acl" "logs" {
       grantee {
         type = "CanonicalUser"
         # The canonical user ID for awslogsdelivery account is predefined
-        id   = "c4c1ede66af53448b93c283ce9448c4ba468c9432aa01d700d3878632f77d2d0"
+        id = "c4c1ede66af53448b93c283ce9448c4ba468c9432aa01d700d3878632f77d2d0"
       }
       permission = "FULL_CONTROL"
     }
