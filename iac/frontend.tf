@@ -74,7 +74,8 @@ resource "aws_kms_alias" "s3_app" {
 # ── Bucket Frontend ──────────────────────────────────────────
 resource "aws_s3_bucket" "frontend" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
-  bucket = "${var.project}-frontend-${var.environment}"
+  bucket        = "${var.project}-frontend-${var.environment}"
+  force_destroy = true
 
   tags = {
     Name        = "${var.project}-frontend-${var.environment}"
@@ -126,7 +127,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
 # ── Bucket Documentos ────────────────────────────────────────
 resource "aws_s3_bucket" "documentos" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
-  bucket = "${var.project}-documentos-${var.environment}"
+  bucket        = "${var.project}-documentos-${var.environment}"
+  force_destroy = true
 
   tags = {
     Name        = "${var.project}-documentos-${var.environment}"
@@ -179,7 +181,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "documentos" {
 # ── Bucket Logs ──────────────────────────────────────────────
 resource "aws_s3_bucket" "logs" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
-  bucket = "${var.project}-logs-${var.environment}"
+  bucket        = "${var.project}-logs-${var.environment}"
+  force_destroy = true
 
   tags = {
     Name        = "${var.project}-logs-${var.environment}"
