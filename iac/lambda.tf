@@ -143,7 +143,7 @@ resource "aws_lambda_function" "procesar_pedido" {
 
 
   # Cifrado de variables de entorno — CKV_AWS_173.
-  kms_key_arn = aws_kms_key.lambda_logs.arn
+  kms_key_arn             = aws_kms_key.lambda_logs.arn
 
   # Validación de firma de código — CKV_AWS_272.
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
@@ -205,7 +205,7 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
 
 
   # Cifrado de variables de entorno — CKV_AWS_173.
-  kms_key_arn = aws_kms_key.lambda_logs.arn
+  kms_key_arn             = aws_kms_key.lambda_logs.arn
 
   # Validación de firma de código — CKV_AWS_272.
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
@@ -258,7 +258,7 @@ resource "aws_lambda_function" "actualizar_inventario" {
 
 
   # Cifrado de variables de entorno — CKV_AWS_173.
-  kms_key_arn = aws_kms_key.lambda_logs.arn
+  kms_key_arn             = aws_kms_key.lambda_logs.arn
 
   # Validación de firma de código — CKV_AWS_272.
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
