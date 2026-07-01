@@ -1,4 +1,4 @@
-# proyectoRestauranteAgile
+# Proyecto Restaurante Agile
 El presente proyecto propone el desarrollo de un sistema web para apoyar la gestión del restaurante “Carloncho”. Actualmente, los pedidos, ventas e inventario todavía se hacen con lapicero y papel, causando demoras en la atención, error en los pedidos y poco control sobre lo que ocurre en el día a día.
 La solución plantea reunir en un sistema las principales actividades del restaurante, como el registro de pedidos, la administración de productos, el control de mesas, la revisión del inventario y la consulta de ventas. Con esto, el personal podrá trabajar con información más ordenada, evitando confusiones y errores.
 
@@ -51,6 +51,9 @@ Si prefieres levantar el proyecto desde tu propia computadora (terminal):
    ```bash
    cd iac
    terraform init
+   terraform workspace list
+   terraform workspace new prod
+   terraform workspace show (para verificar que te encuentras en el entorno prod)
    terraform plan
    terraform apply -auto-approve
    ```
