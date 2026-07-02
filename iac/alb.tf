@@ -60,9 +60,3 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.crud.arn
   }
 }
-
-# Nota: se elimino el listener HTTPS (443) ya que dependia de un
-# certificado ACM con dominio propio (restaurant.com / Cloudflare),
-# que se descarto. El ALB es interno (no expuesto a internet) y
-# solo se accede via API Gateway, por lo que HTTP es suficiente
-# para este entorno academico.
