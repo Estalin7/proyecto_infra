@@ -1,59 +1,44 @@
-
-- name: Configure Backend CRUD Instances
-  hosts: tag_Role_crud
-  become: true
-  gather_facts: true
+---
+- name: Build and Deploy Backend to ECS
+  hosts: localhost
+  connection: local
+  gather_facts: false
 
   vars:
-    # Variables de configuración (sobrescribir desde CLI o inventario)
-    java_version: 21
-    gradle_version: "8.5"
-    spring_boot_port: 8080
-    app_user: appuser
-    app_group: appgroup
-    app_home: /opt/restaurante-app
-    systemd_service_name: restaurante-crud
+    aws_region: "us-east-2"
+    project: "restaurante-carloncho"
+    environment: "prod"
+    ecr_repository_url: ""     # Se pasa como extra-var o desde Terraform output
+    ecs_cluster_name: ""       # Se pasa como extra-var o desde Terraform output
+    ecs_service_name: ""       # Se pasa como extra-var o desde Terraform output
+    backend_path: "../proyectoagil"
+    image_tag: "{{ lookup('pipe', 'git rev-parse --short HEAD') }}"
 
   pre_tasks:
-    - name: Check if instance is reachable
-      ping:
-
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      when: ansible_os_family == "Debian"
-
-  roles:
-    - backend_setup
-
-  post_tasks:
-    - name: Verify Java installation
-      shell: java -version
-      register: java_version_check
+    - name: Verify AWS CLI is available
+      shell: aws sts get-caller-identity
       changed_when: false
 
-    - name: Display Java version
+    - name: Verify Docker is available
+      shell: docker info
+      changed_when: false
+
+  roles:
+    - ecs_deploy
+
+  post_tasks:
+    - name: Verify ECS tasks are running
+      shell: >
+        aws ecs list-tasks
+        --cluster {{ ecs_cluster_name }}
+        --service-name {{ ecs_service_name }}
+        --desired-status RUNNING
+        --region {{ aws_region }}
+        --query 'taskArns'
+        --output json
+      register: running_tasks
+      changed_when: false
+
+    - name: Display running tasks
       debug:
-        msg: "{{ java_version_check.stderr_lines }}"
-
-    - name: Check application health
-      uri:
-        url: "http://localhost:{{ spring_boot_port }}/actuator/health"
-        method: GET
-        status_code: 200
-      register: health_check
-      retries: 5
-      delay: 10
-      until: health_check.status == 200
-
-    - name: Application is healthy
-      debug:
-        msg: "✅ Backend CRUD application is running and healthy"
-
-  handlers:
-    - name: restart-application
-      systemd:
-        name: "{{ systemd_service_name }}"
-        state: restarted
-        daemon_reload: true
+        msg: "🐳 Contenedores corriendo: {{ running_tasks.stdout | from_json | length }}"

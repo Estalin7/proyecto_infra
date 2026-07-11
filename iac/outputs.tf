@@ -72,7 +72,17 @@ output "sns_topic_arn" {
   value       = aws_sns_topic.main.arn
 }
 
-output "ec2_private_ips" {
-  description = "IPs privadas de las EC2 CRUD (para el inventario de Ansible)"
-  value       = aws_instance.crud[*].private_ip
+output "ecr_repository_url" {
+  description = "URL del repositorio ECR para push de imagenes Docker"
+  value       = aws_ecr_repository.crud.repository_url
+}
+
+output "ecs_cluster_name" {
+  description = "Nombre del cluster ECS"
+  value       = aws_ecs_cluster.main.name
+}
+
+output "ecs_service_name" {
+  description = "Nombre del servicio ECS"
+  value       = aws_ecs_service.crud.name
 }

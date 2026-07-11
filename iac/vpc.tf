@@ -117,7 +117,7 @@ resource "aws_security_group" "alb" {
   }
 
   egress {
-    description = "HTTPS saliente hacia EC2"
+    description = "HTTPS saliente hacia ECS"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -131,13 +131,13 @@ resource "aws_security_group" "alb" {
   }
 }
 
-resource "aws_security_group" "ec2" {
-  name        = "${var.project}-sg-ec2-${var.environment}"
-  description = "Permite trafico desde el ALB hacia las EC2"
+resource "aws_security_group" "ecs_tasks" {
+  name        = "${var.project}-sg-ecs-tasks-${var.environment}"
+  description = "Permite trafico desde el ALB hacia las ECS tasks"
   vpc_id      = aws_vpc.main.id
 
   tags = {
-    Name        = "${var.project}-sg-ec2-${var.environment}"
+    Name        = "${var.project}-sg-ecs-tasks-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
@@ -145,7 +145,7 @@ resource "aws_security_group" "ec2" {
 
 resource "aws_security_group" "aurora" {
   name        = "${var.project}-sg-aurora-${var.environment}"
-  description = "Permite trafico PostgreSQL desde las EC2"
+  description = "Permite trafico PostgreSQL desde ECS tasks"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -157,7 +157,7 @@ resource "aws_security_group" "aurora" {
 
 resource "aws_security_group" "elasticache" {
   name        = "${var.project}-sg-redis-${var.environment}"
-  description = "Permite trafico Redis desde las EC2"
+  description = "Permite trafico Redis desde ECS tasks"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -181,7 +181,7 @@ resource "aws_security_group" "api_gateway" {
 
 resource "aws_security_group" "vpc_endpoints" {
   name        = "${var.project}-sg-vpc-endpoints-${var.environment}"
-  description = "Permite trafico HTTPS desde EC2 y Lambda hacia VPC Endpoints"
+  description = "Permite trafico HTTPS desde ECS tasks y Lambda hacia VPC Endpoints"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -207,44 +207,54 @@ resource "aws_security_group" "lambda" {
 # REGLAS CROSS-SG
 # ═══════════════════════════════════════════════════════════════
 
-resource "aws_security_group_rule" "ec2_ingress_alb" {
+resource "aws_security_group_rule" "ecs_ingress_alb" {
   type                     = "ingress"
   from_port                = var.app_port
   to_port                  = var.app_port
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.alb.id
-  security_group_id        = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.ecs_tasks.id
   description              = "Puerto app desde ALB"
 }
 
-resource "aws_security_group_rule" "ec2_egress_aurora" {
+resource "aws_security_group_rule" "ecs_egress_aurora" {
   type                     = "egress"
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.aurora.id
-  security_group_id        = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.ecs_tasks.id
   description              = "PostgreSQL saliente hacia Aurora"
 }
 
-resource "aws_security_group_rule" "ec2_egress_redis" {
+resource "aws_security_group_rule" "ecs_egress_redis" {
   type                     = "egress"
   from_port                = 6379
   to_port                  = 6379
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.elasticache.id
-  security_group_id        = aws_security_group.ec2.id
+  security_group_id        = aws_security_group.ecs_tasks.id
   description              = "Redis saliente hacia ElastiCache"
 }
 
-resource "aws_security_group_rule" "aurora_ingress_ec2" {
+resource "aws_security_group_rule" "ecs_egress_endpoints" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.vpc_endpoints.id
+  security_group_id        = aws_security_group.ecs_tasks.id
+  description              = "HTTPS saliente hacia VPC Endpoints"
+}
+
+resource "aws_security_group_rule" "aurora_ingress_ecs" {
   type                     = "ingress"
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ec2.id
+  source_security_group_id = aws_security_group.ecs_tasks.id
   security_group_id        = aws_security_group.aurora.id
-  description              = "PostgreSQL desde EC2"
+  description              = "PostgreSQL desde ECS tasks"
 }
 
 resource "aws_security_group_rule" "aurora_ingress_lambda" {
@@ -267,14 +277,14 @@ resource "aws_security_group_rule" "aurora_egress" {
   description       = "Sin trafico saliente permitido"
 }
 
-resource "aws_security_group_rule" "elasticache_ingress_ec2" {
+resource "aws_security_group_rule" "elasticache_ingress_ecs" {
   type                     = "ingress"
   from_port                = 6379
   to_port                  = 6379
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ec2.id
+  source_security_group_id = aws_security_group.ecs_tasks.id
   security_group_id        = aws_security_group.elasticache.id
-  description              = "Redis desde EC2"
+  description              = "Redis desde ECS tasks"
 }
 
 resource "aws_security_group_rule" "elasticache_ingress_lambda" {
@@ -327,14 +337,14 @@ resource "aws_security_group_rule" "lambda_egress_endpoints" {
   description              = "HTTPS hacia VPC Endpoints"
 }
 
-resource "aws_security_group_rule" "endpoints_ingress_ec2" {
+resource "aws_security_group_rule" "endpoints_ingress_ecs" {
   type                     = "ingress"
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ec2.id
+  source_security_group_id = aws_security_group.ecs_tasks.id
   security_group_id        = aws_security_group.vpc_endpoints.id
-  description              = "HTTPS desde EC2"
+  description              = "HTTPS desde ECS tasks"
 }
 
 resource "aws_security_group_rule" "endpoints_ingress_lambda" {
@@ -347,14 +357,14 @@ resource "aws_security_group_rule" "endpoints_ingress_lambda" {
   description              = "HTTPS desde Lambda"
 }
 
-resource "aws_security_group_rule" "endpoints_egress_ec2" {
+resource "aws_security_group_rule" "endpoints_egress_ecs" {
   type                     = "egress"
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ec2.id
+  source_security_group_id = aws_security_group.ecs_tasks.id
   security_group_id        = aws_security_group.vpc_endpoints.id
-  description              = "HTTPS de respuesta hacia EC2"
+  description              = "HTTPS de respuesta hacia ECS tasks"
 }
 
 resource "aws_security_group_rule" "endpoints_egress_lambda" {
@@ -391,46 +401,46 @@ resource "aws_security_group_rule" "api_gateway_to_alb" {
 # VPC ENDPOINTS
 # ═══════════════════════════════════════════════════════════════
 
-resource "aws_vpc_endpoint" "ssm" {
+resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.api"
   vpc_endpoint_type   = "Interface"
   subnet_ids          = aws_subnet.private[*].id
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 
   tags = {
-    Name        = "${var.project}-vpce-ssm-${var.environment}"
+    Name        = "${var.project}-vpce-ecr-api-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
 }
 
-resource "aws_vpc_endpoint" "ssmmessages" {
+resource "aws_vpc_endpoint" "ecr_dkr" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.dkr"
   vpc_endpoint_type   = "Interface"
   subnet_ids          = aws_subnet.private[*].id
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 
   tags = {
-    Name        = "${var.project}-vpce-ssmmessages-${var.environment}"
+    Name        = "${var.project}-vpce-ecr-dkr-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
 }
 
-resource "aws_vpc_endpoint" "ec2messages" {
+resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.logs"
   vpc_endpoint_type   = "Interface"
   subnet_ids          = aws_subnet.private[*].id
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 
   tags = {
-    Name        = "${var.project}-vpce-ec2messages-${var.environment}"
+    Name        = "${var.project}-vpce-logs-${var.environment}"
     Project     = var.project
     Environment = var.environment
   }
@@ -449,84 +459,15 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
-resource "aws_vpc_endpoint" "secretsmanager" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.secretsmanager"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  private_dns_enabled = true
 
-  tags = {
-    Name        = "${var.project}-vpce-secretsmanager-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_vpc_endpoint" "sns" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.sns"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  private_dns_enabled = true
-
-  tags = {
-    Name        = "${var.project}-vpce-sns-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
 
 # ═══════════════════════════════════════════════════════════════
 # VPC FLOW LOGS
 # ═══════════════════════════════════════════════════════════════
 
-resource "aws_kms_key" "vpc_flow_logs" {
-  description             = "KMS key para VPC Flow Logs ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid    = "AllowCloudWatchLogs"
-        Effect = "Allow"
-        Principal = {
-          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
-        }
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:GenerateDataKey"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-vpc-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name              = "/aws/vpc/flow-logs/${var.project}-${var.environment}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.vpc_flow_logs.arn
+  retention_in_days = var.log_retention_days
 
   tags = {
     Name        = "${var.project}-vpc-flow-logs-${var.environment}"

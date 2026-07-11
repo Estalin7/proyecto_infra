@@ -16,7 +16,9 @@ private_subnets    = ["10.2.1.0/24", "10.2.2.0/24"]
 public_subnets     = ["10.2.10.0/24", "10.2.11.0/24"]
 availability_zones = ["us-east-2a", "us-east-2b"]
 
-ec2_instance_type = "t3.small"
+ecs_task_cpu      = 512
+ecs_task_memory   = 1024
+ecs_desired_count = 1
 app_port          = 8080
 health_check_path = "/actuator/health"
 
@@ -37,3 +39,6 @@ cors_allow_origins = [
   "http://localhost:3000",
   "*"
 ]
+
+enable_waf          = false
+log_retention_days  = 14

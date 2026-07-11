@@ -18,54 +18,6 @@ resource "aws_db_subnet_group" "main" {
   }
 }
 
-# Clave KMS para cifrado de Aurora
-
-resource "aws_kms_key" "aurora" {
-  description             = "KMS key para Aurora PostgreSQL ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid    = "AllowRDSUse"
-        Effect = "Allow"
-
-        Principal = {
-          Service = "rds.amazonaws.com"
-        }
-
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:GenerateDataKey",
-          "kms:DescribeKey"
-        ]
-
-        Resource = "*"
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-aurora-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
 
 # Grupo de parámetros para Query Logging
 # CKV2_AWS_27
@@ -130,7 +82,6 @@ resource "aws_rds_cluster" "main" {
   )
 
   storage_encrypted                   = true
-  kms_key_id                          = aws_kms_key.aurora.arn
   iam_database_authentication_enabled = true
   copy_tags_to_snapshot               = true
 
@@ -164,7 +115,6 @@ resource "aws_rds_cluster_instance" "writer" {
   monitoring_role_arn = aws_iam_role.rds_enhanced_monitoring.arn
 
   performance_insights_enabled    = true
-  performance_insights_kms_key_id = aws_kms_key.aurora.arn
 
   tags = {
     Name        = "${var.project}-aurora-writer-${var.environment}"

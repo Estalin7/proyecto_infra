@@ -4,46 +4,9 @@
 #       VPC Link → ALB + CloudWatch Logs
 # ============================================================
 
-resource "aws_kms_key" "api_gw_logs" {
-  description             = "KMS key para logs de API Gateway ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid    = "AllowCloudWatchLogs"
-        Effect = "Allow"
-        Principal = {
-          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
-        }
-        Action   = ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"]
-        Resource = "*"
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-apigw-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
 resource "aws_cloudwatch_log_group" "api_gw" {
   name              = "/aws/apigateway/${var.project}-${var.environment}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.api_gw_logs.arn
+  retention_in_days = var.log_retention_days
 
   tags = {
     Project     = var.project

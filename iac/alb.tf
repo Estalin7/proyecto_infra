@@ -29,7 +29,7 @@ resource "aws_lb_target_group" "crud" {
   port        = var.app_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "instance"
+  target_type = "ip"
 
   health_check {
     enabled             = true

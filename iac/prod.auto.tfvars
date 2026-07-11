@@ -16,8 +16,10 @@ private_subnets    = ["10.2.1.0/24", "10.2.2.0/24"]
 public_subnets     = ["10.2.10.0/24", "10.2.11.0/24"]
 availability_zones = ["us-east-2a", "us-east-2b"]
 
-# ── EC2 ──────────────────────────────────────────────────────
-ec2_instance_type = "t3.medium"
+# ── ECS ──────────────────────────────────────────────────────
+ecs_task_cpu      = 256
+ecs_task_memory   = 512
+ecs_desired_count = 2
 app_port          = 8080
 health_check_path = "/actuator/health"
 
@@ -52,3 +54,6 @@ sqs_max_receive_count  = 3
 cors_allow_origins = [
   "*"
 ]
+
+enable_waf          = false
+log_retention_days  = 14

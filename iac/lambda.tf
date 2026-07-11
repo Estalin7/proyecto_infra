@@ -11,87 +11,7 @@
 #   - Configuración de firma de código mediante AWS Signer
 # ============================================================
 
-# ── KMS para logs y variables de entorno de Lambda ───────────
-resource "aws_kms_key" "lambda_logs" {
-  description             = "KMS para logs y variables de entorno de Lambda ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid    = "AllowCloudWatchLogs"
-        Effect = "Allow"
-
-        Principal = {
-          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
-        }
-
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ]
-
-        Resource = "*"
-
-        Condition = {
-          ArnEquals = {
-            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.project}-*"
-          }
-        }
-      },
-      {
-        Sid    = "AllowLambdaUse"
-        Effect = "Allow"
-
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-
-        Action = [
-          "kms:Decrypt",
-          "kms:GenerateDataKey",
-          "kms:DescribeKey"
-        ]
-
-        Resource = "*"
-
-        Condition = {
-          StringLike = {
-            "kms:EncryptionContext:aws:lambda:FunctionArn" = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.project}-*-${var.environment}"
-          }
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-lambda-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_kms_alias" "lambda_logs" {
-  name          = "alias/${var.project}-lambda-${var.environment}"
-  target_key_id = aws_kms_key.lambda_logs.key_id
-}
 
 # ── Perfil de AWS Signer para paquetes ZIP de Lambda ─────────
 resource "aws_signer_signing_profile" "lambda" {
@@ -142,8 +62,7 @@ resource "aws_lambda_function" "procesar_pedido" {
   memory_size   = 256
 
 
-  # Cifrado de variables de entorno — CKV_AWS_173.
-  kms_key_arn = aws_kms_key.lambda_logs.arn
+
 
   # Validación de firma de código — CKV_AWS_272.
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
@@ -204,8 +123,7 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
   memory_size   = 128
 
 
-  # Cifrado de variables de entorno — CKV_AWS_173.
-  kms_key_arn = aws_kms_key.lambda_logs.arn
+
 
   # Validación de firma de código — CKV_AWS_272.
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
@@ -224,10 +142,7 @@ resource "aws_lambda_function" "enviar_sms_cocina" {
     mode = "Active"
   }
 
-  vpc_config {
-    subnet_ids         = aws_subnet.private[*].id
-    security_group_ids = [aws_security_group.lambda.id]
-  }
+
 
   environment {
     variables = {
@@ -257,8 +172,7 @@ resource "aws_lambda_function" "actualizar_inventario" {
   memory_size   = 256
 
 
-  # Cifrado de variables de entorno — CKV_AWS_173.
-  kms_key_arn = aws_kms_key.lambda_logs.arn
+
 
   # Validación de firma de código — CKV_AWS_272.
   code_signing_config_arn = aws_lambda_code_signing_config.main.arn
@@ -309,8 +223,8 @@ resource "aws_lambda_function" "actualizar_inventario" {
 # ── CloudWatch Log Groups ────────────────────────────────────
 resource "aws_cloudwatch_log_group" "procesar_pedido" {
   name              = "/aws/lambda/${aws_lambda_function.procesar_pedido.function_name}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.lambda_logs.arn
+  retention_in_days = var.log_retention_days
+
 
   tags = {
     Name        = "${var.project}-logs-procesar-pedido-${var.environment}"
@@ -321,8 +235,8 @@ resource "aws_cloudwatch_log_group" "procesar_pedido" {
 
 resource "aws_cloudwatch_log_group" "enviar_sms_cocina" {
   name              = "/aws/lambda/${aws_lambda_function.enviar_sms_cocina.function_name}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.lambda_logs.arn
+  retention_in_days = var.log_retention_days
+
 
   tags = {
     Name        = "${var.project}-logs-enviar-sms-${var.environment}"
@@ -333,8 +247,8 @@ resource "aws_cloudwatch_log_group" "enviar_sms_cocina" {
 
 resource "aws_cloudwatch_log_group" "actualizar_inventario" {
   name              = "/aws/lambda/${aws_lambda_function.actualizar_inventario.function_name}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.lambda_logs.arn
+  retention_in_days = var.log_retention_days
+
 
   tags = {
     Name        = "${var.project}-logs-actualizar-inventario-${var.environment}"

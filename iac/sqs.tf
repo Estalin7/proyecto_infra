@@ -112,10 +112,13 @@ resource "aws_sqs_queue_policy" "pedidos" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Sid    = "AllowEC2AndLambda"
+      Sid    = "AllowECSAndLambda"
       Effect = "Allow"
       Principal = {
-        AWS = aws_iam_role.lambda.arn
+        AWS = [
+          aws_iam_role.lambda.arn,
+          aws_iam_role.ecs_task.arn
+        ]
       }
       Action = [
         "sqs:SendMessage",

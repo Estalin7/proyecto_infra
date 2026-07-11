@@ -14,62 +14,6 @@
 # S3 BUCKETS
 # ═══════════════════════════════════════════════════════════════
 
-data "aws_iam_policy_document" "s3_kms" {
-  statement {
-    sid    = "EnableAccountAdministration"
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
-
-    actions = [
-      "kms:Create*", "kms:Describe*", "kms:Enable*", "kms:List*", "kms:Put*",
-      "kms:Update*", "kms:Revoke*", "kms:Disable*", "kms:Get*", "kms:Delete*",
-      "kms:ScheduleKeyDeletion", "kms:CancelKeyDeletion"
-    ]
-
-    resources = ["arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:PrincipalAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-  }
-
-  statement {
-    sid    = "AllowCloudFrontDecrypt"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    actions   = ["kms:Decrypt", "kms:DescribeKey"]
-    resources = ["arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
-  }
-}
-
-resource "aws_kms_key" "s3_app" {
-  description             = "Clave KMS para los buckets frontend y documentos"
-  enable_key_rotation     = true
-  deletion_window_in_days = 7
-  policy                  = data.aws_iam_policy_document.s3_kms.json
-
-  tags = {
-    Name        = "${var.project}-s3-kms-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_kms_alias" "s3_app" {
-  name          = "alias/${var.project}-s3-${var.environment}"
-  target_key_id = aws_kms_key.s3_app.key_id
-}
 
 # ── Bucket Frontend ──────────────────────────────────────────
 resource "aws_s3_bucket" "frontend" {
@@ -103,10 +47,8 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
   bucket = aws_s3_bucket.frontend.id
   rule {
-    bucket_key_enabled = true
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3_app.arn
+      sse_algorithm     = "AES256"
     }
   }
 }
@@ -156,10 +98,8 @@ resource "aws_s3_bucket_public_access_block" "documentos" {
 resource "aws_s3_bucket_server_side_encryption_configuration" "documentos" {
   bucket = aws_s3_bucket.documentos.id
   rule {
-    bucket_key_enabled = true
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3_app.arn
+      sse_algorithm     = "AES256"
     }
   }
 }
@@ -439,7 +379,7 @@ resource "aws_cloudfront_distribution" "main" {
     cloudfront_default_certificate = true
   }
 
-  web_acl_id = aws_wafv2_web_acl.main.arn
+  web_acl_id = var.enable_waf ? aws_wafv2_web_acl.main[0].arn : null
 
   tags = {
     Name        = "${var.project}-cf-${var.environment}"
