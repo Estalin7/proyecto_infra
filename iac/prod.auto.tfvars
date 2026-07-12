@@ -55,5 +55,5 @@ cors_allow_origins = [
   "*"
 ]
 
-enable_waf          = false
-log_retention_days  = 14
+enable_waf         = false
+log_retention_days = 14

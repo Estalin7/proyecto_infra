@@ -25,7 +25,7 @@ health_check_path = "/actuator/health"
 aurora_instance_class = "db.t3.small"
 db_name               = "restaurantdb_dev"
 
-redis_node_type  = "cache.t3.micro"
+redis_node_type = "cache.t3.micro"
 
 waf_rate_limit   = 5000
 cf_price_class   = "PriceClass_100"
@@ -40,5 +40,5 @@ cors_allow_origins = [
   "*"
 ]
 
-enable_waf          = false
-log_retention_days  = 14
+enable_waf         = false
+log_retention_days = 14
