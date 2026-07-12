@@ -53,8 +53,8 @@ resource "aws_rds_cluster_parameter_group" "aurora_logging" {
 resource "aws_rds_cluster" "main" {
   cluster_identifier = "${var.project}-aurora-${var.environment}"
 
-  engine         = "aurora-postgresql"
-  engine_version = "16.4"
+  engine             = "aurora-postgresql"
+  engine_version     = "16.4"
 
   database_name   = var.db_name
   master_username = var.db_username
@@ -75,11 +75,7 @@ resource "aws_rds_cluster" "main" {
   deletion_protection = false
 
   skip_final_snapshot = true
-  final_snapshot_identifier = (
-    var.environment == "prod"
-    ? "${var.project}-aurora-final-snapshot"
-    : null
-  )
+  final_snapshot_identifier = var.environment == "prod" ? "${var.project}-aurora-final-snapshot" : null
 
   storage_encrypted                   = true
   iam_database_authentication_enabled = true
