@@ -357,24 +357,14 @@ resource "aws_security_group_rule" "endpoints_ingress_lambda" {
   description              = "HTTPS desde Lambda"
 }
 
-resource "aws_security_group_rule" "endpoints_egress_ecs" {
-  type                     = "egress"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ecs_tasks.id
-  security_group_id        = aws_security_group.vpc_endpoints.id
-  description              = "HTTPS de respuesta hacia ECS tasks"
-}
-
-resource "aws_security_group_rule" "endpoints_egress_lambda" {
-  type                     = "egress"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.lambda.id
-  security_group_id        = aws_security_group.vpc_endpoints.id
-  description              = "HTTPS de respuesta hacia Lambda"
+resource "aws_security_group_rule" "endpoints_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.vpc_endpoints.id
+  description       = "Egress irrestricto requerido para VPC Interface Endpoints"
 }
 
 resource "aws_security_group_rule" "alb_from_api_gateway" {
