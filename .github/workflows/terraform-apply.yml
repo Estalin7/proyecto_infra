@@ -115,18 +115,11 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       #--------------------------------------------------------
-      # Clonar Backend
-      #--------------------------------------------------------
-      - name: Clonar repositorio Backend
-        run: |
-          git clone https://github.com/Estalin7/backend.git ../backend
-
-      #--------------------------------------------------------
-      # Build Docker Image
+      # Build Docker Image (Dockerfile local ligero ~20MB)
       #--------------------------------------------------------
       - name: Build Docker Image
         run: |
-          cd ../backend
+          cd ../docker
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
       #--------------------------------------------------------
