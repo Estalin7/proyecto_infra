@@ -244,7 +244,19 @@ resource "aws_security_group_rule" "ecs_egress_endpoints" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.vpc_endpoints.id
   security_group_id        = aws_security_group.ecs_tasks.id
-  description              = "HTTPS saliente hacia VPC Endpoints"
+  description              = "HTTPS saliente hacia VPC Interface Endpoints (ECR API, ECR DKR, Logs)"
+}
+
+# S3 Gateway Endpoint usa route table (no SG), pero el SG de la tarea
+# debe permitir egress a las IPs de S3 para descargar las capas de ECR.
+resource "aws_security_group_rule" "ecs_egress_s3" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs_tasks.id
+  description       = "HTTPS saliente hacia S3 (capas de imagenes ECR via Gateway Endpoint)"
 }
 
 resource "aws_security_group_rule" "aurora_ingress_ecs" {
