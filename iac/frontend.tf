@@ -140,10 +140,13 @@ resource "aws_s3_bucket_versioning" "logs" {
 }
 
 resource "aws_s3_bucket_public_access_block" "logs" {
-  bucket                  = aws_s3_bucket.logs.id
-  block_public_acls       = true
+  bucket = aws_s3_bucket.logs.id
+  # CloudFront access logs requieren ACL habilitada en el bucket destino.
+  # block_public_acls=false permite los grants de ACL (e.g. canonical user
+  # de CloudFront) sin hacer el bucket público.
+  block_public_acls       = false
   block_public_policy     = true
-  ignore_public_acls      = true
+  ignore_public_acls      = false
   restrict_public_buckets = true
 }
 
@@ -316,6 +319,12 @@ resource "aws_cloudfront_distribution" "main" {
     prefix          = "${var.project}/${var.environment}/cloudfront"
     include_cookies = false
   }
+
+  depends_on = [
+    aws_s3_bucket_acl.logs,
+    aws_s3_bucket_ownership_controls.logs,
+    aws_s3_bucket_public_access_block.logs,
+  ]
 
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
