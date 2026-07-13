@@ -132,22 +132,20 @@ jobs:
           ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
       #--------------------------------------------------------
-      # Instalar Ansible
+      # Deploy a ECS (force new deployment)
       #--------------------------------------------------------
-      - name: Install Ansible
+      - name: Deploy a ECS
         run: |
-          sudo apt update
-          sudo apt install -y ansible
+          aws ecs update-service \
+            --cluster restaurante-carloncho-cluster-prod \
+            --service restaurante-carloncho-crud-service-prod \
+            --force-new-deployment \
+            --region $AWS_REGION
 
-      #--------------------------------------------------------
-      # Ejecutar configuración
-      #--------------------------------------------------------
-      - name: Ejecutar Ansible
-        run: |
-          cd ../ansible
-          ansible-playbook \
-            -i inventory/hosts.yml \
-            playbooks/configure.yml
+          aws ecs wait services-stable \
+            --cluster restaurante-carloncho-cluster-prod \
+            --services restaurante-carloncho-crud-service-prod \
+            --region $AWS_REGION
 
       #--------------------------------------------------------
       # Deploy Frontend
