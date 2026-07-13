@@ -8,7 +8,7 @@ env:
   AWS_REGION: "us-east-2"
   WORKING_DIR: "iac"
 
-  ECR_REPOSITORY: restaurante-carloncho-backend
+  ECR_REPOSITORY: restaurante-carloncho-backend-prod
   IMAGE_TAG: latest
 
 jobs:
