@@ -399,6 +399,16 @@ resource "aws_security_group_rule" "api_gateway_to_alb" {
   description              = "Hacia ALB HTTPS"
 }
 
+resource "aws_security_group_rule" "alb_egress_ecs" {
+  type                     = "egress"
+  from_port                = var.app_port
+  to_port                  = var.app_port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ecs_tasks.id
+  security_group_id        = aws_security_group.alb.id
+  description              = "Hacia ECS tasks en puerto app (health checks y trafico)"
+}
+
 # ═══════════════════════════════════════════════════════════════
 # VPC ENDPOINTS
 # ═══════════════════════════════════════════════════════════════
