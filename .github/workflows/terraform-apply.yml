@@ -27,7 +27,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       #--------------------------------------------------------
       # AWS Credentials
@@ -103,7 +104,7 @@ jobs:
       #--------------------------------------------------------
       - name: Build Docker Image
         run: |
-          cd ..
+          cd ../backend
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
       #--------------------------------------------------------
