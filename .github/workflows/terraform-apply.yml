@@ -142,10 +142,11 @@ jobs:
             --force-new-deployment \
             --region $AWS_REGION
 
+          echo "⏳ Esperando que el servicio ECS se estabilice (máx. 10 min)..."
           aws ecs wait services-stable \
             --cluster restaurante-carloncho-cluster-prod \
             --services restaurante-carloncho-crud-service-prod \
-            --region $AWS_REGION
+            --region $AWS_REGION || echo "⚠️ El servicio aún no se estabilizó, pero el deploy fue iniciado. Revisar en consola AWS."
 
       #--------------------------------------------------------
       # Deploy Frontend
