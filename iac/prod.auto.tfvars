@@ -9,8 +9,6 @@ project     = "restaurante-carloncho"
 environment = "prod"
 aws_region  = "us-east-2"
 
-# ── Dominio ──────────────────────────────────────────────────
-domain_name = "restaurant.com"
 
 # ── Red ──────────────────────────────────────────────────────
 vpc_cidr           = "10.2.0.0/16"
@@ -18,8 +16,10 @@ private_subnets    = ["10.2.1.0/24", "10.2.2.0/24"]
 public_subnets     = ["10.2.10.0/24", "10.2.11.0/24"]
 availability_zones = ["us-east-2a", "us-east-2b"]
 
-# ── EC2 ──────────────────────────────────────────────────────
-ec2_instance_type = "t3.medium"
+# ── ECS ──────────────────────────────────────────────────────
+ecs_task_cpu      = 256
+ecs_task_memory   = 512
+ecs_desired_count = 2
 app_port          = 8080
 health_check_path = "/actuator/health"
 
@@ -36,7 +36,7 @@ redis_node_type = "cache.t3.medium"
 waf_rate_limit = 2000
 
 # ── CloudFront ───────────────────────────────────────────────
-cf_price_class  = "PriceClass_100"
+cf_price_class   = "PriceClass_100"
 cf_geo_whitelist = ["PE", "US", "ES"]
 
 # ── SQS ──────────────────────────────────────────────────────
@@ -47,7 +47,13 @@ sqs_max_receive_count  = 3
 # telefono_cocina → NO poner aquí, usar TF_VAR_ env vars
 
 # ── API Gateway CORS ─────────────────────────────────────────
+# IMPORTANTE: actualiza esta lista despues del primer apply con
+# el dominio real que te de el output "cloudfront_domain_name"
+# (algo como https://dxxxxxxxxxxxxx.cloudfront.net), ya que el
+# proyecto no usa un dominio personalizado.
 cors_allow_origins = [
-  "https://restaurant.com",
-  "https://www.restaurant.com"
+  "*"
 ]
+
+enable_waf         = false
+log_retention_days = 14

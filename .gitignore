@@ -19,4 +19,13 @@ lambdas/**/*.zip
 .DS_Store
 Thumbs.db
 .vscode/
-.idea/
+.idea/
+
+# ── Node.js & Testing (Jest) ──────────────────────────────────
+**/node_modules/
+coverage/
+.jest/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache

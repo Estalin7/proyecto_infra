@@ -6,8 +6,10 @@
 
 locals {
   # ARNs construidos por convenio (rompe ciclos iam→sqs e iam→sns→lambda→iam)
-  sqs_queue_arn = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-cola-pedidos-${var.environment}.fifo"
-  sns_topic_arn = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-events-${var.environment}"
+  sqs_queue_arn      = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-cola-pedidos-${var.environment}.fifo"
+  sqs_dlq_arn        = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-dlq-${var.environment}.fifo"
+  sqs_lambda_dlq_arn = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-lambda-dlq-${var.environment}"
+  sns_topic_arn      = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.project}-events-${var.environment}"
 
   # Tags comunes aplicados a todos los recursos
   common_tags = {

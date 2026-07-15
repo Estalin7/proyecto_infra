@@ -16,12 +16,6 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
-# ── Dominio ──────────────────────────────────────────────────
-variable "domain_name" {
-  description = "Dominio principal del proyecto"
-  type        = string
-  default     = "restaurante-carloncho.com"
-}
 
 # ── Red ──────────────────────────────────────────────────────
 variable "vpc_cidr" {
@@ -48,15 +42,33 @@ variable "availability_zones" {
   default     = ["us-east-2a", "us-east-2b"]
 }
 
-# ── EC2 ──────────────────────────────────────────────────────
-variable "ec2_instance_type" {
-  description = "Tipo de instancia EC2 para las CRUD"
+# ── ECS ──────────────────────────────────────────────────────
+variable "ecs_task_cpu" {
+  description = "CPU units para el task de Fargate (256 = 0.25 vCPU)"
+  type        = number
+  default     = 256
+}
+
+variable "ecs_task_memory" {
+  description = "Memoria en MiB para el task de Fargate"
+  type        = number
+  default     = 512
+}
+
+variable "ecs_desired_count" {
+  description = "Numero de tasks deseados en el servicio ECS"
+  type        = number
+  default     = 1
+}
+
+variable "container_image_tag" {
+  description = "Tag de la imagen Docker a desplegar"
   type        = string
-  default     = "t3.medium"
+  default     = "latest"
 }
 
 variable "app_port" {
-  description = "Puerto de la app Java en las EC2"
+  description = "Puerto de la app Java en ECS"
   type        = number
   default     = 8080
 }
@@ -158,4 +170,16 @@ variable "cors_allow_origins" {
   description = "Lista de origenes permitidos en CORS del API Gateway"
   type        = list(string)
   default     = ["https://restaurante-carloncho.com", "https://www.restaurante-carloncho.com"]
+}
+
+variable "enable_waf" {
+  description = "Habilitar WAF para CloudFront"
+  type        = bool
+  default     = false
+}
+
+variable "log_retention_days" {
+  description = "Dias de retencion para CloudWatch Log Groups"
+  type        = number
+  default     = 14
 }

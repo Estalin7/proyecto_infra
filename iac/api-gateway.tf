@@ -4,46 +4,9 @@
 #       VPC Link → ALB + CloudWatch Logs
 # ============================================================
 
-resource "aws_kms_key" "api_gw_logs" {
-  description             = "KMS key para logs de API Gateway ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid    = "AllowCloudWatchLogs"
-        Effect = "Allow"
-        Principal = {
-          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
-        }
-        Action   = ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"]
-        Resource = "*"
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-apigw-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
 resource "aws_cloudwatch_log_group" "api_gw" {
   name              = "/aws/apigateway/${var.project}-${var.environment}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.api_gw_logs.arn
+  retention_in_days = var.log_retention_days
 
   tags = {
     Project     = var.project
@@ -97,7 +60,7 @@ resource "aws_apigatewayv2_vpc_link" "main" {
 resource "aws_apigatewayv2_integration" "alb" {
   api_id             = aws_apigatewayv2_api.main.id
   integration_type   = "HTTP_PROXY"
-  integration_uri    = aws_lb_listener.https.arn
+  integration_uri    = aws_lb_listener.http.arn
   integration_method = "ANY"
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.main.id

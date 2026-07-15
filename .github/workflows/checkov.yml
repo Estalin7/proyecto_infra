@@ -1,0 +1,33 @@
+name: Checkov Security Scan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  checkov:
+    name: Checkov IaC Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout del repositorio ──────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Ejecutar Checkov ───────────────────────────────────
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: iac
+          framework: terraform
+          output_format: junitxml
+          output_file_path: results.xml
+          soft_fail: true
+
+      # ── 3. Publicar resultados en GitHub ──────────────────────
+      - name: Publish Checkov Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkov-results
+          path: results.xml
+          retention-days: 30

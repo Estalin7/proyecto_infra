@@ -1,0 +1,53 @@
+---
+# Rol: ecs_deploy
+# Build de imagen Docker, push a ECR, y actualización del servicio ECS
+
+- name: Login to ECR
+  shell: >
+    aws ecr get-login-password --region {{ aws_region }}
+    | docker login --username AWS --password-stdin {{ ecr_repository_url }}
+  changed_when: false
+
+- name: Build Docker image
+  shell: >
+    docker build -t {{ ecr_repository_url }}:{{ image_tag }}
+    -f {{ backend_path }}/Dockerfile {{ backend_path }}
+  register: docker_build
+
+- name: Tag image as latest
+  shell: >
+    docker tag {{ ecr_repository_url }}:{{ image_tag }}
+    {{ ecr_repository_url }}:latest
+
+- name: Push image to ECR
+  shell: |
+    docker push {{ ecr_repository_url }}:{{ image_tag }}
+    docker push {{ ecr_repository_url }}:latest
+  register: docker_push
+
+- name: Display pushed image
+  debug:
+    msg: "✅ Imagen publicada: {{ ecr_repository_url }}:{{ image_tag }}"
+
+- name: Force new deployment in ECS
+  shell: >
+    aws ecs update-service
+    --cluster {{ ecs_cluster_name }}
+    --service {{ ecs_service_name }}
+    --force-new-deployment
+    --region {{ aws_region }}
+  register: ecs_update
+
+- name: Wait for ECS service to stabilize
+  shell: >
+    aws ecs wait services-stable
+    --cluster {{ ecs_cluster_name }}
+    --services {{ ecs_service_name }}
+    --region {{ aws_region }}
+  register: ecs_wait
+  retries: 3
+  delay: 30
+
+- name: Deployment successful
+  debug:
+    msg: "✅ Servicio ECS actualizado y estable"

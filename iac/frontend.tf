@@ -1,131 +1,25 @@
 # ============================================================
 # frontend.tf
-# Crea: ACM (certs CloudFront + ALB), S3 (frontend, docs,
-#       logs), CloudFront CDN, bucket policy OAC, Route 53
-#       (hosted zone, records apex/www, validacion ACM).
+# Crea: S3 (frontend, docs, logs), CloudFront CDN (dominio
+#       default *.cloudfront.net, sin dominio propio), OAC.
 # ============================================================
 
-# ═══════════════════════════════════════════════════════════════
-# ACM CERTIFICADOS TLS
-# ═══════════════════════════════════════════════════════════════
+# Nota: se descartaron ACM, Route 53 y dominio personalizado.
+# CloudFront usa su certificado y dominio default
+# (*.cloudfront.net), que ya viene con HTTPS incluido.
+# El ALB es interno y no necesita certificado propio.
 
-# Certificado para CloudFront (DEBE estar en us-east-1)
-resource "aws_acm_certificate" "cloudfront" {
-  provider          = aws.us_east_1
-  domain_name       = var.domain_name
-  validation_method = "DNS"
-
-  subject_alternative_names = [
-    "www.${var.domain_name}"
-  ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name        = "${var.project}-cert-cloudfront-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-# Certificado para ALB (us-east-2, misma region del ALB)
-resource "aws_acm_certificate" "alb" {
-  domain_name       = var.domain_name
-  validation_method = "DNS"
-
-  subject_alternative_names = [
-    "www.${var.domain_name}"
-  ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name        = "${var.project}-cert-alb-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_acm_certificate_validation" "cloudfront" {
-  provider                = aws.us_east_1
-  certificate_arn         = aws_acm_certificate.cloudfront.arn
-  validation_record_fqdns = [for record in aws_acm_certificate.cloudfront.domain_validation_options : record.resource_record_name]
-}
-
-resource "aws_acm_certificate_validation" "alb" {
-  certificate_arn         = aws_acm_certificate.alb.arn
-  validation_record_fqdns = [for record in aws_acm_certificate.alb.domain_validation_options : record.resource_record_name]
-}
 
 # ═══════════════════════════════════════════════════════════════
 # S3 BUCKETS
 # ═══════════════════════════════════════════════════════════════
 
-data "aws_iam_policy_document" "s3_kms" {
-  statement {
-    sid    = "EnableAccountAdministration"
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
-
-    actions = [
-      "kms:Create*", "kms:Describe*", "kms:Enable*", "kms:List*", "kms:Put*",
-      "kms:Update*", "kms:Revoke*", "kms:Disable*", "kms:Get*", "kms:Delete*",
-      "kms:ScheduleKeyDeletion", "kms:CancelKeyDeletion"
-    ]
-
-    resources = ["arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:PrincipalAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-  }
-
-  statement {
-    sid    = "AllowCloudFrontDecrypt"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    actions   = ["kms:Decrypt", "kms:DescribeKey"]
-    resources = ["arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
-  }
-}
-
-resource "aws_kms_key" "s3_app" {
-  description             = "Clave KMS para los buckets frontend y documentos"
-  enable_key_rotation     = true
-  deletion_window_in_days = 7
-  policy                  = data.aws_iam_policy_document.s3_kms.json
-
-  tags = {
-    Name        = "${var.project}-s3-kms-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_kms_alias" "s3_app" {
-  name          = "alias/${var.project}-s3-${var.environment}"
-  target_key_id = aws_kms_key.s3_app.key_id
-}
 
 # ── Bucket Frontend ──────────────────────────────────────────
 resource "aws_s3_bucket" "frontend" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
-  bucket = "${var.project}-frontend-${var.environment}"
+  bucket        = "${var.project}-frontend-${var.environment}"
+  force_destroy = true
 
   tags = {
     Name        = "${var.project}-frontend-${var.environment}"
@@ -153,10 +47,8 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
   bucket = aws_s3_bucket.frontend.id
   rule {
-    bucket_key_enabled = true
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3_app.arn
+      sse_algorithm = "AES256"
     }
   }
 }
@@ -177,7 +69,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
 # ── Bucket Documentos ────────────────────────────────────────
 resource "aws_s3_bucket" "documentos" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
-  bucket = "${var.project}-documentos-${var.environment}"
+  bucket        = "${var.project}-documentos-${var.environment}"
+  force_destroy = true
 
   tags = {
     Name        = "${var.project}-documentos-${var.environment}"
@@ -205,10 +98,8 @@ resource "aws_s3_bucket_public_access_block" "documentos" {
 resource "aws_s3_bucket_server_side_encryption_configuration" "documentos" {
   bucket = aws_s3_bucket.documentos.id
   rule {
-    bucket_key_enabled = true
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3_app.arn
+      sse_algorithm = "AES256"
     }
   }
 }
@@ -230,7 +121,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "documentos" {
 # ── Bucket Logs ──────────────────────────────────────────────
 resource "aws_s3_bucket" "logs" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
-  bucket = "${var.project}-logs-${var.environment}"
+  bucket        = "${var.project}-logs-${var.environment}"
+  force_destroy = true
 
   tags = {
     Name        = "${var.project}-logs-${var.environment}"
@@ -248,40 +140,89 @@ resource "aws_s3_bucket_versioning" "logs" {
 }
 
 resource "aws_s3_bucket_public_access_block" "logs" {
-  bucket                  = aws_s3_bucket.logs.id
-  block_public_acls       = true
+  bucket = aws_s3_bucket.logs.id
+  # CloudFront access logs requieren ACL habilitada en el bucket destino.
+  # block_public_acls=false permite los grants de ACL (e.g. canonical user
+  # de CloudFront) sin hacer el bucket público.
+  block_public_acls       = false
   block_public_policy     = true
-  ignore_public_acls      = true
+  ignore_public_acls      = false
   restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
   rule {
-    bucket_key_enabled = true
+    # ALB access logs no soportan buckets cifrados con SSE-KMS,
+    # solo AES256 (SSE-S3). El bucket es destino de logs, no de
+    # datos de negocio, por lo que AES256 es suficiente.
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3_app.arn
+      sse_algorithm = "AES256"
     }
   }
 }
+
+data "aws_canonical_user_id" "current" {}
+
+resource "aws_s3_bucket_ownership_controls" "logs" {
+  bucket = aws_s3_bucket.logs.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "logs" {
+  depends_on = [aws_s3_bucket_ownership_controls.logs]
+  bucket     = aws_s3_bucket.logs.id
+  access_control_policy {
+    owner {
+      id = data.aws_canonical_user_id.current.id
+    }
+    grant {
+      grantee {
+        id   = data.aws_canonical_user_id.current.id
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
+    }
+
+    grant {
+      grantee {
+        id   = "c4c1ede66af53448b93c283ce9448c4ba468c9432aa01d700d3878632f77d2d0"
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
+    }
+  }
+}
+
+data "aws_elb_service_account" "main" {}
 
 resource "aws_s3_bucket_policy" "logs" {
   bucket = aws_s3_bucket.logs.id
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Sid       = "AllowS3ServerAccessLogs"
-      Effect    = "Allow"
-      Principal = { Service = "logging.s3.amazonaws.com" }
-      Action    = "s3:PutObject"
-      Resource  = "${aws_s3_bucket.logs.arn}/logs/*"
-      Condition = {
-        ArnLike      = { "aws:SourceArn" = [aws_s3_bucket.frontend.arn, aws_s3_bucket.documentos.arn] }
-        StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
+    Statement = [
+      {
+        Sid       = "AllowS3ServerAccessLogs"
+        Effect    = "Allow"
+        Principal = { Service = "logging.s3.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.logs.arn}/logs/*"
+        Condition = {
+          ArnLike      = { "aws:SourceArn" = [aws_s3_bucket.frontend.arn, aws_s3_bucket.documentos.arn] }
+          StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
+        }
+      },
+      {
+        Sid       = "AllowALBAccessLogs"
+        Effect    = "Allow"
+        Principal = { AWS = data.aws_elb_service_account.main.arn }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.logs.arn}/*"
       }
-    }]
+    ]
   })
 }
 
@@ -370,15 +311,20 @@ resource "aws_cloudfront_distribution" "main" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = [var.domain_name, "www.${var.domain_name}"]
   price_class         = var.cf_price_class
   comment             = "${var.project} CDN frontend ${var.environment}"
 
   logging_config {
-    bucket          = "${var.project}-logs-${var.environment}.s3.amazonaws.com"
+    bucket          = aws_s3_bucket.logs.bucket_domain_name
     prefix          = "${var.project}/${var.environment}/cloudfront"
     include_cookies = false
   }
+
+  depends_on = [
+    aws_s3_bucket_acl.logs,
+    aws_s3_bucket_ownership_controls.logs,
+    aws_s3_bucket_public_access_block.logs,
+  ]
 
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -439,15 +385,10 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.cloudfront.arn
-    ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2021"
+    cloudfront_default_certificate = true
   }
 
-  #checkov:skip=CKV2_AWS_47:WAF con AWSManagedRulesKnownBadInputsRuleSet definido en waf.tf
-  web_acl_id = aws_wafv2_web_acl.main.arn
-
-  depends_on = [aws_acm_certificate_validation.cloudfront]
+  web_acl_id = var.enable_waf ? aws_wafv2_web_acl.main[0].arn : null
 
   tags = {
     Name        = "${var.project}-cf-${var.environment}"
@@ -479,129 +420,7 @@ resource "aws_s3_bucket_policy" "frontend_oac" {
   depends_on = [aws_s3_bucket.frontend, aws_cloudfront_distribution.main]
 }
 
-# ═══════════════════════════════════════════════════════════════
-# ROUTE 53
-# ═══════════════════════════════════════════════════════════════
-
-resource "aws_route53_zone" "main" {
-  #checkov:skip=CKV2_AWS_38:DNSSEC no requerido para despliegue academico
-  name = var.domain_name
-
-  tags = {
-    Name        = "${var.project}-hz-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_kms_key" "route53_logs" {
-  provider                = aws.us_east_1
-  description             = "KMS key para Route 53 query logs ${var.project}-${var.environment}"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "EnableRootAccess"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-        Action   = "kms:*"
-        Resource = "*"
-      },
-      {
-        Sid       = "AllowCloudWatchLogs"
-        Effect    = "Allow"
-        Principal = { Service = "logs.us-east-1.amazonaws.com" }
-        Action    = ["kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey"]
-        Resource  = "*"
-      }
-    ]
-  })
-
-  tags = {
-    Name        = "${var.project}-kms-route53-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-# Route 53 query logs SIEMPRE van a us-east-1
-resource "aws_cloudwatch_log_group" "route53_queries" {
-  provider          = aws.us_east_1
-  name              = "/aws/route53/${var.domain_name}"
-  retention_in_days = 365
-  kms_key_id        = aws_kms_key.route53_logs.arn
-
-  tags = {
-    Name        = "${var.project}-route53-query-logs-${var.environment}"
-    Project     = var.project
-    Environment = var.environment
-  }
-}
-
-resource "aws_cloudwatch_log_resource_policy" "route53_queries" {
-  provider    = aws.us_east_1
-  policy_name = "${var.project}-route53-query-log-policy-${var.environment}"
-
-  policy_document = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Sid       = "AllowRoute53Logging"
-      Effect    = "Allow"
-      Principal = { Service = "route53.amazonaws.com" }
-      Action    = ["logs:CreateLogStream", "logs:PutLogEvents"]
-      Resource  = "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/route53/*"
-    }]
-  })
-}
-
-
-resource "aws_route53_query_log" "main" {
-  zone_id                  = aws_route53_zone.main.zone_id
-  cloudwatch_log_group_arn = aws_cloudwatch_log_group.route53_queries.arn
-  depends_on               = [aws_cloudwatch_log_resource_policy.route53_queries]
-}
-
-resource "aws_route53_record" "apex" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = var.domain_name
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.main.domain_name
-    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-resource "aws_route53_record" "www" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = "www.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.main.domain_name
-    zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-# Registros CNAME para validación ACM (CloudFront + ALB)
-resource "aws_route53_record" "acm_validation" {
-  for_each = {
-    for dvo in concat(
-      tolist(aws_acm_certificate.cloudfront.domain_validation_options),
-      tolist(aws_acm_certificate.alb.domain_validation_options)
-    ) : dvo.domain_name => dvo
-  }
-
-  zone_id = aws_route53_zone.main.zone_id
-  name    = each.value.resource_record_name
-  type    = each.value.resource_record_type
-  ttl     = 60
-  records = [each.value.resource_record_value]
-}
+# Nota: se eliminó toda la sección de Route 53 (hosted zone,
+# query logs, registros apex/www, validacion ACM) ya que el
+# proyecto no usa un dominio personalizado. CloudFront se sirve
+# desde su dominio default *.cloudfront.net.

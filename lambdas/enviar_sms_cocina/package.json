@@ -3,7 +3,13 @@
     "version": "1.0.0",
     "description": "Lambda que envia un SMS a cocina con el resumen del pedido usando Amazon SNS",
     "main": "index.js",
+    "scripts": {
+        "test": "jest"
+    },
     "dependencies": {
         "@aws-sdk/client-sns": "^3.600.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0"
     }
 }

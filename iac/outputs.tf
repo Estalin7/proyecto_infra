@@ -9,11 +9,6 @@ output "cloudfront_domain_name" {
   value       = aws_cloudfront_distribution.main.domain_name
 }
 
-output "route53_name_servers" {
-  description = "Name servers de Route 53 (configurar en el registrador del dominio)"
-  value       = aws_route53_zone.main.name_servers
-}
-
 output "alb_dns_name" {
   description = "DNS name del ALB interno"
   value       = aws_lb.main.dns_name
@@ -77,7 +72,17 @@ output "sns_topic_arn" {
   value       = aws_sns_topic.main.arn
 }
 
-output "ec2_private_ips" {
-  description = "IPs privadas de las EC2 CRUD (para el inventario de Ansible)"
-  value       = aws_instance.crud[*].private_ip
+output "ecr_repository_url" {
+  description = "URL del repositorio ECR para push de imagenes Docker"
+  value       = aws_ecr_repository.crud.repository_url
+}
+
+output "ecs_cluster_name" {
+  description = "Nombre del cluster ECS"
+  value       = aws_ecs_cluster.main.name
+}
+
+output "ecs_service_name" {
+  description = "Nombre del servicio ECS"
+  value       = aws_ecs_service.crud.name
 }

@@ -5,7 +5,8 @@
 
 # ── DLQ: mensajes fallidos ────────────────────────────────────
 resource "aws_sqs_queue" "dlq" {
-  name = "${var.project}-dlq-${var.environment}"
+  name       = "${var.project}-dlq-${var.environment}.fifo"
+  fifo_queue = true
 
   message_retention_seconds  = 1209600 # 14 dias
   visibility_timeout_seconds = 300
@@ -13,6 +14,44 @@ resource "aws_sqs_queue" "dlq" {
 
   tags = {
     Name        = "${var.project}-dlq-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# ── DLQ de Lambda: standard, separada de la DLQ FIFO de pedidos ──
+resource "aws_sqs_queue" "lambda_dlq" {
+  name = "${var.project}-lambda-dlq-${var.environment}"
+
+  message_retention_seconds = 1209600 # 14 dias
+  sqs_managed_sse_enabled   = true
+
+  tags = {
+    Name        = "${var.project}-lambda-dlq-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "lambda_dlq_not_empty" {
+  alarm_name          = "${var.project}-lambda-dlq-mensajes-${var.environment}"
+  alarm_description   = "Hay invocaciones de Lambda fallidas en la DLQ. Revisar."
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    QueueName = aws_sqs_queue.lambda_dlq.name
+  }
+
+  alarm_actions = []
+
+  tags = {
     Project     = var.project
     Environment = var.environment
   }
@@ -73,10 +112,13 @@ resource "aws_sqs_queue_policy" "pedidos" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Sid    = "AllowEC2AndLambda"
+      Sid    = "AllowECSAndLambda"
       Effect = "Allow"
       Principal = {
-        AWS = aws_iam_role.lambda.arn
+        AWS = [
+          aws_iam_role.lambda.arn,
+          aws_iam_role.ecs_task.arn
+        ]
       }
       Action = [
         "sqs:SendMessage",
