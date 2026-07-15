@@ -1,4 +1,4 @@
-name: Tests Unitarios Lambdas
+name: Tests Unitarios
 
 on:
   workflow_dispatch:
