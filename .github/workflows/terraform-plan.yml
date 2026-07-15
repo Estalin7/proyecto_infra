@@ -72,6 +72,10 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
+      - name: Terraform Workspace
+        run: |
+          terraform workspace select prod || terraform workspace new prod
+
       # ── 5. Terraform Format Check ─────────────────────────────
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
