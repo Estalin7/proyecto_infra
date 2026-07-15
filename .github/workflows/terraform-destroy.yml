@@ -43,6 +43,10 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
+      - name: Terraform Workspace
+        run: |
+          terraform workspace select prod || terraform workspace new prod
+
       # ── 5. Terraform Destroy ─────────────────────────────────
       - name: Terraform Destroy
         env:
