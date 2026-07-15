@@ -1,0 +1,40 @@
+name: Tests Unitarios Lambdas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Descargar el repositorio
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Instalar Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Tests Lambda enviar_sms_cocina
+      - name: Test enviar_sms_cocina
+        working-directory: lambdas/enviar_sms_cocina
+        run: |
+          npm install
+          npm test
+
+      # 4. Tests Lambda actualizar_inventario
+      - name: Test actualizar_inventario
+        working-directory: lambdas/actualizar_inventario
+        run: |
+          npm install
+          npm test
+
+      # 5. Tests Lambda procesar_pedido
+      - name: Test procesar_pedido
+        working-directory: lambdas/procesar_pedido
+        run: |
+          npm install
+          npm test
