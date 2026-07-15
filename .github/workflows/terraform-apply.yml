@@ -67,19 +67,9 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
-      #--------------------------------------------------------
-      # Terraform Import (recursos que ya existen en AWS)
-      #--------------------------------------------------------
-      - name: Terraform Import - VPC Flow Logs CloudWatch Log Group
-        env:
-          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
-          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
-          TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
-          TF_VAR_telefono_cocina: ${{ secrets.TELEFONO_COCINA }}
+      - name: Terraform Workspace
         run: |
-          terraform import -input=false \
-            aws_cloudwatch_log_group.vpc_flow_logs \
-            /aws/vpc/flow-logs/restaurante-carloncho-prod || true
+          terraform workspace select prod || terraform workspace new prod
 
       #--------------------------------------------------------
       # Terraform Apply
