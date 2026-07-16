@@ -128,9 +128,9 @@ resource "aws_iam_role_policy" "lambda_app" {
       },
       # ec2:DescribeNetworkInterfaces requires Resource: "*" (AWS does not support resource-level permissions for list/describe operations) # NOSONAR
       {
-        Sid    = "VPCDescribe"
-        Effect = "Allow"
-        Action = ["ec2:DescribeNetworkInterfaces"]
+        Sid      = "VPCDescribe"
+        Effect   = "Allow"
+        Action   = ["ec2:DescribeNetworkInterfaces"]
         Resource = "*" # NOSONAR
       },
       {
