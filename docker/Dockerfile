@@ -2,7 +2,8 @@ FROM nginx:alpine
 
 # Crear usuario no privilegiado, configurar nginx y preparar archivos del frontend
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
-    sed -i 's|pid /var/run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf && \
+    sed -i -e '/^pid/d' /etc/nginx/nginx.conf && \
+    sed -i '1i pid /tmp/nginx.pid;' /etc/nginx/nginx.conf && \
     mkdir -p /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
     printf 'server {\n\
     listen 8080;\n\
