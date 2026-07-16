@@ -22,7 +22,7 @@ HOSTED_ZONE_ID="${HOSTED_ZONE_ID:-}"   # opcional; si vacío, lo busca por nombr
 # ── 1. Obtener Name Servers de Route 53 ─────────────────────
 echo "🔍 Buscando Name Servers de Route 53 para: $DOMAIN"
 
-if [ -z "$HOSTED_ZONE_ID" ]; then
+if [[ -z "$HOSTED_ZONE_ID" ]]; then
   HOSTED_ZONE_ID=$(aws route53 list-hosted-zones-by-name \
     --dns-name "$DOMAIN." \
     --query "HostedZones[0].Id" \
@@ -50,9 +50,9 @@ HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD")
 
-if [ "$HTTP_STATUS" -eq 200 ]; then
+if [[ "$HTTP_STATUS" -eq 200 ]]; then
   echo "✅ Name Servers actualizados correctamente en GoDaddy."
 else
-  echo "❌ Error al actualizar en GoDaddy. HTTP Status: $HTTP_STATUS"
+  echo "❌ Error al actualizar en GoDaddy. HTTP Status: $HTTP_STATUS" >&2
   exit 1
 fi
