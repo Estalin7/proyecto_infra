@@ -126,12 +126,18 @@ resource "aws_iam_role_policy" "lambda_app" {
           "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${var.project}-actualizar-inventario-${var.environment}"
         ]
       },
+      # ec2:DescribeNetworkInterfaces requires Resource: "*" (AWS does not support resource-level permissions for list/describe operations) # NOSONAR
       {
-        Sid    = "VPCAccess"
+        Sid    = "VPCDescribe"
+        Effect = "Allow"
+        Action = ["ec2:DescribeNetworkInterfaces"]
+        Resource = "*" # NOSONAR
+      },
+      {
+        Sid    = "VPCManage"
         Effect = "Allow"
         Action = [
           "ec2:CreateNetworkInterface",
-          "ec2:DescribeNetworkInterfaces",
           "ec2:DeleteNetworkInterface"
         ]
         Resource = "arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
