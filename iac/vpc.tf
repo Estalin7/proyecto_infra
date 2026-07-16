@@ -1,3 +1,10 @@
+# Import block: si el log group ya existe en AWS, lo adopta en el state
+# sin necesidad de correr terraform import manualmente.
+import {
+  to = aws_cloudwatch_log_group.vpc_flow_logs
+  id = "/aws/vpc/flow-logs/${var.project}-${var.environment}"
+}
+
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -485,6 +492,11 @@ resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
     Name        = "${var.project}-vpc-flow-logs-${var.environment}"
     Project     = var.project
     Environment = var.environment
+  }
+
+  lifecycle {
+    # El log group puede preexistir si fue creado manualmente o en un apply anterior
+    ignore_changes = [tags]
   }
 }
 

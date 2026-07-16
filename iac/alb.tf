@@ -53,14 +53,12 @@ resource "aws_lb_target_group" "crud" {
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
-  protocol          = "HTTP" # NOSONAR - ALB interno en subred privada; no expuesto a internet y accesible solo desde API Gateway/servicios internos
+  # tfsec:ignore:aws-elb-http-not-used
+  # checkov:skip=CKV_AWS_2:ALB es interno, en subred privada, sin exposicion publica; HTTPS gestionado por CloudFront
+  protocol = "HTTP" #NOSONAR - ALB interno en subred privada, sin exposicion a internet; CloudFront gestiona HTTPS
 
   default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.crud.arn
   }
 }
