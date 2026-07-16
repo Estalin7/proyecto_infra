@@ -139,12 +139,10 @@ resource "aws_s3_bucket_versioning" "logs" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "logs" {
+resource "aws_s3_bucket_public_access_block" "logs" { #NOSONAR - block_public_acls=false required by AWS for CloudFront canonical user ACL log delivery; bucket is not public (restrict_public_buckets=true)
+  #checkov:skip=CKV_AWS_53: block_public_acls=false is required for CloudFront access log delivery via canonical user ACL
   bucket = aws_s3_bucket.logs.id
-  # block_public_acls=false es requerido por AWS para que CloudFront pueda
-  # escribir access logs usando ACL canónica. No expone el bucket públicamente
-  # ya que restrict_public_buckets=true y block_public_policy=true están activos. # NOSONAR
-  block_public_acls       = false # NOSONAR
+  block_public_acls       = false
   block_public_policy     = true
   ignore_public_acls      = false
   restrict_public_buckets = true
