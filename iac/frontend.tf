@@ -546,7 +546,7 @@ resource "aws_cloudfront_distribution" "main" {
     cloudfront_default_certificate = true
   }
 
-  web_acl_id = aws_wafv2_web_acl.main.arn
+  web_acl_id = var.enable_waf ? aws_wafv2_web_acl.main[0].arn : null
 
   tags = {
     Name        = "${var.project}-cf-${var.environment}"
