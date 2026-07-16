@@ -22,6 +22,12 @@ jobs:
           output_format: junitxml
           output_file_path: results.xml
           soft_fail: true
+          
+      - name: Checkov Resultados
+        if: always()
+        run: |
+          echo "CHECKOV RESULTS"
+          cat results.xml
 
       # ── 3. Publicar resultados en GitHub ──────────────────────
       - name: Publish Checkov Results
