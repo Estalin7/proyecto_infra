@@ -9,13 +9,78 @@
 # (*.cloudfront.net), que ya viene con HTTPS incluido.
 # El ALB es interno y no necesita certificado propio.
 
-
 # ═══════════════════════════════════════════════════════════════
 # S3 BUCKETS
 # ═══════════════════════════════════════════════════════════════
 
+data "aws_iam_policy_document" "s3_kms" {
+  statement {
+    sid    = "EnableAccountAdministration"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+
+    actions = [
+      "kms:Create*",
+      "kms:Describe*",
+      "kms:Enable*",
+      "kms:List*",
+      "kms:Put*",
+      "kms:Update*",
+      "kms:Revoke*",
+      "kms:Disable*",
+      "kms:Get*",
+      "kms:Delete*",
+      "kms:ScheduleKeyDeletion",
+      "kms:CancelKeyDeletion"
+    ]
+
+    resources = ["arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+
+  statement {
+    sid    = "AllowCloudFrontDecrypt"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = ["arn:${data.aws_partition.current.partition}:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
+  }
+}
+
+resource "aws_kms_key" "s3_app" {
+  description             = "Clave KMS para los buckets frontend y documentos"
+  enable_key_rotation     = true
+  deletion_window_in_days = 7
+  policy                  = data.aws_iam_policy_document.s3_kms.json
+
+  tags = {
+    Name        = "${var.project}-s3-kms-${var.environment}"
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+resource "aws_kms_alias" "s3_app" {
+  name          = "alias/${var.project}-s3-${var.environment}"
+  target_key_id = aws_kms_key.s3_app.key_id
+}
 
 # ── Bucket Frontend ──────────────────────────────────────────
+
 resource "aws_s3_bucket" "frontend" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
   bucket        = "${var.project}-frontend-${var.environment}"
@@ -30,6 +95,7 @@ resource "aws_s3_bucket" "frontend" {
 
 resource "aws_s3_bucket_versioning" "frontend" {
   bucket = aws_s3_bucket.frontend.id
+
   versioning_configuration {
     status     = "Enabled"
     mfa_delete = "Disabled"
@@ -46,9 +112,13 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
   bucket = aws_s3_bucket.frontend.id
+
   rule {
+    bucket_key_enabled = true
+
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.s3_app.arn
     }
   }
 }
@@ -60,13 +130,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
   rule {
     id     = "cleanup-old-frontend-versions"
     status = "Enabled"
+
     filter {}
-    noncurrent_version_expiration { noncurrent_days = 30 }
-    abort_incomplete_multipart_upload { days_after_initiation = 7 }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
 # ── Bucket Documentos ────────────────────────────────────────
+
 resource "aws_s3_bucket" "documentos" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
   bucket        = "${var.project}-documentos-${var.environment}"
@@ -81,6 +159,7 @@ resource "aws_s3_bucket" "documentos" {
 
 resource "aws_s3_bucket_versioning" "documentos" {
   bucket = aws_s3_bucket.documentos.id
+
   versioning_configuration {
     status     = "Enabled"
     mfa_delete = "Disabled"
@@ -97,28 +176,64 @@ resource "aws_s3_bucket_public_access_block" "documentos" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "documentos" {
   bucket = aws_s3_bucket.documentos.id
+
   rule {
+    bucket_key_enabled = true
+
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.s3_app.arn
     }
   }
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "documentos" {
   bucket = aws_s3_bucket.documentos.id
+
   rule {
     id     = "archive-old-documents"
     status = "Enabled"
+
     filter {}
+
     transition {
       days          = 90
       storage_class = "GLACIER"
     }
-    abort_incomplete_multipart_upload { days_after_initiation = 7 }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
+resource "aws_s3_bucket_policy" "documentos_https_only" {
+  bucket = aws_s3_bucket.documentos.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.documentos.arn,
+          "${aws_s3_bucket.documentos.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
+}
+
 # ── Bucket Logs ──────────────────────────────────────────────
+
 resource "aws_s3_bucket" "logs" {
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
   bucket        = "${var.project}-logs-${var.environment}"
@@ -133,6 +248,7 @@ resource "aws_s3_bucket" "logs" {
 
 resource "aws_s3_bucket_versioning" "logs" {
   bucket = aws_s3_bucket.logs.id
+
   versioning_configuration {
     status     = "Enabled"
     mfa_delete = "Disabled"
@@ -144,12 +260,13 @@ resource "aws_s3_bucket_public_access_block" "logs" { #NOSONAR - block_public_ac
   bucket = aws_s3_bucket.logs.id
   block_public_acls       = false
   block_public_policy     = true
-  ignore_public_acls      = false
+  ignore_public_acls      = true
   restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
+
   rule {
     # ALB access logs no soportan buckets cifrados con SSE-KMS,
     # solo AES256 (SSE-S3). El bucket es destino de logs, no de
@@ -164,6 +281,7 @@ data "aws_canonical_user_id" "current" {}
 
 resource "aws_s3_bucket_ownership_controls" "logs" {
   bucket = aws_s3_bucket.logs.id
+
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
@@ -172,10 +290,12 @@ resource "aws_s3_bucket_ownership_controls" "logs" {
 resource "aws_s3_bucket_acl" "logs" {
   depends_on = [aws_s3_bucket_ownership_controls.logs]
   bucket     = aws_s3_bucket.logs.id
+
   access_control_policy {
     owner {
       id = data.aws_canonical_user_id.current.id
     }
+
     grant {
       grantee {
         id   = data.aws_canonical_user_id.current.id
@@ -203,14 +323,36 @@ resource "aws_s3_bucket_policy" "logs" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.logs.arn,
+          "${aws_s3_bucket.logs.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+      {
         Sid       = "AllowS3ServerAccessLogs"
         Effect    = "Allow"
         Principal = { Service = "logging.s3.amazonaws.com" }
         Action    = "s3:PutObject"
         Resource  = "${aws_s3_bucket.logs.arn}/logs/*"
         Condition = {
-          ArnLike      = { "aws:SourceArn" = [aws_s3_bucket.frontend.arn, aws_s3_bucket.documentos.arn] }
-          StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
+          ArnLike = {
+            "aws:SourceArn" = [
+              aws_s3_bucket.frontend.arn,
+              aws_s3_bucket.documentos.arn
+            ]
+          }
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
         }
       },
       {
@@ -226,12 +368,20 @@ resource "aws_s3_bucket_policy" "logs" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
+
   rule {
     id     = "expire-old-logs"
     status = "Enabled"
+
     filter {}
-    expiration { days = 90 }
-    abort_incomplete_multipart_upload { days_after_initiation = 7 }
+
+    expiration {
+      days = 90
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
@@ -264,7 +414,6 @@ resource "aws_s3_bucket_notification" "logs" {
   eventbridge = true
 }
 
-
 # ═══════════════════════════════════════════════════════════════
 # CLOUDFRONT
 # ═══════════════════════════════════════════════════════════════
@@ -288,16 +437,22 @@ resource "aws_cloudfront_response_headers_policy" "main" {
       preload                    = true
       override                   = true
     }
-    content_type_options { override = true }
+
+    content_type_options {
+      override = true
+    }
+
     frame_options {
       frame_option = "DENY"
       override     = true
     }
+
     xss_protection {
       mode_block = true
       protection = true
       override   = true
     }
+
     referrer_policy {
       referrer_policy = "strict-origin-when-cross-origin"
       override        = true
@@ -318,12 +473,6 @@ resource "aws_cloudfront_distribution" "main" {
     include_cookies = false
   }
 
-  depends_on = [
-    aws_s3_bucket_acl.logs,
-    aws_s3_bucket_ownership_controls.logs,
-    aws_s3_bucket_public_access_block.logs,
-  ]
-
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id                = "S3-${var.project}-frontend"
@@ -338,9 +487,18 @@ resource "aws_cloudfront_distribution" "main" {
 
   origin_group {
     origin_id = "S3-${var.project}-group"
-    failover_criteria { status_codes = [500, 502, 503, 504] }
-    member { origin_id = "S3-${var.project}-frontend" }
-    member { origin_id = "S3-${var.project}-failover" }
+
+    failover_criteria {
+      status_codes = [500, 502, 503, 504]
+    }
+
+    member {
+      origin_id = "S3-${var.project}-frontend"
+    }
+
+    member {
+      origin_id = "S3-${var.project}-failover"
+    }
   }
 
   default_cache_behavior {
@@ -353,7 +511,10 @@ resource "aws_cloudfront_distribution" "main" {
 
     forwarded_values {
       query_string = false
-      cookies { forward = "none" }
+
+      cookies {
+        forward = "none"
+      }
     }
 
     min_ttl     = 0
@@ -386,7 +547,7 @@ resource "aws_cloudfront_distribution" "main" {
     cloudfront_default_certificate = true
   }
 
-  web_acl_id = var.enable_waf ? aws_wafv2_web_acl.main[0].arn : null
+  web_acl_id = aws_wafv2_web_acl.main.arn
 
   tags = {
     Name        = "${var.project}-cf-${var.environment}"
@@ -395,24 +556,42 @@ resource "aws_cloudfront_distribution" "main" {
   }
 }
 
-# ── Bucket Policy OAC (rompe ciclo CloudFront ↔ S3) ─────────
+# ── Bucket Policy OAC + HTTPS-only ───────────────────────────
+
 resource "aws_s3_bucket_policy" "frontend_oac" {
   bucket = aws_s3_bucket.frontend.id
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Sid       = "AllowCloudFrontOAC"
-      Effect    = "Allow"
-      Principal = { Service = "cloudfront.amazonaws.com" }
-      Action    = "s3:GetObject"
-      Resource  = "${aws_s3_bucket.frontend.arn}/*"
-      Condition = {
-        StringEquals = {
-          "AWS:SourceArn" = aws_cloudfront_distribution.main.arn
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.frontend.arn,
+          "${aws_s3_bucket.frontend.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+      {
+        Sid       = "AllowCloudFrontOAC"
+        Effect    = "Allow"
+        Principal = { Service = "cloudfront.amazonaws.com" }
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.frontend.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.main.arn
+          }
         }
       }
-    }]
+    ]
   })
 
   depends_on = [aws_s3_bucket.frontend, aws_cloudfront_distribution.main]
