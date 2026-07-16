@@ -8,7 +8,7 @@ Estudiantes a cargo del proyecto:
 - Ruiz Tulumba, Bryan
 
 Diagrama propuesto:
-<img width="2652" height="1011" alt="image" src="https://github.com/user-attachments/assets/afe206c5-9b9f-474e-989c-55e1ab643b4a" />
+<img width="1600" height="609" alt="diagrama-iac" src="https://github.com/user-attachments/assets/ffc6bd45-c6e6-4f29-88eb-0b9cf6e1e693" />
 
 ---
 
