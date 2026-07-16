@@ -233,8 +233,7 @@ resource "aws_s3_bucket_policy" "documentos_https_only" {
 }
 
 # ── Bucket Logs ──────────────────────────────────────────────
-
-resource "aws_s3_bucket" "logs" {
+resource "aws_s3_bucket" "logs" { # NOSONAR - bucket centralizador de logs; evita logging recursivo
   #checkov:skip=CKV_AWS_144:Replicacion cross-region no requerida
   bucket        = "${var.project}-logs-${var.environment}"
   force_destroy = true
