@@ -42,4 +42,11 @@ RUN printf 'server {\n\
     }\n\
 }\n' > /etc/nginx/conf.d/default.conf
 
+# Ajustar permisos para que nginx (uid 101) pueda escribir pid y cache
+RUN chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx && \
+    chmod -R 755 /var/cache/nginx /var/run /var/log/nginx
+
+# Ejecutar como usuario no-root para reducir la superficie de ataque
+USER nginx
+
 EXPOSE 8080
