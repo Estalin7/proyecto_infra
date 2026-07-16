@@ -80,5 +80,5 @@ cd iac
 terraform destroy -auto-approve
 ```
 > **Nota:** Terraform limpiará automáticamente los buckets de S3 sin importar si tienen archivos adentro, ya que están configurados con la opción `force_destroy = true`.
->
+>[link de sonarqube](https://sonarcloud.io/project/overview?id=Estalin7_proyecto_infra)
 > GRACIAS
