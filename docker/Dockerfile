@@ -1,15 +1,10 @@
 FROM nginx:alpine
 
-# Crear usuario no privilegiado para evitar ejecutar nginx como root
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Configurar nginx para trabajar sin permisos root
-RUN sed -i 's|pid /var/run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf && \
+# Crear usuario no privilegiado, configurar nginx y preparar archivos del frontend
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
+    sed -i 's|pid /var/run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf && \
     mkdir -p /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
-    chown -R appuser:appgroup /var/cache/nginx /var/run /tmp /usr/share/nginx/html /etc/nginx/conf.d
-
-# Configurar nginx para escuchar en puerto 8080
-RUN printf 'server {\n\
+    printf 'server {\n\
     listen 8080;\n\
 \n\
     location / {\n\
@@ -21,10 +16,8 @@ RUN printf 'server {\n\
         add_header Content-Type application/json;\n\
         return 200 '"'"'{"status":"UP"}'"'"';\n\
     }\n\
-}\n' > /etc/nginx/conf.d/default.conf
-
-# Página simple para comprobar que ECS + VPC Endpoints funcionan
-RUN printf '<!DOCTYPE html>\n\
+}\n' > /etc/nginx/conf.d/default.conf && \
+    printf '<!DOCTYPE html>\n\
 <html lang="es">\n\
 <head>\n\
   <meta charset="UTF-8">\n\
@@ -46,17 +39,10 @@ RUN printf '<!DOCTYPE html>\n\
     <span class="badge">Hello World - prod :8080</span>\n\
   </div>\n\
 </body>\n\
-</html>' > /usr/share/nginx/html/index.html
+</html>' > /usr/share/nginx/html/index.html && \
+    chown -R appuser:appgroup /var/cache/nginx /var/run /tmp /usr/share/nginx/html /etc/nginx/conf.d
 
-# Cambiar a usuario no root
 USER appuser
-
-# Ajustar permisos para que nginx (uid 101) pueda escribir pid y cache
-RUN chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx && \
-    chmod -R 755 /var/cache/nginx /var/run /var/log/nginx
-
-# Ejecutar como usuario no-root para reducir la superficie de ataque
-USER nginx
 
 EXPOSE 8080
 
