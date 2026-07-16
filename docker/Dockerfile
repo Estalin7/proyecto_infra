@@ -1,9 +1,9 @@
 FROM nginx:alpine
 
-# Crear usuario no privilegiado para ejecutar nginx
+# Crear usuario no privilegiado para evitar ejecutar nginx como root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Ajustar nginx para poder ejecutarse sin root
+# Configurar nginx para trabajar sin permisos root
 RUN sed -i 's|pid /var/run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf && \
     mkdir -p /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
     chown -R appuser:appgroup /var/cache/nginx /var/run /tmp /usr/share/nginx/html /etc/nginx/conf.d
@@ -48,7 +48,7 @@ RUN printf '<!DOCTYPE html>\n\
 </body>\n\
 </html>' > /usr/share/nginx/html/index.html
 
-# Ejecutar como usuario no root
+# Cambiar a usuario no root
 USER appuser
 
 # Ajustar permisos para que nginx (uid 101) pueda escribir pid y cache
