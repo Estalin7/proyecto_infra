@@ -16,7 +16,7 @@ Diagrama propuesto:
 
 El proyecto utiliza **Terraform** para levantar toda la infraestructura necesaria en AWS (Bases de datos, S3, CloudFront, Lambda, API Gateway, etc.) y **GitHub Actions** para automatizar el proceso.
 
-### Opción 1: Despliegue Automático (Recomendado)
+### Opción 1: Despliegue Automático
 
 Gracias a la integración con GitHub Actions, el despliegue es completamente automatizado de principio a fin.
 
@@ -80,3 +80,5 @@ cd iac
 terraform destroy -auto-approve
 ```
 > **Nota:** Terraform limpiará automáticamente los buckets de S3 sin importar si tienen archivos adentro, ya que están configurados con la opción `force_destroy = true`.
+>
+> GRACIAS
