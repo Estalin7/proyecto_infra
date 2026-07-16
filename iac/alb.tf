@@ -53,7 +53,7 @@ resource "aws_lb_target_group" "crud" {
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
-  protocol          = "HTTP"
+  protocol          = "HTTP" # NOSONAR - ALB interno en subred privada; no expuesto a internet y accesible solo desde API Gateway/servicios internos
 
   default_action {
     type = "redirect"
