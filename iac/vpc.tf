@@ -116,17 +116,17 @@ resource "aws_security_group" "alb" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTPS desde internet"
-    from_port   = 443
-    to_port     = 443
+    description = "HTTP entrante desde API Gateway (VPC Link)"
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    description = "HTTPS saliente hacia ECS"
-    from_port   = 443
-    to_port     = 443
+    description = "Trafico saliente hacia ECS (puerto app)"
+    from_port   = var.app_port
+    to_port     = var.app_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -178,6 +178,14 @@ resource "aws_security_group" "api_gateway" {
   name        = "${var.project}-sg-api-gateway-${var.environment}"
   description = "Permite trafico del VPC Link de API Gateway hacia el ALB"
   vpc_id      = aws_vpc.main.id
+
+  egress {
+    description = "Trafico saliente hacia ALB"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags = {
     Name        = "${var.project}-sg-api-gateway-${var.environment}"
