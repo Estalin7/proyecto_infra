@@ -23,7 +23,24 @@ jobs:
           output_file_path: results.xml
           soft_fail: true
 
-      # ── 3. Publicar resultados en GitHub ──────────────────────
+      # ── 3. Inspeccionar archivos generados ───────────────────
+      - name: Inspect Checkov Output
+        if: always()
+        run: |
+          echo "===== CURRENT DIRECTORY ====="
+          pwd
+          echo ""
+          echo "===== GENERATED FILES ====="
+          find .
+
+      # ── 4. Mostrar resultados en los logs ────────────────────
+      - name: Show Checkov Results
+        if: always()
+        run: |
+          echo "===== CHECKOV RESULTS ====="
+          find results.xml -type f -exec sh -c 'echo ""; echo "===== {} ====="; cat "{}"' \;
+
+      # ── 5. Publicar resultados en GitHub ──────────────────────
       - name: Publish Checkov Results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
