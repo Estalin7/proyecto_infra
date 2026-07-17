@@ -79,6 +79,7 @@ Para eliminar toda la infraestructura y asegurar que AWS no te cobre un centavo 
 cd iac
 terraform destroy -auto-approve
 ```
+>[link de grafana](https://redcroissant1739.grafana.net/d/inpr8pj/restaurante-observabilidad-aws?orgId=1&from=now-7d&to=now&timezone=browser)
 > **Nota:** Terraform limpiará automáticamente los buckets de S3 sin importar si tienen archivos adentro, ya que están configurados con la opción `force_destroy = true`.
 >[link de sonarqube](https://sonarcloud.io/project/overview?id=Estalin7_proyecto_infra)
 > GRACIAS
